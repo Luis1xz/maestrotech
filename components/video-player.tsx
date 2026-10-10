@@ -93,7 +93,7 @@ export default function VideoPlayer({
         return
       }
 
-      if (raw.startsWith('http://') || raw.startsWith('https://') || raw.startsWith('/') || raw.startsWith('data:')) {
+      if (raw.startsWith('http://') || raw.startsWith('https://') || raw.startsWith('data:') || raw.startsWith('blob:')) {
         if (isMounted) setResolvedVideoUrl(raw)
         return
       }
@@ -101,7 +101,7 @@ export default function VideoPlayer({
       setLoadingUrl(true)
       const { url } = await getMaterialSignedUrl(raw, 7200)
       if (isMounted) {
-        setResolvedVideoUrl(url || null)
+        setResolvedVideoUrl(url || raw)
         setLoadingUrl(false)
       }
     }

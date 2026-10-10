@@ -42,13 +42,6 @@ export function writeStore(state: PlatformStateData): void {
   const serialized = JSON.stringify(state, null, 2)
 
   try {
-    fs.mkdirSync(path.dirname(DATA_FILE_PATH), { recursive: true })
-    fs.writeFileSync(DATA_FILE_PATH, serialized, 'utf8')
-  } catch {
-    // En Vercel serverless el directorio de código es read-only; guardamos en os.tmpdir()
-  }
-
-  try {
     fs.writeFileSync(TMP_FILE_PATH, serialized, 'utf8')
   } catch {
     // Ignore tmp write error

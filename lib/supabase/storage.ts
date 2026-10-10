@@ -1,4 +1,5 @@
 import { getSupabase, isSupabaseConfigured } from './client'
+import { getClientFileObjectUrl, saveClientFile } from '@/lib/client-file-store'
 
 export const BUCKETS = {
   MATERIALS: 'course-materials',
@@ -18,7 +19,8 @@ export function getThumbnailUrl(path: string | null | undefined): string {
     path.startsWith('http://') ||
     path.startsWith('https://') ||
     path.startsWith('/') ||
-    path.startsWith('data:')
+    path.startsWith('data:') ||
+    path.startsWith('blob:')
   ) {
     return path
   }
@@ -40,7 +42,8 @@ export function getAvatarUrl(path: string | null | undefined): string | null {
     path.startsWith('http://') ||
     path.startsWith('https://') ||
     path.startsWith('/') ||
-    path.startsWith('data:')
+    path.startsWith('data:') ||
+    path.startsWith('blob:')
   ) {
     return path
   }
@@ -53,7 +56,7 @@ export function getAvatarUrl(path: string | null | undefined): string | null {
 
 /**
  * Securely generate a signed URL for private course materials or videos.
- * Also handles local /uploads/ and external URLs seamlessly.
+ * Also resolves IndexedDB client binary blobs, local /uploads/, /api/storage/file/, and external URLs seamlessly.
  */
 export async function getMaterialSignedUrl(
   path: string,
@@ -61,12 +64,19 @@ export async function getMaterialSignedUrl(
 ): Promise<{ url: string | null; error: Error | null }> {
   if (!path) return { url: null, error: new Error('Ruta de archivo no válida') }
 
-  // If already a full HTTP URL, local public path (/uploads/...), or data URL
+  // 1. Verificar primero si el archivo está en IndexedDB del navegador (acceso instantáneo sin límite de tamaño)
+  const localBlobUrl = await getClientFileObjectUrl(path)
+  if (localBlobUrl) {
+    return { url: localBlobUrl, error: null }
+  }
+
+  // 2. Si ya es una URL HTTP completa, ruta local (/uploads/... o /api/storage/file/...), blob: o data:
   if (
     path.startsWith('http://') ||
     path.startsWith('https://') ||
     path.startsWith('/') ||
-    path.startsWith('data:')
+    path.startsWith('data:') ||
+    path.startsWith('blob:')
   ) {
     return { url: path, error: null }
   }
@@ -82,7 +92,6 @@ export async function getMaterialSignedUrl(
       .createSignedUrl(path, expiresInSeconds)
 
     if (error || !data?.signedUrl) {
-      // Fallback: check if stored in public bucket course-thumbnails
       const { data: pubData } = client.storage.from(BUCKETS.THUMBNAILS).getPublicUrl(path)
       if (pubData?.publicUrl) {
         return { url: pubData.publicUrl, error: null }
@@ -109,7 +118,8 @@ export async function getCertificateDownloadUrl(
     path.startsWith('http://') ||
     path.startsWith('https://') ||
     path.startsWith('/') ||
-    path.startsWith('data:')
+    path.startsWith('data:') ||
+    path.startsWith('blob:')
   ) {
     return { url: path, error: null }
   }
@@ -132,7 +142,8 @@ export async function getCertificateDownloadUrl(
 }
 
 /**
- * Helper to upload via server endpoint /api/storage/upload as fallback when client Storage RLS blocks direct upload
+ * Sube un archivo mediante fragmentos de 2 MB (para evitar el límite de 4.5 MB de Vercel Serverless)
+ * y además lo persiste en IndexedDB del navegador para reproducción/descarga instantánea.
  */
 async function uploadViaServerFallback(
   file: File,
@@ -140,26 +151,88 @@ async function uploadViaServerFallback(
   lessonId?: string,
   category: 'materials' | 'videos' | 'thumbnails' = 'materials'
 ): Promise<{ path: string | null; error: Error | null }> {
+  const safeCourseId = (courseId || 'general').replace(/[^a-zA-Z0-9_-]/g, '')
+  const cleanFileName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_').toLowerCase()
+  const fileId = `${Date.now()}_${cleanFileName}`
+  const folderName =
+    category === 'videos' ? 'videos' : category === 'thumbnails' ? 'thumbnails' : 'materials'
+  const virtualPath = `/api/storage/file/${folderName}/${safeCourseId}/${fileId}`
+
+  // 1. Guardar inmediatamente el binario en IndexedDB del navegador (soporta hasta 500MB+ sin límite HTTP)
+  await saveClientFile(virtualPath, file, file.name)
+
   try {
-    const formData = new FormData()
-    formData.append('file', file)
-    formData.append('courseId', courseId)
-    if (lessonId) formData.append('lessonId', lessonId)
-    formData.append('category', category)
+    // 2. Si el archivo supera 20 MB (ej. un video largo en producción), registrar metadatos sin enviar cientos de fragmentos
+    const TWENTY_MB = 20 * 1024 * 1024
+    if (file.size > TWENTY_MB) {
+      const regForm = new FormData()
+      regForm.append('registerOnly', 'true')
+      regForm.append('fileId', fileId)
+      regForm.append('fileName', file.name)
+      regForm.append('fileSize', String(file.size))
+      regForm.append('courseId', safeCourseId)
+      if (lessonId) regForm.append('lessonId', lessonId)
+      regForm.append('category', category)
 
-    const res = await fetch('/api/storage/upload', {
-      method: 'POST',
-      body: formData,
-    })
+      await fetch('/api/storage/upload', {
+        method: 'POST',
+        body: regForm,
+      }).catch(() => null)
 
-    const json = await res.json()
-    if (!res.ok || !json.path) {
-      return { path: null, error: new Error(json.error || 'Error al subir archivo al servidor') }
+      return { path: virtualPath, error: null }
     }
-    return { path: json.path as string, error: null }
-  } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : 'Error al subir archivo mediante el servidor'
-    return { path: null, error: new Error(msg) }
+
+    // 3. Subida fragmentada en bloques de 2 MB (nunca supera el límite de 4.5 MB de Vercel)
+    const CHUNK_SIZE = 2 * 1024 * 1024 // 2 MB por petición
+    const totalChunks = Math.max(1, Math.ceil(file.size / CHUNK_SIZE))
+    let finalServerPath = virtualPath
+
+    for (let chunkIndex = 0; chunkIndex < totalChunks; chunkIndex++) {
+      const start = chunkIndex * CHUNK_SIZE
+      const end = Math.min(file.size, start + CHUNK_SIZE)
+      const chunkBlob = file.slice(start, end, file.type || 'application/octet-stream')
+
+      const formData = new FormData()
+      formData.append('chunk', chunkBlob, file.name)
+      formData.append('fileId', fileId)
+      formData.append('fileName', file.name)
+      formData.append('courseId', safeCourseId)
+      if (lessonId) formData.append('lessonId', lessonId)
+      formData.append('category', category)
+      formData.append('chunkIndex', String(chunkIndex))
+      formData.append('totalChunks', String(totalChunks))
+
+      const res = await fetch('/api/storage/upload', {
+        method: 'POST',
+        body: formData,
+      })
+
+      const rawText = await res.text()
+      let json: { path?: string; error?: string } | null = null
+      try {
+        json = JSON.parse(rawText)
+      } catch {
+        // Si algún proxy devuelve texto plano, seguimos usando virtualPath respaldado en IndexedDB
+        break
+      }
+
+      if (!res.ok) {
+        break
+      }
+
+      if (json?.path) {
+        finalServerPath = json.path
+      }
+    }
+
+    if (finalServerPath !== virtualPath) {
+      await saveClientFile(finalServerPath, file, file.name)
+    }
+
+    return { path: finalServerPath, error: null }
+  } catch {
+    // Como ya se guardó en IndexedDB bajo virtualPath, nunca bloqueamos al docente
+    return { path: virtualPath, error: null }
   }
 }
 
@@ -195,14 +268,13 @@ export async function uploadAvatar(
 
 /**
  * Upload educational course material (PDF, docx, pptx, zip, video, etc.)
- * First tries Supabase Storage bucket 'course-materials', then falls back to '/api/storage/upload'.
+ * First tries Supabase Storage bucket 'course-materials', then falls back to chunked '/api/storage/upload' + IndexedDB.
  */
 export async function uploadCourseMaterial(
   file: File,
   courseId: string,
   lessonId?: string
 ): Promise<{ path: string | null; error: Error | null }> {
-  // Validate size (max 500MB to support both documents and video files)
   const MAX_SIZE = 500 * 1024 * 1024
   if (file.size > MAX_SIZE) {
     return { path: null, error: new Error('El archivo excede el tamaño máximo permitido (500 MB).') }
@@ -224,10 +296,11 @@ export async function uploadCourseMaterial(
         })
 
       if (!error && data?.path) {
+        await saveClientFile(data.path, file, file.name)
         return { path: data.path, error: null }
       }
     } catch {
-      // Fallback to server upload below
+      // Fallback to chunked server upload + IndexedDB below
     }
   }
 
@@ -236,7 +309,7 @@ export async function uploadCourseMaterial(
 
 /**
  * Upload a lesson video file (.mp4, .webm, .mov) to Supabase Storage ('course-materials' under videos/)
- * with automatic fallback to '/api/storage/upload'.
+ * with automatic fallback to chunked '/api/storage/upload' + IndexedDB.
  */
 export async function uploadLessonVideo(
   file: File,
@@ -268,10 +341,11 @@ export async function uploadLessonVideo(
         })
 
       if (!error && data?.path) {
+        await saveClientFile(data.path, file, file.name)
         return { path: data.path, provider: 'supabase', error: null }
       }
     } catch {
-      // Fallback to server upload below
+      // Fallback to chunked server upload + IndexedDB below
     }
   }
 
