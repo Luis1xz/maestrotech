@@ -15,19 +15,22 @@ const plusJakarta = Plus_Jakarta_Sans({
 })
 
 export const metadata: Metadata = {
-  title: 'Maestro — La plataforma del docente colombiano',
+  title: 'MaestroTech — La plataforma del docente colombiano',
   description:
-    'La plataforma educativa más avanzada para docentes colombianos. Prepárate para concursos de méritos, ascensos, traslados y desarrollo profesional continuo.',
-  keywords: ['docentes Colombia', 'concurso méritos', 'ascenso docente', 'evaluación docente'],
+    'MaestroTech es la plataforma educativa más avanzada para docentes colombianos. Prepárate para concursos de méritos, ascensos, traslados y desarrollo profesional continuo.',
+  keywords: ['MaestroTech', 'docentes Colombia', 'concurso méritos', 'ascenso docente', 'evaluación docente'],
   openGraph: {
-    title: 'Maestro — La plataforma del docente colombiano',
-    description: 'El futuro del desarrollo profesional docente empieza aquí.',
+    title: 'MaestroTech — La plataforma del docente colombiano',
+    description: 'El futuro del desarrollo profesional docente empieza aquí con MaestroTech.',
     type: 'website',
   },
   icons: {
-    icon: '/logo.jpg',
-    shortcut: '/logo.jpg',
-    apple: '/logo.jpg',
+    icon: '/logo.png',
+    shortcut: '/logo.png',
+    apple: '/apple-icon.png',
+  },
+  verification: {
+    google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || undefined,
   },
 }
 

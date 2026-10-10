@@ -104,11 +104,11 @@ export default function Navigation({ onNavigate, currentView, onOpenAuth }: NavP
             onClick={() => onNavigate('home')}
             className="flex items-center gap-2.5 group"
           >
-            <div className="w-8 h-8 rounded-full overflow-hidden ring-1 ring-border/60 shadow-md group-hover:scale-105 group-hover:ring-primary/50 transition-all duration-300 shrink-0 bg-neutral-900">
-              <img src="/logo.jpg" alt="Maestro Logo" className="w-full h-full object-cover" />
+            <div className="w-8 h-8 rounded-xl overflow-hidden ring-1 ring-border/60 shadow-md group-hover:scale-105 group-hover:ring-amber-500/50 transition-all duration-300 shrink-0 bg-black">
+              <img src="/logo.png" alt="Maestro Logo" className="w-full h-full object-cover" />
             </div>
             <span className="text-base font-bold tracking-tight text-foreground font-display">
-              Maestro
+              MaestroTech
             </span>
           </button>
 

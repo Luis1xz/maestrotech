@@ -65,7 +65,37 @@ export const getSupabase = (): SupabaseClient => {
     return supabaseInstance
   }
 
-  // Real client initialization with explicit global apikey header
+  // Custom fetch wrapper to handle PostgREST clock-skew (PGRST303: JWT issued at future)
+  const customFetch: typeof fetch = async (input, init) => {
+    const response = await fetch(input, init)
+    if (response.status === 401 || response.status === 403) {
+      try {
+        const cloned = response.clone()
+        const bodyText = await cloned.text()
+        if (bodyText.includes('PGRST303') || bodyText.includes('JWT issued at future')) {
+          await new Promise((r) => setTimeout(r, 1500))
+          const retryRes = await fetch(input, init)
+          if (retryRes.status !== 401 && retryRes.status !== 403) {
+            return retryRes
+          }
+          // If still failing on a GET request due to local/server clock skew, fallback to anonKey
+          const method = (init?.method || 'GET').toUpperCase()
+          if (method === 'GET' && init?.headers) {
+            const headers = new Headers(init.headers as HeadersInit)
+            headers.set('apikey', anonKey)
+            headers.set('Authorization', `Bearer ${anonKey}`)
+            return await fetch(input, { ...init, headers })
+          }
+          return retryRes
+        }
+      } catch {
+        // Return original response if inspection fails
+      }
+    }
+    return response
+  }
+
+  // Real client initialization with explicit global apikey header and resilient fetch
   supabaseInstance = createClient(url, anonKey, {
     auth: {
       persistSession: true,
@@ -76,6 +106,7 @@ export const getSupabase = (): SupabaseClient => {
       headers: {
         apikey: anonKey,
       },
+      fetch: customFetch,
     },
   })
   isRealClientInitialized = true

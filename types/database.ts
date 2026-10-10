@@ -1,7 +1,7 @@
 export type UserRole = 'student' | 'instructor' | 'admin'
 export type EnrollmentStatus = 'active' | 'completed' | 'cancelled'
 export type PaymentStatus = 'pending' | 'completed' | 'failed' | 'refunded'
-export type VideoProvider = 'cloudflare' | 'cloudflare_stream' | 'youtube' | 'vimeo' | 'custom' | 'mock'
+export type VideoProvider = 'supabase' | 'cloudflare' | 'cloudflare_stream' | 'youtube' | 'vimeo' | 'custom' | 'mock'
 
 export interface Profile {
   id: string
@@ -50,6 +50,7 @@ export interface Module {
 export interface Lesson {
   id: string
   module_id: string
+  course_id?: string | null
   title: string
   description: string | null
   order_index: number
@@ -67,6 +68,7 @@ export interface Lesson {
 export interface Material {
   id: string
   lesson_id: string
+  course_id?: string | null
   title: string
   file_url: string
   file_type: string
@@ -115,9 +117,10 @@ export interface Certificate {
   course_id: string
   certificate_number: string
   issued_at: string
-  certificate_url: string
+  certificate_url?: string
+  pdf_url?: string | null
   // Virtual / joined fields
-  course?: Course
+  course?: Partial<Course>
 }
 
 /**

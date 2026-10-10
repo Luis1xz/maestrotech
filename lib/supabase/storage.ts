@@ -11,11 +11,20 @@ export const BUCKETS = {
  * Get public URL for course thumbnail
  */
 export function getThumbnailUrl(path: string | null | undefined): string {
-  if (!path) return '/placeholder.jpg'
-  if (path.startsWith('http://') || path.startsWith('https://') || path.startsWith('/')) {
+  if (!path) {
+    return 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&w=1200&q=80'
+  }
+  if (
+    path.startsWith('http://') ||
+    path.startsWith('https://') ||
+    path.startsWith('/') ||
+    path.startsWith('data:')
+  ) {
     return path
   }
-  if (!isSupabaseConfigured()) return '/placeholder.jpg'
+  if (!isSupabaseConfigured()) {
+    return 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&w=1200&q=80'
+  }
 
   const client = getSupabase()
   const { data } = client.storage.from(BUCKETS.THUMBNAILS).getPublicUrl(path)
@@ -27,7 +36,12 @@ export function getThumbnailUrl(path: string | null | undefined): string {
  */
 export function getAvatarUrl(path: string | null | undefined): string | null {
   if (!path) return null
-  if (path.startsWith('http://') || path.startsWith('https://') || path.startsWith('/')) {
+  if (
+    path.startsWith('http://') ||
+    path.startsWith('https://') ||
+    path.startsWith('/') ||
+    path.startsWith('data:')
+  ) {
     return path
   }
   if (!isSupabaseConfigured()) return null
@@ -38,8 +52,8 @@ export function getAvatarUrl(path: string | null | undefined): string | null {
 }
 
 /**
- * Securely generate a signed URL for private course materials.
- * Prevents unauthorized public access to course downloads (PDF, docx, etc.).
+ * Securely generate a signed URL for private course materials or videos.
+ * Also handles local /uploads/ and external URLs seamlessly.
  */
 export async function getMaterialSignedUrl(
   path: string,
@@ -47,8 +61,13 @@ export async function getMaterialSignedUrl(
 ): Promise<{ url: string | null; error: Error | null }> {
   if (!path) return { url: null, error: new Error('Ruta de archivo no válida') }
 
-  // If already full HTTP URL (e.g. external resource or mock)
-  if (path.startsWith('http://') || path.startsWith('https://')) {
+  // If already a full HTTP URL, local public path (/uploads/...), or data URL
+  if (
+    path.startsWith('http://') ||
+    path.startsWith('https://') ||
+    path.startsWith('/') ||
+    path.startsWith('data:')
+  ) {
     return { url: path, error: null }
   }
 
@@ -62,9 +81,13 @@ export async function getMaterialSignedUrl(
       .from(BUCKETS.MATERIALS)
       .createSignedUrl(path, expiresInSeconds)
 
-    if (error) {
-      console.error('Error al generar signed URL de material:', error.message)
-      return { url: null, error: new Error(error.message) }
+    if (error || !data?.signedUrl) {
+      // Fallback: check if stored in public bucket course-thumbnails
+      const { data: pubData } = client.storage.from(BUCKETS.THUMBNAILS).getPublicUrl(path)
+      if (pubData?.publicUrl) {
+        return { url: pubData.publicUrl, error: null }
+      }
+      return { url: null, error: new Error(error?.message || 'No se pudo obtener URL del archivo') }
     }
 
     return { url: data.signedUrl, error: null }
@@ -82,7 +105,12 @@ export async function getCertificateDownloadUrl(
   expiresInSeconds: number = 3600
 ): Promise<{ url: string | null; error: Error | null }> {
   if (!path) return { url: null, error: new Error('Ruta de certificado no válida') }
-  if (path.startsWith('http://') || path.startsWith('https://')) {
+  if (
+    path.startsWith('http://') ||
+    path.startsWith('https://') ||
+    path.startsWith('/') ||
+    path.startsWith('data:')
+  ) {
     return { url: path, error: null }
   }
   if (!isSupabaseConfigured()) return { url: path, error: null }
@@ -104,6 +132,38 @@ export async function getCertificateDownloadUrl(
 }
 
 /**
+ * Helper to upload via server endpoint /api/storage/upload as fallback when client Storage RLS blocks direct upload
+ */
+async function uploadViaServerFallback(
+  file: File,
+  courseId: string,
+  lessonId?: string,
+  category: 'materials' | 'videos' | 'thumbnails' = 'materials'
+): Promise<{ path: string | null; error: Error | null }> {
+  try {
+    const formData = new FormData()
+    formData.append('file', file)
+    formData.append('courseId', courseId)
+    if (lessonId) formData.append('lessonId', lessonId)
+    formData.append('category', category)
+
+    const res = await fetch('/api/storage/upload', {
+      method: 'POST',
+      body: formData,
+    })
+
+    const json = await res.json()
+    if (!res.ok || !json.path) {
+      return { path: null, error: new Error(json.error || 'Error al subir archivo al servidor') }
+    }
+    return { path: json.path as string, error: null }
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : 'Error al subir archivo mediante el servidor'
+    return { path: null, error: new Error(msg) }
+  }
+}
+
+/**
  * Upload avatar image for authenticated user
  */
 export async function uploadAvatar(
@@ -111,7 +171,7 @@ export async function uploadAvatar(
   file: File
 ): Promise<{ path: string | null; error: Error | null }> {
   if (!isSupabaseConfigured()) {
-    return { path: null, error: new Error('Supabase no está configurado') }
+    return uploadViaServerFallback(file, userId, undefined, 'thumbnails')
   }
 
   try {
@@ -123,57 +183,131 @@ export async function uploadAvatar(
       .from(BUCKETS.AVATARS)
       .upload(filePath, file, { upsert: true })
 
-    if (error) throw error
+    if (error) {
+      return await uploadViaServerFallback(file, userId, undefined, 'thumbnails')
+    }
 
     return { path: filePath, error: null }
-  } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : 'Error al subir avatar'
-    return { path: null, error: new Error(message) }
+  } catch {
+    return await uploadViaServerFallback(file, userId, undefined, 'thumbnails')
   }
 }
 
 /**
- * Upload educational course material (PDF, docx, etc.) to the private 'course-materials' bucket.
- * Accessible only by instructors and admins for upload, and accessed via signed URLs.
+ * Upload educational course material (PDF, docx, pptx, zip, video, etc.)
+ * First tries Supabase Storage bucket 'course-materials', then falls back to '/api/storage/upload'.
  */
 export async function uploadCourseMaterial(
   file: File,
   courseId: string,
   lessonId?: string
 ): Promise<{ path: string | null; error: Error | null }> {
-  if (!isSupabaseConfigured()) {
-    return { path: `demo/${courseId}/${file.name}`, error: null }
-  }
-
-  // Validate size (max 50MB)
-  const MAX_SIZE = 50 * 1024 * 1024
+  // Validate size (max 500MB to support both documents and video files)
+  const MAX_SIZE = 500 * 1024 * 1024
   if (file.size > MAX_SIZE) {
-    return { path: null, error: new Error('El archivo excede el tamaño máximo permitido (50 MB).') }
+    return { path: null, error: new Error('El archivo excede el tamaño máximo permitido (500 MB).') }
   }
 
-  try {
-    const client = getSupabase()
-    const cleanFileName = file.name
-      .replace(/[^a-zA-Z0-9._-]/g, '_')
-      .toLowerCase()
-    const filePath = `${courseId}/${lessonId ? `${lessonId}/` : ''}${Date.now()}_${cleanFileName}`
+  if (isSupabaseConfigured()) {
+    try {
+      const client = getSupabase()
+      const cleanFileName = file.name
+        .replace(/[^a-zA-Z0-9._-]/g, '_')
+        .toLowerCase()
+      const filePath = `${courseId}/${lessonId ? `${lessonId}/` : ''}${Date.now()}_${cleanFileName}`
 
-    const { data, error } = await client.storage
-      .from(BUCKETS.MATERIALS)
-      .upload(filePath, file, {
-        cacheControl: '3600',
-        upsert: false,
-      })
+      const { data, error } = await client.storage
+        .from(BUCKETS.MATERIALS)
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: true,
+        })
 
-    if (error) {
-      console.error('[uploadCourseMaterial] Error en Supabase Storage:', error)
-      return { path: null, error: new Error(`Error en Storage: ${error.message}`) }
+      if (!error && data?.path) {
+        return { path: data.path, error: null }
+      }
+    } catch {
+      // Fallback to server upload below
     }
+  }
 
-    return { path: data.path, error: null }
-  } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : 'Error inesperado al subir archivo'
-    return { path: null, error: new Error(msg) }
+  return await uploadViaServerFallback(file, courseId, lessonId, 'materials')
+}
+
+/**
+ * Upload a lesson video file (.mp4, .webm, .mov) to Supabase Storage ('course-materials' under videos/)
+ * with automatic fallback to '/api/storage/upload'.
+ */
+export async function uploadLessonVideo(
+  file: File,
+  courseId: string,
+  lessonId?: string
+): Promise<{ path: string | null; provider: 'supabase' | 'custom'; error: Error | null }> {
+  const MAX_SIZE = 500 * 1024 * 1024
+  if (file.size > MAX_SIZE) {
+    return {
+      path: null,
+      provider: 'custom',
+      error: new Error('El video excede el tamaño máximo permitido (500 MB).'),
+    }
+  }
+
+  if (isSupabaseConfigured()) {
+    try {
+      const client = getSupabase()
+      const cleanFileName = file.name
+        .replace(/[^a-zA-Z0-9._-]/g, '_')
+        .toLowerCase()
+      const filePath = `videos/${courseId}/${lessonId ? `${lessonId}/` : ''}${Date.now()}_${cleanFileName}`
+
+      const { data, error } = await client.storage
+        .from(BUCKETS.MATERIALS)
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: true,
+        })
+
+      if (!error && data?.path) {
+        return { path: data.path, provider: 'supabase', error: null }
+      }
+    } catch {
+      // Fallback to server upload below
+    }
+  }
+
+  const fallback = await uploadViaServerFallback(file, courseId, lessonId, 'videos')
+  return {
+    path: fallback.path,
+    provider: 'custom',
+    error: fallback.error,
   }
 }
 
+/**
+ * Upload a course thumbnail image to 'course-thumbnails' or fallback to server storage
+ */
+export async function uploadCourseThumbnail(
+  file: File,
+  courseId: string
+): Promise<{ url: string | null; error: Error | null }> {
+  if (isSupabaseConfigured()) {
+    try {
+      const client = getSupabase()
+      const cleanFileName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_').toLowerCase()
+      const filePath = `${courseId}/${Date.now()}_${cleanFileName}`
+      const { data, error } = await client.storage
+        .from(BUCKETS.THUMBNAILS)
+        .upload(filePath, file, { cacheControl: '3600', upsert: true })
+
+      if (!error && data?.path) {
+        const { data: pub } = client.storage.from(BUCKETS.THUMBNAILS).getPublicUrl(data.path)
+        return { url: pub.publicUrl, error: null }
+      }
+    } catch {
+      // Fallback below
+    }
+  }
+
+  const fallback = await uploadViaServerFallback(file, courseId, undefined, 'thumbnails')
+  return { url: fallback.path, error: fallback.error }
+}

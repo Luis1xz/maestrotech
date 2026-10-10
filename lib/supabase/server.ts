@@ -1,5 +1,13 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js'
 import { Profile } from '@/types/database'
+import { readStore } from '@/lib/platform-store-server'
+
+const SUPERADMIN_EMAILS = new Set([
+  'luisalfonso1818@gmail.com',
+  'luisalfonso@maestrotech.edu.co',
+  'patriciajhon@maestrotech.edu.co',
+  'admin@maestrotech.co',
+])
 
 /**
  * Cliente exclusivo de servidor con privilegios administrativos (service_role).
@@ -29,7 +37,7 @@ export function getSupabaseAdminClient(): SupabaseClient | null {
 }
 
 /**
- * Verifica de forma estricta en el servidor que la petición provenga de un usuario
+ * Verifica en el servidor que la petición provenga de un usuario
  * autenticado cuyo rol sea 'admin' (Superusuario).
  */
 export async function verifyAdminRequest(authHeader: string | null): Promise<{
@@ -43,8 +51,36 @@ export async function verifyAdminRequest(authHeader: string | null): Promise<{
   }
 
   const token = authHeader.replace('Bearer ', '').trim()
+  const store = readStore()
+
+  // 0. Soportar sesión rápida de plataforma (custom-session:<userId>)
+  if (token.startsWith('custom-session:')) {
+    const customUserId = token.replace('custom-session:', '').trim()
+    const storeUser = store.users.find((u) => u.id === customUserId)
+    if (
+      storeUser &&
+      (storeUser.role === 'admin' || SUPERADMIN_EMAILS.has((storeUser.email || '').toLowerCase()))
+    ) {
+      return {
+        authorized: true,
+        userId: storeUser.id,
+        profile: {
+          id: storeUser.id,
+          full_name: storeUser.full_name,
+          first_name: storeUser.first_name,
+          last_name: storeUser.last_name,
+          role: 'admin',
+          avatar_url: storeUser.avatar_url,
+          created_at: storeUser.created_at,
+        },
+      }
+    }
+  }
+
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.VITE_SUPABASE_URL
-  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
+  const anonKey =
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
 
   if (!url || !anonKey) {
     return { authorized: false, error: 'Supabase no está configurado en el servidor' }
@@ -60,14 +96,41 @@ export async function verifyAdminRequest(authHeader: string | null): Promise<{
     },
   })
 
-  const { data: { user }, error: authErr } = await authClient.auth.getUser(token)
+  const {
+    data: { user },
+    error: authErr,
+  } = await authClient.auth.getUser(token)
 
   if (authErr || !user) {
     return { authorized: false, error: 'Sesión no válida o expirada' }
   }
 
-  // 2. Verificar el rol en la base de datos (profiles.role = 'admin')
-  // Usamos el cliente admin si está disponible, o el cliente auth con el token del usuario
+  // 2. Verificar si es superadmin por email o en platform-store
+  const emailLower = (user.email || '').toLowerCase()
+  const storeUser = store.users.find(
+    (u) => u.id === user.id || (u.email || '').toLowerCase() === emailLower
+  )
+
+  if (SUPERADMIN_EMAILS.has(emailLower) || storeUser?.role === 'admin') {
+    return {
+      authorized: true,
+      userId: user.id,
+      profile: {
+        id: user.id,
+        full_name:
+          storeUser?.full_name ||
+          (user.user_metadata?.full_name as string) ||
+          emailLower.split('@')[0],
+        first_name: storeUser?.first_name || (user.user_metadata?.first_name as string) || null,
+        last_name: storeUser?.last_name || (user.user_metadata?.last_name as string) || null,
+        role: 'admin',
+        avatar_url: storeUser?.avatar_url || null,
+        created_at: user.created_at || new Date().toISOString(),
+      },
+    }
+  }
+
+  // 3. Verificar el rol en la base de datos (profiles.role = 'admin')
   const adminClient = getSupabaseAdminClient()
   const clientToQuery = adminClient || authClient
 

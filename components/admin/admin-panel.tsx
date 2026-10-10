@@ -11,7 +11,7 @@ import {
 import { useAuth } from '@/hooks/use-auth'
 import { canAccessAdmin, UserRole, AdminUserListItem } from '@/types/database'
 import { getAdminUsersList, updateUserRole, createAdminUser, getPlatformOverview, PlatformOverviewStats } from '@/services/admin'
-import { getCourses, updateCourse } from '@/services/courses'
+import { getAllCoursesForTeacher, updateCourse } from '@/services/courses'
 import { Course } from '@/types/database'
 import Link from 'next/link'
 
@@ -57,7 +57,7 @@ export default function AdminPanel() {
     const [statsRes, usersRes, coursesRes] = await Promise.all([
       getPlatformOverview(),
       getAdminUsersList(token),
-      getCourses(),
+      getAllCoursesForTeacher(),
     ])
 
     if (statsRes.data) setStats(statsRes.data)
@@ -175,6 +175,12 @@ export default function AdminPanel() {
     const matchSearch =
       (u.full_name || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
       (u.email || '').toLowerCase().includes(searchQuery.toLowerCase())
+    if (activeSection === 'teachers') {
+      return matchSearch && (u.role === 'instructor' || u.role === 'admin')
+    }
+    if (activeSection === 'students') {
+      return matchSearch && u.role === 'student'
+    }
     const matchRole = roleFilter === 'all' || u.role === roleFilter
     return matchSearch && matchRole
   })
@@ -187,11 +193,11 @@ export default function AdminPanel() {
           {/* Header Marca */}
           <div className="flex items-center justify-between mb-8">
             <Link href="/" className="flex items-center gap-2.5 group">
-              <div className="w-9 h-9 rounded-full overflow-hidden ring-1 ring-border/60 shadow-md group-hover:scale-105 transition-all duration-300 shrink-0 bg-neutral-900">
-                <img src="/logo.jpg" alt="Maestro Logo" className="w-full h-full object-cover" />
+              <div className="w-9 h-9 rounded-xl overflow-hidden ring-1 ring-border/60 shadow-md group-hover:scale-105 transition-all duration-300 shrink-0 bg-black">
+                <img src="/logo.png" alt="Maestro Logo" className="w-full h-full object-cover" />
               </div>
               <div>
-                <span className="font-bold font-display text-foreground text-sm block">Maestro</span>
+                <span className="font-bold font-display text-foreground text-sm block">MaestroTech</span>
                 <span className="text-[10px] text-muted-foreground uppercase tracking-widest font-semibold">
                   Panel de Control
                 </span>

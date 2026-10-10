@@ -4,7 +4,32 @@
 -- Proyecto: eklolnecteffjzbjbjmr
 -- ========================================================
 
--- Asegurar que el bucket privado existe
+-- 0. Asegurar funciones auxiliares de verificación de rol (SECURITY DEFINER)
+CREATE OR REPLACE FUNCTION public.is_admin()
+RETURNS boolean
+LANGUAGE sql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT EXISTS (
+    SELECT 1 FROM public.profiles
+    WHERE id = auth.uid() AND role = 'admin'
+  );
+$$;
+
+CREATE OR REPLACE FUNCTION public.is_instructor()
+RETURNS boolean
+LANGUAGE sql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT EXISTS (
+    SELECT 1 FROM public.profiles
+    WHERE id = auth.uid() AND role IN ('instructor', 'admin')
+  );
+$$;
+
+-- Asegurar que los buckets existen (documentos PDF y videos MP4/WebM hasta 500MB)
 INSERT INTO storage.buckets (id, name, public)
 VALUES ('course-materials', 'course-materials', false)
 ON CONFLICT (id) DO UPDATE SET public = false;
@@ -17,8 +42,7 @@ INSERT INTO storage.buckets (id, name, public)
 VALUES ('avatars', 'avatars', true)
 ON CONFLICT (id) DO NOTHING;
 
--- 1. BUCKET: course-materials (PRIVADO)
--- Permitir que docentes y superusuarios autenticados suban materiales educativos
+-- 1. BUCKET: course-materials (PRIVADO - Materiales y Videos)
 DROP POLICY IF EXISTS "Docentes y Superusuarios pueden subir archivos a course-materials" ON storage.objects;
 CREATE POLICY "Docentes y Superusuarios pueden subir archivos a course-materials"
 ON storage.objects FOR INSERT
@@ -28,7 +52,6 @@ WITH CHECK (
   AND (public.is_instructor() OR public.is_admin())
 );
 
--- Permitir actualización de archivos en course-materials
 DROP POLICY IF EXISTS "Docentes y Superusuarios pueden actualizar archivos en course-materials" ON storage.objects;
 CREATE POLICY "Docentes y Superusuarios pueden actualizar archivos en course-materials"
 ON storage.objects FOR UPDATE
@@ -38,7 +61,6 @@ USING (
   AND (public.is_instructor() OR public.is_admin())
 );
 
--- Permitir eliminación de archivos en course-materials
 DROP POLICY IF EXISTS "Docentes y Superusuarios pueden eliminar archivos en course-materials" ON storage.objects;
 CREATE POLICY "Docentes y Superusuarios pueden eliminar archivos en course-materials"
 ON storage.objects FOR DELETE
@@ -48,7 +70,6 @@ USING (
   AND (public.is_instructor() OR public.is_admin())
 );
 
--- Permitir lectura (creación de URLs firmadas / descarga autorizada)
 DROP POLICY IF EXISTS "Docentes y Alumnos autorizados pueden leer course-materials" ON storage.objects;
 CREATE POLICY "Docentes y Alumnos autorizados pueden leer course-materials"
 ON storage.objects FOR SELECT

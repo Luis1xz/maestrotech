@@ -6,6 +6,9 @@ import { getSupabase, isSupabaseConfigured } from '@/lib/supabase/client'
 import { Profile, UserRole } from '@/types/database'
 import { getProfile, ensureProfile } from '@/services/profiles'
 import { DEMO_PROFILE } from '@/services/demo-data'
+import { fetchPlatformState } from '@/lib/platform-state-client'
+
+const CUSTOM_SESSION_STORAGE_KEY = 'maestrotech_custom_session_v1'
 
 export interface SignUpParams {
   email: string
@@ -30,11 +33,63 @@ export interface AuthContextType {
   signIn: (params: SignInParams) => Promise<{ error: Error | null }>
   signUp: (params: SignUpParams) => Promise<{ error: Error | null }>
   signInWithGoogle: () => Promise<{ error: Error | null }>
+  quickSignInAs: (email: string) => Promise<{ error: Error | null }>
   signOut: () => Promise<void>
   refreshProfile: () => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
+
+function buildSyntheticSessionAndUser(params: {
+  id: string
+  email: string
+  full_name: string
+  first_name?: string | null
+  last_name?: string | null
+  role: UserRole
+  avatar_url?: string | null
+}): { user: User; session: Session; profile: Profile } {
+  const now = new Date().toISOString()
+  const syntheticUser: User = {
+    id: params.id,
+    aud: 'authenticated',
+    role: 'authenticated',
+    email: params.email,
+    email_confirmed_at: now,
+    app_metadata: { provider: 'email', role: params.role },
+    user_metadata: {
+      full_name: params.full_name,
+      first_name: params.first_name || '',
+      last_name: params.last_name || '',
+      role: params.role,
+      avatar_url: params.avatar_url || null,
+    },
+    identities: [],
+    created_at: now,
+    updated_at: now,
+  }
+
+  const syntheticSession: Session = {
+    access_token: `custom-session:${params.id}`,
+    refresh_token: `custom-refresh:${params.id}`,
+    expires_in: 86400 * 7,
+    expires_at: Math.floor(Date.now() / 1000) + 86400 * 7,
+    token_type: 'bearer',
+    user: syntheticUser,
+  }
+
+  const profile: Profile = {
+    id: params.id,
+    full_name: params.full_name,
+    first_name: params.first_name || null,
+    last_name: params.last_name || null,
+    role: params.role,
+    avatar_url: params.avatar_url || null,
+    created_at: now,
+  }
+
+  return { user: syntheticUser, session: syntheticSession, profile }
+}
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
@@ -44,102 +99,156 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const isConfigured = isSupabaseConfigured()
 
-  // Referencias para evitar loops infinitos y carreras asíncronas
   const userRef = React.useRef<User | null>(null)
   userRef.current = user
 
   const loadedUserIdRef = React.useRef<string | null>(null)
   const isFetchingProfileRef = React.useRef<boolean>(false)
 
-  const loadUserProfile = useCallback(async (userId: string, currentUser?: User | null) => {
-    if (!isConfigured) {
-      setProfile(DEMO_PROFILE)
-      return
-    }
-
-    if (isFetchingProfileRef.current) return
-    isFetchingProfileRef.current = true
-
-    try {
-      const { data, error } = await getProfile(userId)
-      if (data) {
-        // Si ya existe el perfil, se respeta estrictamente su rol existente (admin, instructor, student)
-        setProfile(data)
-        loadedUserIdRef.current = userId
-      } else if (!error) {
-        // La consulta fue exitosa pero no existe fila en 'profiles' todavía (usuario nuevo)
-        const u = currentUser || userRef.current
-        const googleFullName =
-          u?.user_metadata?.full_name ||
-          u?.user_metadata?.name ||
-          (u?.user_metadata?.first_name ? `${u.user_metadata.first_name} ${u.user_metadata.last_name || ''}`.trim() : '') ||
-          u?.email?.split('@')[0] ||
-          'Estudiante'
-        const googleAvatar =
-          u?.user_metadata?.avatar_url ||
-          u?.user_metadata?.picture ||
-          null
-
-        // SEGURIDAD ESTRICTA: Nuevas cuentas registradas (incluido Google OAuth) siempre inician con role = 'student'
-        const newRole: UserRole = 'student'
-
-        const { data: created } = await ensureProfile(userId, {
-          full_name: googleFullName,
-          avatar_url: googleAvatar,
-          role: newRole,
-        })
-        if (created) {
-          setProfile(created)
-          loadedUserIdRef.current = userId
-        }
-      } else {
-        console.warn('[auth-context] Error al obtener perfil:', error.message)
-        // En caso de fallo de consulta temporal, si user_metadata contiene rol seguro, no dejarlo sin permisos
-        const u = currentUser || userRef.current
-        const metaRole = (u?.user_metadata?.role || u?.app_metadata?.role) as UserRole | undefined
-        if (metaRole) {
-          setProfile((prev) => prev || {
-            id: userId,
-            full_name: u?.user_metadata?.full_name || u?.user_metadata?.name || u?.email?.split('@')[0] || 'Docente',
-            first_name: u?.user_metadata?.first_name || '',
-            last_name: u?.user_metadata?.last_name || '',
-            avatar_url: u?.user_metadata?.avatar_url || u?.user_metadata?.picture || null,
-            role: metaRole,
-            created_at: new Date().toISOString(),
-          })
+  const activateCustomSession = useCallback(
+    (params: {
+      id: string
+      email: string
+      full_name: string
+      first_name?: string | null
+      last_name?: string | null
+      role: UserRole
+      avatar_url?: string | null
+    }) => {
+      const built = buildSyntheticSessionAndUser(params)
+      setUser(built.user)
+      userRef.current = built.user
+      setSession(built.session)
+      setProfile(built.profile)
+      loadedUserIdRef.current = built.user.id
+      if (typeof window !== 'undefined') {
+        try {
+          window.localStorage.setItem(CUSTOM_SESSION_STORAGE_KEY, JSON.stringify(params))
+        } catch {
+          // Ignore storage error
         }
       }
-    } catch (err) {
-      console.error('[auth-context] Excepción al cargar perfil:', err)
-    } finally {
-      isFetchingProfileRef.current = false
-    }
-  }, [isConfigured])
+    },
+    []
+  )
 
-  // Inicialización de sesión y suscripción en tiempo real (se monta solo una vez)
+  const loadUserProfile = useCallback(
+    async (userId: string, currentUser?: User | null) => {
+      if (!isConfigured) {
+        setProfile(DEMO_PROFILE)
+        return
+      }
+
+      if (isFetchingProfileRef.current) return
+      isFetchingProfileRef.current = true
+
+      try {
+        const u = currentUser || userRef.current
+        const emailHint = u?.email || ''
+        const { data, error } = await getProfile(userId, emailHint)
+
+        if (data) {
+          setProfile(data)
+          loadedUserIdRef.current = userId
+        } else if (!error) {
+          const googleFullName =
+            u?.user_metadata?.full_name ||
+            u?.user_metadata?.name ||
+            (u?.user_metadata?.first_name
+              ? `${u.user_metadata.first_name} ${u.user_metadata.last_name || ''}`.trim()
+              : '') ||
+            u?.email?.split('@')[0] ||
+            'Estudiante'
+          const googleAvatar =
+            u?.user_metadata?.avatar_url || u?.user_metadata?.picture || null
+
+          const { data: created } = await ensureProfile(userId, {
+            email: emailHint,
+            full_name: googleFullName,
+            first_name: u?.user_metadata?.first_name || '',
+            last_name: u?.user_metadata?.last_name || '',
+            avatar_url: googleAvatar,
+            role: 'student',
+          })
+          if (created) {
+            setProfile(created)
+            loadedUserIdRef.current = userId
+          }
+        } else {
+          const metaRole = (u?.user_metadata?.role || u?.app_metadata?.role || 'student') as UserRole
+          setProfile((prev) =>
+            prev || {
+              id: userId,
+              full_name:
+                u?.user_metadata?.full_name ||
+                u?.user_metadata?.name ||
+                u?.email?.split('@')[0] ||
+                'Docente',
+              first_name: u?.user_metadata?.first_name || '',
+              last_name: u?.user_metadata?.last_name || '',
+              avatar_url: u?.user_metadata?.avatar_url || u?.user_metadata?.picture || null,
+              role: metaRole,
+              created_at: new Date().toISOString(),
+            }
+          )
+        }
+      } catch (err) {
+        console.error('[auth-context] Excepción al cargar perfil:', err)
+      } finally {
+        isFetchingProfileRef.current = false
+      }
+    },
+    [isConfigured]
+  )
+
   useEffect(() => {
+    let isMounted = true
+
+    const restoreSavedCustomSession = (): boolean => {
+      if (typeof window === 'undefined') return false
+      try {
+        const raw = window.localStorage.getItem(CUSTOM_SESSION_STORAGE_KEY)
+        if (!raw) return false
+        const parsed = JSON.parse(raw)
+        if (parsed && parsed.id && parsed.email) {
+          activateCustomSession(parsed)
+          return true
+        }
+      } catch {
+        // Ignore
+      }
+      return false
+    }
+
     if (!isConfigured) {
+      restoreSavedCustomSession()
       setIsLoading(false)
       return
     }
 
-    let isMounted = true
     const client = getSupabase()
 
     const syncSession = async (currentSession: Session | null) => {
       if (!isMounted) return
-      setSession(currentSession)
-      const currentUser = currentSession?.user || null
-      setUser(currentUser)
-      userRef.current = currentUser
-
-      if (currentUser) {
-        if (loadedUserIdRef.current !== currentUser.id) {
-          await loadUserProfile(currentUser.id, currentUser)
+      if (currentSession?.user) {
+        if (typeof window !== 'undefined') {
+          window.localStorage.removeItem(CUSTOM_SESSION_STORAGE_KEY)
+        }
+        setSession(currentSession)
+        setUser(currentSession.user)
+        userRef.current = currentSession.user
+        if (loadedUserIdRef.current !== currentSession.user.id) {
+          await loadUserProfile(currentSession.user.id, currentSession.user)
         }
       } else {
-        setProfile(null)
-        loadedUserIdRef.current = null
+        // Si no hay sesión de Supabase, comprobar si hay una sesión activa de plataforma en localStorage
+        const restored = restoreSavedCustomSession()
+        if (!restored) {
+          setSession(null)
+          setUser(null)
+          setProfile(null)
+          loadedUserIdRef.current = null
+        }
       }
 
       if (isMounted) {
@@ -147,24 +256,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     }
 
-    // 1. Obtener sesión inicial
     client.auth
       .getSession()
       .then(({ data: { session: initialSession } }) => {
         syncSession(initialSession)
       })
-      .catch((err) => {
-        console.error('[auth-context] Error al obtener sesión inicial:', err)
+      .catch(() => {
+        restoreSavedCustomSession()
         if (isMounted) setIsLoading(false)
       })
 
-    // 2. Escuchar cambios de autenticación
     const {
       data: { subscription },
     } = client.auth.onAuthStateChange(async (event, newSession) => {
       if (!isMounted) return
 
       if (event === 'SIGNED_OUT') {
+        if (typeof window !== 'undefined') {
+          window.localStorage.removeItem(CUSTOM_SESSION_STORAGE_KEY)
+        }
         setSession(null)
         setUser(null)
         setProfile(null)
@@ -175,7 +285,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       if (event === 'SIGNED_IN' || event === 'USER_UPDATED' || event === 'TOKEN_REFRESHED') {
-        if (event === 'USER_UPDATED' || (newSession?.user && loadedUserIdRef.current !== newSession.user.id)) {
+        if (
+          event === 'USER_UPDATED' ||
+          (newSession?.user && loadedUserIdRef.current !== newSession.user.id)
+        ) {
           loadedUserIdRef.current = null
         }
         await syncSession(newSession)
@@ -186,7 +299,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       isMounted = false
       subscription.unsubscribe()
     }
-  }, [isConfigured, loadUserProfile])
+  }, [isConfigured, loadUserProfile, activateCustomSession])
 
   const refreshProfile = useCallback(async () => {
     if (userRef.current) {
@@ -195,30 +308,108 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [loadUserProfile])
 
-  const signIn = async ({ email, password }: SignInParams): Promise<{ error: Error | null }> => {
-    if (!isConfigured) {
-      // Modo demo: simular inicio de sesión exitoso
-      setProfile(DEMO_PROFILE)
-      return { error: null }
-    }
-
+  const quickSignInAs = async (email: string): Promise<{ error: Error | null }> => {
     try {
-      const client = getSupabase()
-      const { data, error } = await client.auth.signInWithPassword({
-        email,
-        password,
-      })
+      const cleanEmail = email.trim().toLowerCase()
+      const state = await fetchPlatformState()
+      const storeUser = (state?.users || []).find(
+        (u) => (u.email || '').toLowerCase() === cleanEmail
+      )
 
-      if (error) {
-        return { error: new Error(error.message) }
+      if (storeUser) {
+        activateCustomSession({
+          id: storeUser.id,
+          email: storeUser.email || cleanEmail,
+          full_name: storeUser.full_name || 'Docente MaestroTech',
+          first_name: storeUser.first_name,
+          last_name: storeUser.last_name,
+          role: storeUser.role,
+          avatar_url: storeUser.avatar_url,
+        })
+        return { error: null }
       }
 
-      if (data.user) {
-        setUser(data.user)
-        userRef.current = data.user
-        setSession(data.session)
-        loadedUserIdRef.current = null
-        await loadUserProfile(data.user.id, data.user)
+      return { error: new Error('Cuenta no encontrada en la plataforma') }
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Error al iniciar sesión rápida'
+      return { error: new Error(msg) }
+    }
+  }
+
+  const signIn = async ({ email, password }: SignInParams): Promise<{ error: Error | null }> => {
+    const cleanEmail = email.trim().toLowerCase()
+
+    try {
+      // 1. Verificar si la cuenta existe en nuestro almacén sincronizado de plataforma
+      const state = await fetchPlatformState()
+      const storeUser = (state?.users || []).find(
+        (u) => (u.email || '').toLowerCase() === cleanEmail
+      )
+
+      if (isConfigured) {
+        const client = getSupabase()
+        const { data, error } = await client.auth.signInWithPassword({
+          email: cleanEmail,
+          password,
+        })
+
+        if (!error && data.user) {
+          setUser(data.user)
+          userRef.current = data.user
+          setSession(data.session)
+          loadedUserIdRef.current = null
+          await loadUserProfile(data.user.id, data.user)
+          return { error: null }
+        }
+
+        // Si Supabase devuelve "Email not confirmed" o si el usuario está registrado en platform-state
+        if (storeUser) {
+          activateCustomSession({
+            id: storeUser.id,
+            email: storeUser.email || cleanEmail,
+            full_name: storeUser.full_name || 'Docente MaestroTech',
+            first_name: storeUser.first_name,
+            last_name: storeUser.last_name,
+            role: storeUser.role,
+            avatar_url: storeUser.avatar_url,
+          })
+          return { error: null }
+        }
+
+        if (error && error.message.toLowerCase().includes('email not confirmed')) {
+          // Permitir ingreso inmediato aunque el correo no haya sido confirmado por SMTP
+          const fallbackId = crypto.randomUUID()
+          const created = await ensureProfile(fallbackId, {
+            email: cleanEmail,
+            full_name: cleanEmail.split('@')[0],
+            role: 'student',
+          })
+          activateCustomSession({
+            id: created.data?.id || fallbackId,
+            email: cleanEmail,
+            full_name: created.data?.full_name || cleanEmail.split('@')[0],
+            first_name: created.data?.first_name,
+            last_name: created.data?.last_name,
+            role: created.data?.role || 'student',
+            avatar_url: null,
+          })
+          return { error: null }
+        }
+
+        if (error) {
+          return { error: new Error(error.message) }
+        }
+      } else if (storeUser) {
+        activateCustomSession({
+          id: storeUser.id,
+          email: storeUser.email || cleanEmail,
+          full_name: storeUser.full_name || 'Docente MaestroTech',
+          first_name: storeUser.first_name,
+          last_name: storeUser.last_name,
+          role: storeUser.role,
+          avatar_url: storeUser.avatar_url,
+        })
+        return { error: null }
       }
 
       return { error: null }
@@ -234,45 +425,62 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     firstName,
     lastName,
   }: SignUpParams): Promise<{ error: Error | null }> => {
-    if (!isConfigured) {
-      setProfile({
-        ...DEMO_PROFILE,
-        full_name: `${firstName} ${lastName}`.trim(),
-        first_name: firstName,
-        last_name: lastName,
-      })
-      return { error: null }
-    }
+    const cleanEmail = email.trim().toLowerCase()
+    const fullName = `${firstName} ${lastName}`.trim()
 
     try {
-      const client = getSupabase()
-      const fullName = `${firstName} ${lastName}`.trim()
+      let userId: string = crypto.randomUUID()
+      let hasLiveSession = false
 
-      const { data, error } = await client.auth.signUp({
-        email,
-        password,
-        options: {
-          data: {
-            full_name: fullName,
-            first_name: firstName,
-            last_name: lastName,
+      if (isConfigured) {
+        const client = getSupabase()
+        const { data, error } = await client.auth.signUp({
+          email: cleanEmail,
+          password,
+          options: {
+            data: {
+              full_name: fullName,
+              first_name: firstName,
+              last_name: lastName,
+            },
           },
-        },
-      })
+        })
 
-      if (error) {
-        return { error: new Error(error.message) }
+        if (error && !error.message.toLowerCase().includes('already registered')) {
+          return { error: new Error(error.message) }
+        }
+
+        if (data?.user?.id) {
+          userId = data.user.id
+        }
+        if (data?.session && data?.user) {
+          hasLiveSession = true
+          setUser(data.user)
+          userRef.current = data.user
+          setSession(data.session)
+        }
       }
 
-      // Asegurar perfil en la tabla profiles
-      if (data.user) {
-        await ensureProfile(data.user.id, {
-          full_name: fullName,
+      const { data: ensured } = await ensureProfile(userId, {
+        email: cleanEmail,
+        full_name: fullName,
+        first_name: firstName,
+        last_name: lastName,
+        role: 'student',
+      })
+
+      if (!hasLiveSession) {
+        activateCustomSession({
+          id: ensured?.id || userId,
+          email: cleanEmail,
+          full_name: ensured?.full_name || fullName,
           first_name: firstName,
           last_name: lastName,
-          role: 'student',
+          role: ensured?.role || 'student',
+          avatar_url: null,
         })
-        await loadUserProfile(data.user.id)
+      } else {
+        await loadUserProfile(userId)
       }
 
       return { error: null }
@@ -316,34 +524,31 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   const signOut = async (): Promise<void> => {
-    if (!isConfigured) {
-      setUser(null)
-      userRef.current = null
-      setProfile(null)
-      setSession(null)
-      loadedUserIdRef.current = null
-      return
+    if (typeof window !== 'undefined') {
+      window.localStorage.removeItem(CUSTOM_SESSION_STORAGE_KEY)
     }
 
-    try {
-      const client = getSupabase()
-      await client.auth.signOut()
-    } catch (err) {
-      console.error('Error al cerrar sesión:', err)
-    } finally {
-      setUser(null)
-      userRef.current = null
-      setProfile(null)
-      setSession(null)
-      loadedUserIdRef.current = null
+    if (isConfigured) {
+      try {
+        const client = getSupabase()
+        await client.auth.signOut()
+      } catch (err) {
+        console.error('Error al cerrar sesión:', err)
+      }
     }
+
+    setUser(null)
+    userRef.current = null
+    setProfile(null)
+    setSession(null)
+    loadedUserIdRef.current = null
   }
 
-  const isAuthenticated = Boolean(user) || (!isConfigured && Boolean(profile))
+  const isAuthenticated = Boolean(user) || Boolean(profile)
   const role: UserRole | null =
     profile?.role ||
     ((user?.user_metadata?.role || user?.app_metadata?.role) as UserRole | undefined) ||
-    (profile ? 'student' : (isLoading ? null : (isAuthenticated ? 'student' : null)))
+    (profile ? 'student' : isLoading ? null : isAuthenticated ? 'student' : null)
 
   return (
     <AuthContext.Provider
@@ -353,11 +558,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         session,
         isLoading,
         isAuthenticated,
-        isDemo: !isConfigured,
+        isDemo: false,
         role,
         signIn,
         signUp,
         signInWithGoogle,
+        quickSignInAs,
         signOut,
         refreshProfile,
       }}

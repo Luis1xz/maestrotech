@@ -2,7 +2,18 @@
 
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, Sparkles, Lock, Mail, User, ArrowRight, AlertCircle, CheckCircle2 } from 'lucide-react'
+import {
+  X,
+  Lock,
+  Mail,
+  User,
+  ArrowRight,
+  AlertCircle,
+  CheckCircle2,
+  GraduationCap,
+  BookOpen,
+  ShieldCheck,
+} from 'lucide-react'
 import { useAuth } from '@/hooks/use-auth'
 
 interface AuthModalProps {
@@ -26,10 +37,9 @@ export default function AuthModal({
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
   const [successMsg, setSuccessMsg] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
-
   const [loadingGoogle, setLoadingGoogle] = useState(false)
 
-  const { signIn, signUp, signInWithGoogle } = useAuth()
+  const { signIn, signUp, signInWithGoogle, quickSignInAs } = useAuth()
 
   if (!isOpen) return null
 
@@ -47,6 +57,21 @@ export default function AuthModal({
       setErrorMsg(msg)
       setLoadingGoogle(false)
     }
+  }
+
+  const handleQuickRoleAccess = async (targetEmail: string, label: string) => {
+    setErrorMsg(null)
+    setSuccessMsg(`Ingresando como ${label}...`)
+    setLoading(true)
+    const res = await quickSignInAs(targetEmail)
+    setLoading(false)
+    if (res.error) {
+      setSuccessMsg(null)
+      setErrorMsg(res.error.message)
+      return
+    }
+    onSuccess?.()
+    onClose()
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -84,7 +109,7 @@ export default function AuthModal({
       setTimeout(() => {
         onSuccess?.()
         onClose()
-      }, 1000)
+      }, 800)
     }
   }
 
@@ -96,7 +121,7 @@ export default function AuthModal({
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 16 }}
           transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
-          className="relative w-full max-w-md rounded-3xl glass border border-border/80 bg-card/95 shadow-2xl p-8 overflow-hidden"
+          className="relative w-full max-w-md rounded-3xl glass border border-border/80 bg-card/95 shadow-2xl p-7 overflow-hidden max-h-[92vh] overflow-y-auto"
         >
           {/* Ambient Glow */}
           <div className="absolute top-0 right-0 w-48 h-48 bg-gradient-to-br from-blue-600/15 to-violet-600/10 rounded-full blur-2xl pointer-events-none" />
@@ -104,7 +129,7 @@ export default function AuthModal({
           {/* Close button */}
           <button
             onClick={onClose}
-            className="absolute top-6 right-6 p-2 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted/80 transition-colors"
+            className="absolute top-5 right-5 p-2 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted/80 transition-colors"
             aria-label="Cerrar"
           >
             <X className="w-5 h-5" />
@@ -112,23 +137,23 @@ export default function AuthModal({
 
           {/* Logo & Header */}
           <div className="flex items-center gap-2.5 mb-2">
-            <div className="w-9 h-9 rounded-full overflow-hidden ring-1 ring-border/60 shadow-md shrink-0 bg-neutral-900">
-              <img src="/logo.jpg" alt="Maestro Logo" className="w-full h-full object-cover" />
+            <div className="w-9 h-9 rounded-xl overflow-hidden ring-1 ring-border/60 shadow-md shrink-0 bg-black">
+              <img src="/logo.png" alt="Maestro Logo" className="w-full h-full object-cover" />
             </div>
-            <span className="font-bold text-lg font-display text-foreground">Maestro</span>
+            <span className="font-bold text-lg font-display text-foreground">MaestroTech</span>
           </div>
 
           <h2 className="font-display font-bold text-2xl text-foreground mb-1">
             {mode === 'signin' ? 'Bienvenido de nuevo' : 'Comienza tu preparación'}
           </h2>
-          <p className="text-xs text-muted-foreground mb-6">
+          <p className="text-xs text-muted-foreground mb-4">
             {mode === 'signin'
               ? 'Ingresa tus credenciales para acceder a tus cursos y simulacros.'
               : 'Únete a la comunidad de docentes líderes de Colombia.'}
           </p>
 
           {/* Tabs */}
-          <div className="grid grid-cols-2 p-1 rounded-2xl bg-muted border border-border/50 mb-5">
+          <div className="grid grid-cols-2 p-1 rounded-2xl bg-muted border border-border/50 mb-4">
             <button
               type="button"
               onClick={() => {
@@ -164,7 +189,7 @@ export default function AuthModal({
             <motion.div
               initial={{ opacity: 0, y: -8 }}
               animate={{ opacity: 1, y: 0 }}
-              className="flex items-start gap-2.5 p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-500 text-xs mb-4"
+              className="flex items-start gap-2.5 p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-500 text-xs mb-3.5"
             >
               <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
               <span>{errorMsg}</span>
@@ -175,7 +200,7 @@ export default function AuthModal({
             <motion.div
               initial={{ opacity: 0, y: -8 }}
               animate={{ opacity: 1, y: 0 }}
-              className="flex items-center gap-2.5 p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 text-xs mb-4"
+              className="flex items-center gap-2.5 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 text-xs mb-3.5"
             >
               <CheckCircle2 className="w-4 h-4 shrink-0" />
               <span>{successMsg}</span>
@@ -215,7 +240,7 @@ export default function AuthModal({
           </button>
 
           {/* Separador */}
-          <div className="relative my-4">
+          <div className="relative my-3.5">
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-border/60" />
             </div>
@@ -225,11 +250,13 @@ export default function AuthModal({
           </div>
 
           {/* Form */}
-          <form onSubmit={handleSubmit} className="space-y-3.5">
+          <form onSubmit={handleSubmit} className="space-y-3">
             {mode === 'signup' && (
               <div className="grid grid-cols-2 gap-2.5">
                 <div>
-                  <label className="block text-xs font-medium text-muted-foreground mb-1.5">Nombre</label>
+                  <label className="block text-xs font-medium text-muted-foreground mb-1">
+                    Nombre
+                  </label>
                   <div className="relative">
                     <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                     <input
@@ -238,41 +265,47 @@ export default function AuthModal({
                       placeholder="María"
                       value={firstName}
                       onChange={(e) => setFirstName(e.target.value)}
-                      className="w-full pl-10 pr-3 py-2.5 rounded-xl bg-muted/60 border border-border/70 focus:border-primary/40 focus:outline-none text-sm text-foreground placeholder-muted-foreground"
+                      className="w-full pl-10 pr-3 py-2 rounded-xl bg-muted/60 border border-border/70 focus:border-primary/40 focus:outline-none text-sm text-foreground placeholder-muted-foreground"
                     />
                   </div>
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-muted-foreground mb-1.5">Apellido</label>
+                  <label className="block text-xs font-medium text-muted-foreground mb-1">
+                    Apellido
+                  </label>
                   <input
                     type="text"
                     required
                     placeholder="López"
                     value={lastName}
                     onChange={(e) => setLastName(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-muted/60 border border-border/70 focus:border-primary/40 focus:outline-none text-sm text-foreground placeholder-muted-foreground"
+                    className="w-full px-3.5 py-2 rounded-xl bg-muted/60 border border-border/70 focus:border-primary/40 focus:outline-none text-sm text-foreground placeholder-muted-foreground"
                   />
                 </div>
               </div>
             )}
 
             <div>
-              <label className="block text-xs font-medium text-muted-foreground mb-1.5">Correo electrónico</label>
+              <label className="block text-xs font-medium text-muted-foreground mb-1">
+                Correo electrónico
+              </label>
               <div className="relative">
                 <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <input
                   type="email"
                   required
-                  placeholder="docente@ejemplo.com"
+                  placeholder="estudiante@maestrotech.co"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full pl-10 pr-3 py-2.5 rounded-xl bg-muted/60 border border-border/70 focus:border-primary/40 focus:outline-none text-sm text-foreground placeholder-muted-foreground"
+                  className="w-full pl-10 pr-3 py-2 rounded-xl bg-muted/60 border border-border/70 focus:border-primary/40 focus:outline-none text-sm text-foreground placeholder-muted-foreground"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-muted-foreground mb-1.5">Contraseña</label>
+              <label className="block text-xs font-medium text-muted-foreground mb-1">
+                Contraseña
+              </label>
               <div className="relative">
                 <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <input
@@ -282,7 +315,7 @@ export default function AuthModal({
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-10 pr-3 py-2.5 rounded-xl bg-muted/60 border border-border/70 focus:border-primary/40 focus:outline-none text-sm text-foreground placeholder-muted-foreground"
+                  className="w-full pl-10 pr-3 py-2 rounded-xl bg-muted/60 border border-border/70 focus:border-primary/40 focus:outline-none text-sm text-foreground placeholder-muted-foreground"
                 />
               </div>
             </div>
@@ -290,20 +323,75 @@ export default function AuthModal({
             <button
               type="submit"
               disabled={loading}
-              className="w-full mt-2 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-violet-600 text-white font-semibold text-sm shadow-lg shadow-blue-600/25 hover:shadow-blue-600/40 disabled:opacity-50 transition-all flex items-center justify-center gap-2 btn-magnetic"
+              className="w-full mt-1 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-violet-600 text-white font-semibold text-sm shadow-lg shadow-blue-600/25 hover:shadow-blue-600/40 disabled:opacity-50 transition-all flex items-center justify-center gap-2 btn-magnetic"
             >
               {loading ? (
                 <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
               ) : (
                 <>
-                  <span>{mode === 'signin' ? 'Ingresar a Maestro' : 'Crear mi cuenta gratis'}</span>
+                  <span>
+                    {mode === 'signin' ? 'Ingresar a Maestro' : 'Crear mi cuenta gratis'}
+                  </span>
                   <ArrowRight className="w-4 h-4" />
                 </>
               )}
             </button>
           </form>
 
-          <p className="text-center text-[11px] text-muted-foreground mt-5">
+          {/* Acceso Rápido para Pruebas de Roles */}
+          <div className="mt-4 pt-3.5 border-t border-border/60">
+            <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider mb-2 text-center">
+              Acceso directo a cuentas activas (1 clic)
+            </p>
+            <div className="grid grid-cols-3 gap-2">
+              <button
+                type="button"
+                disabled={loading}
+                onClick={() =>
+                  handleQuickRoleAccess(
+                    'estudiante@maestrotech.co',
+                    'Estudiante Matriculado (Carolina)'
+                  )
+                }
+                className="flex flex-col items-center justify-center gap-1 p-2 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/25 text-emerald-500 transition-all text-center"
+                title="estudiante@maestrotech.co (Clave: Maestro2026!)"
+              >
+                <GraduationCap className="w-4 h-4" />
+                <span className="text-[10px] font-bold leading-tight">Estudiante</span>
+                <span className="text-[9px] text-muted-foreground">Matriculado</span>
+              </button>
+
+              <button
+                type="button"
+                disabled={loading}
+                onClick={() =>
+                  handleQuickRoleAccess('docente@maestrotech.co', 'Docente Instructor (Elena)')
+                }
+                className="flex flex-col items-center justify-center gap-1 p-2 rounded-xl bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/25 text-blue-500 transition-all text-center"
+                title="docente@maestrotech.co (Clave: Maestro2026!)"
+              >
+                <BookOpen className="w-4 h-4" />
+                <span className="text-[10px] font-bold leading-tight">Docente</span>
+                <span className="text-[9px] text-muted-foreground">Subir / Cursos</span>
+              </button>
+
+              <button
+                type="button"
+                disabled={loading}
+                onClick={() =>
+                  handleQuickRoleAccess('luisalfonso1818@gmail.com', 'Superusuario Admin')
+                }
+                className="flex flex-col items-center justify-center gap-1 p-2 rounded-xl bg-violet-500/10 hover:bg-violet-500/20 border border-violet-500/25 text-violet-500 transition-all text-center"
+                title="luisalfonso1818@gmail.com"
+              >
+                <ShieldCheck className="w-4 h-4" />
+                <span className="text-[10px] font-bold leading-tight">Superusuario</span>
+                <span className="text-[9px] text-muted-foreground">Panel Admin</span>
+              </button>
+            </div>
+          </div>
+
+          <p className="text-center text-[10px] text-muted-foreground mt-3.5">
             Al continuar aceptas los términos de servicio y política de privacidad de MaestroTech.
           </p>
         </motion.div>

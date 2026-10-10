@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef, DragEvent, ChangeEvent } from 'react'
-import { Upload, FileText, CheckCircle2, AlertCircle, X, Loader2 } from 'lucide-react'
+import { Upload, FileText, Video, AlertCircle, X, Loader2 } from 'lucide-react'
 
 interface FileUploaderProps {
   onFileSelect: (file: File) => void
@@ -12,17 +12,19 @@ interface FileUploaderProps {
   selectedFile?: File | null
   uploading?: boolean
   progressText?: string
+  helperText?: string
 }
 
 export default function FileUploader({
   onFileSelect,
   onClear,
-  accept = '.pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.png,.jpg,.jpeg,.zip',
-  maxSizeMB = 50,
+  accept = '.pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.png,.jpg,.jpeg,.zip,.mp4,.webm,.mov',
+  maxSizeMB = 500,
   disabled = false,
   selectedFile = null,
   uploading = false,
   progressText,
+  helperText,
 }: FileUploaderProps) {
   const [isDragging, setIsDragging] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -70,6 +72,11 @@ export default function FileUploader({
     return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
   }
 
+  const isVideoFile =
+    selectedFile &&
+    (selectedFile.type.startsWith('video/') ||
+      /\.(mp4|webm|mov)$/i.test(selectedFile.name))
+
   return (
     <div className="w-full space-y-2">
       <input
@@ -100,18 +107,21 @@ export default function FileUploader({
             Haz clic para seleccionar o arrastra tu archivo aquí
           </p>
           <p className="text-[11px] text-muted-foreground">
-            PDF, Word, PowerPoint, Excel o ZIP (hasta {maxSizeMB} MB)
+            {helperText ||
+              `PDF, Word, PowerPoint, Excel, ZIP o Video MP4/WebM (hasta ${maxSizeMB} MB)`}
           </p>
         </div>
       ) : (
         <div className="p-4 rounded-2xl glass border border-border/70 flex items-center justify-between gap-3">
           <div className="flex items-center gap-3 min-w-0">
             <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
-              <FileText className="w-5 h-5" />
+              {isVideoFile ? <Video className="w-5 h-5" /> : <FileText className="w-5 h-5" />}
             </div>
             <div className="min-w-0">
               <p className="text-xs font-semibold text-foreground truncate">{selectedFile.name}</p>
-              <p className="text-[10px] text-muted-foreground">{formatFileSize(selectedFile.size)}</p>
+              <p className="text-[10px] text-muted-foreground">
+                {formatFileSize(selectedFile.size)}
+              </p>
             </div>
           </div>
 

@@ -1,9 +1,15 @@
 import { getSupabase, isSupabaseConfigured } from '@/lib/supabase/client'
 import { Enrollment, Course } from '@/types/database'
-import { DEMO_COURSES } from './demo-data'
+import { fetchPlatformState, mutatePlatformState } from '@/lib/platform-state-client'
 
 export interface EnrollmentWithCourse extends Enrollment {
   course?: Course
+}
+
+export interface EnrollmentWithStudentAndCourse extends Enrollment {
+  course?: Course
+  student_name?: string
+  student_email?: string
 }
 
 /**
@@ -12,41 +18,59 @@ export interface EnrollmentWithCourse extends Enrollment {
 export async function getUserEnrollments(
   userId: string
 ): Promise<{ data: EnrollmentWithCourse[] | null; error: Error | null; isDemo?: boolean }> {
-  if (!isSupabaseConfigured()) {
-    const demoEnrollments: EnrollmentWithCourse[] = [
-      {
-        id: 'demo-enroll-1',
-        user_id: userId,
-        course_id: DEMO_COURSES[0].id,
-        enrolled_at: '2025-01-10T00:00:00Z',
-        status: 'active',
-        course: DEMO_COURSES[0],
-      },
-    ]
-    return { data: demoEnrollments, error: null, isDemo: true }
-  }
-
   try {
-    const client = getSupabase()
+    const state = await fetchPlatformState()
+    const courseMap = new Map<string, Course>((state?.courses || []).map((c) => [c.id, c]))
 
-    const { data: enrollmentsData, error: enrollError } = await client
-      .from('enrollments')
-      .select('*, course:courses(*)')
-      .eq('user_id', userId)
-      .eq('status', 'active')
-      .order('enrolled_at', { ascending: false })
+    const stateEnrollments = (state?.enrollments || []).filter(
+      (e) => e.user_id === userId && (e.status === 'active' || e.status === 'completed')
+    )
 
-    if (enrollError) throw enrollError
+    let dbEnrollments: EnrollmentWithCourse[] = []
+    if (isSupabaseConfigured()) {
+      try {
+        const client = getSupabase()
+        const { data: enrollmentsData, error: enrollError } = await client
+          .from('enrollments')
+          .select('*, course:courses(*)')
+          .eq('user_id', userId)
+          .in('status', ['active', 'completed'])
+          .order('enrolled_at', { ascending: false })
 
-    const result = (enrollmentsData || []).map((item: any) => ({
-      ...item,
-      course: item.course as Course,
-    }))
+        if (!enrollError && enrollmentsData) {
+          dbEnrollments = enrollmentsData.map((item: any) => {
+            const dbCourse = item.course as Course | undefined
+            const stateCourse = courseMap.get(item.course_id)
+            return {
+              ...item,
+              course: stateCourse ? { ...dbCourse, ...stateCourse } : dbCourse,
+            }
+          })
+        }
+      } catch {
+        // Fallback to stateEnrollments
+      }
+    }
 
+    const mergedMap = new Map<string, EnrollmentWithCourse>()
+    for (const e of dbEnrollments) {
+      mergedMap.set(e.course_id, e)
+    }
+    for (const e of stateEnrollments) {
+      const existing = mergedMap.get(e.course_id)
+      const course = courseMap.get(e.course_id) || existing?.course
+      mergedMap.set(e.course_id, {
+        ...(existing || {}),
+        ...e,
+        course,
+      })
+    }
+
+    const result = Array.from(mergedMap.values()).filter((e) => Boolean(e.course))
     return { data: result, error: null, isDemo: false }
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : 'Error al obtener matrículas'
-    return { data: null, error: new Error(msg) }
+    return { data: [], error: new Error(msg) }
   }
 }
 
@@ -57,39 +81,49 @@ export async function checkEnrollment(
   userId: string,
   courseId: string
 ): Promise<{ isEnrolled: boolean; enrollment: Enrollment | null; error: Error | null }> {
-  if (!isSupabaseConfigured()) {
-    // En modo demo, consideramos matriculado en el curso 1
-    const isFirstCourse = courseId === DEMO_COURSES[0].id
-    return {
-      isEnrolled: isFirstCourse,
-      enrollment: isFirstCourse
-        ? {
-            id: 'demo-enroll-1',
-            user_id: userId,
-            course_id: courseId,
-            enrolled_at: new Date().toISOString(),
-            status: 'active',
-          }
-        : null,
-      error: null,
-    }
-  }
-
   try {
-    const client = getSupabase()
-    const { data, error } = await client
-      .from('enrollments')
-      .select('*')
-      .eq('user_id', userId)
-      .eq('course_id', courseId)
-      .eq('status', 'active')
-      .maybeSingle()
+    const state = await fetchPlatformState()
+    const stateMatch = (state?.enrollments || []).find(
+      (e) =>
+        e.user_id === userId &&
+        e.course_id === courseId &&
+        (e.status === 'active' || e.status === 'completed')
+    )
 
-    if (error) throw error
+    if (stateMatch) {
+      return {
+        isEnrolled: true,
+        enrollment: stateMatch,
+        error: null,
+      }
+    }
+
+    if (isSupabaseConfigured()) {
+      try {
+        const client = getSupabase()
+        const { data, error } = await client
+          .from('enrollments')
+          .select('*')
+          .eq('user_id', userId)
+          .eq('course_id', courseId)
+          .in('status', ['active', 'completed'])
+          .maybeSingle()
+
+        if (!error && data) {
+          return {
+            isEnrolled: true,
+            enrollment: data as Enrollment,
+            error: null,
+          }
+        }
+      } catch {
+        // Fallback
+      }
+    }
 
     return {
-      isEnrolled: Boolean(data),
-      enrollment: (data as Enrollment) || null,
+      isEnrolled: false,
+      enrollment: null,
       error: null,
     }
   } catch (err: unknown) {
@@ -99,66 +133,102 @@ export async function checkEnrollment(
 }
 
 /**
- * Matricular usuario en un curso (ej. cursos gratuitos o tras pago validado)
+ * Matricular usuario en un curso (ej. cursos gratuitos o asignación docente/admin)
  */
 export async function enrollInCourse(
   userId: string,
   courseId: string
 ): Promise<{ data: Enrollment | null; error: Error | null }> {
-  if (!isSupabaseConfigured()) {
-    return {
-      data: {
-        id: `enroll-${Date.now()}`,
-        user_id: userId,
-        course_id: courseId,
-        enrolled_at: new Date().toISOString(),
-        status: 'active',
-      },
-      error: null,
-    }
-  }
-
   try {
-    const client = getSupabase()
+    let dbEnroll: Enrollment | null = null
 
-    // Comprobar si ya existe
-    const { data: existing } = await client
-      .from('enrollments')
-      .select('*')
-      .eq('user_id', userId)
-      .eq('course_id', courseId)
-      .maybeSingle()
+    if (isSupabaseConfigured()) {
+      try {
+        const client = getSupabase()
+        const { data: existing } = await client
+          .from('enrollments')
+          .select('*')
+          .eq('user_id', userId)
+          .eq('course_id', courseId)
+          .maybeSingle()
 
-    if (existing) {
-      if (existing.status === 'active') {
-        return { data: existing as Enrollment, error: null }
+        if (existing) {
+          if (existing.status === 'active') {
+            dbEnroll = existing as Enrollment
+          } else {
+            const { data: updated } = await client
+              .from('enrollments')
+              .update({ status: 'active', enrolled_at: new Date().toISOString() })
+              .eq('id', existing.id)
+              .select()
+              .single()
+            if (updated) dbEnroll = updated as Enrollment
+          }
+        } else {
+          const { data } = await client
+            .from('enrollments')
+            .insert({
+              user_id: userId,
+              course_id: courseId,
+              status: 'active',
+            })
+            .select()
+            .single()
+          if (data) dbEnroll = data as Enrollment
+        }
+      } catch {
+        // Continue to platform-state
       }
-      // Reactivar si estaba cancelado
-      const { data: updated, error: updateErr } = await client
-        .from('enrollments')
-        .update({ status: 'active', enrolled_at: new Date().toISOString() })
-        .eq('id', existing.id)
-        .select()
-        .single()
-
-      if (updateErr) throw updateErr
-      return { data: updated as Enrollment, error: null }
     }
 
-    const { data, error } = await client
-      .from('enrollments')
-      .insert({
-        user_id: userId,
-        course_id: courseId,
-        status: 'active',
-      })
-      .select()
-      .single()
+    const finalEnrollment: Enrollment = {
+      id: dbEnroll?.id || `enroll-${Date.now()}`,
+      user_id: userId,
+      course_id: courseId,
+      enrolled_at: dbEnroll?.enrolled_at || new Date().toISOString(),
+      status: 'active',
+    }
 
-    if (error) throw error
-    return { data: data as Enrollment, error: null }
+    await mutatePlatformState('upsert_enrollment', finalEnrollment)
+    return { data: finalEnrollment, error: null }
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : 'Error al matricular en el curso'
     return { data: null, error: new Error(msg) }
+  }
+}
+
+/**
+ * Obtener todas las matrículas con datos de estudiante y curso para el Panel Docente / Admin
+ */
+export async function getAllEnrollmentsForTeacher(
+  courseId?: string
+): Promise<{ data: EnrollmentWithStudentAndCourse[]; error: Error | null }> {
+  try {
+    const state = await fetchPlatformState()
+    const courses = state?.courses || []
+    const users = state?.users || []
+    const courseMap = new Map(courses.map((c) => [c.id, c]))
+    const userMap = new Map(users.map((u) => [u.id, u]))
+
+    let enrollments = state?.enrollments || []
+    if (courseId) {
+      enrollments = enrollments.filter((e) => e.course_id === courseId)
+    }
+
+    const enriched: EnrollmentWithStudentAndCourse[] = enrollments.map((e) => {
+      const u = userMap.get(e.user_id)
+      const c = courseMap.get(e.course_id)
+      return {
+        ...e,
+        course: c,
+        student_name: u?.full_name || 'Estudiante Matriculado',
+        student_email: u?.email || 'estudiante@maestrotech.co',
+      }
+    })
+
+    return { data: enriched, error: null }
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : 'Error al obtener matrículas del curso'
+    return { data: [], error: new Error(msg) }
   }
 }
