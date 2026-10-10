@@ -581,7 +581,7 @@ export default function AdminPanel() {
                                 {enr.student_email}
                               </p>
                               <p className="text-[11px] text-emerald-400 font-semibold truncate mt-0.5">
-                                ✓ {enr.course_title}
+                                ✓ {enr.course?.title || 'Curso matriculado'}
                               </p>
                             </div>
                           </div>
