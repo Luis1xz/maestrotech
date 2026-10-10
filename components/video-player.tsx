@@ -56,13 +56,24 @@ export default function VideoPlayer({
   const containerRef = useRef<HTMLDivElement>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
   const lastReportedRef = useRef<number>(0)
+  const onProgressRef = useRef(onProgress)
+  const onEndedRef = useRef(onEnded)
 
-  // Resolver URL firmada si el video está en Supabase Storage o es URL directa
+  useEffect(() => {
+    onProgressRef.current = onProgress
+  }, [onProgress])
+
+  useEffect(() => {
+    onEndedRef.current = onEnded
+  }, [onEnded])
+
+  // Resolver URL firmada solo cuando cambia de lección (videoId / videoProvider)
   useEffect(() => {
     let isMounted = true
     setCurrentTime(initialPositionSeconds || 0)
     setRealDuration(durationSeconds || 1200)
     setIsPlaying(false)
+    lastReportedRef.current = 0
 
     async function resolveSource() {
       if (!videoId) {
@@ -79,6 +90,7 @@ export default function VideoPlayer({
         raw.startsWith('https://') ||
         raw.startsWith('/') ||
         raw.startsWith('data:') ||
+        raw.startsWith('blob:') ||
         raw.startsWith('videos/') ||
         /\.(mp4|webm|ogg|mov)(\?.*)?$/i.test(raw)
 
@@ -110,7 +122,8 @@ export default function VideoPlayer({
     return () => {
       isMounted = false
     }
-  }, [videoId, videoProvider, initialPositionSeconds, durationSeconds])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [videoId, videoProvider])
 
   // Timer simulado solo cuando NO hay fuente de video real (modo mock)
   useEffect(() => {
@@ -122,11 +135,11 @@ export default function VideoPlayer({
           const next = prev + 1
           if (next >= realDuration) {
             setIsPlaying(false)
-            onEnded?.()
+            onEndedRef.current?.()
             return realDuration
           }
-          if (next % 5 === 0) {
-            onProgress?.(next, realDuration)
+          if (next % 15 === 0) {
+            onProgressRef.current?.(next, realDuration)
           }
           return next
         })
@@ -135,7 +148,7 @@ export default function VideoPlayer({
     return () => {
       if (interval) clearInterval(interval)
     }
-  }, [isPlaying, realDuration, onProgress, onEnded, resolvedVideoUrl])
+  }, [isPlaying, realDuration, resolvedVideoUrl])
 
   const formatTime = (secs: number) => {
     const valid = Math.max(0, Math.floor(secs || 0))
@@ -283,17 +296,17 @@ export default function VideoPlayer({
             const curr = Math.floor(vid.currentTime)
             const total = Math.floor(vid.duration || realDuration)
             setCurrentTime(curr)
-            if (Math.abs(curr - lastReportedRef.current) >= 5) {
+            if (Math.abs(curr - lastReportedRef.current) >= 15) {
               lastReportedRef.current = curr
-              onProgress?.(curr, total)
+              onProgressRef.current?.(curr, total)
             }
           }}
           onPlay={() => setIsPlaying(true)}
           onPause={() => setIsPlaying(false)}
           onEnded={() => {
             setIsPlaying(false)
-            onProgress?.(realDuration, realDuration)
-            onEnded?.()
+            onProgressRef.current?.(realDuration, realDuration)
+            onEndedRef.current?.()
           }}
           className="w-full h-full object-contain bg-black cursor-pointer"
         />

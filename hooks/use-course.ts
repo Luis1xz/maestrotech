@@ -1,56 +1,48 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { CourseWithHierarchy } from '@/types/database'
 import { getCourseBySlug } from '@/services/courses'
-import { enrollInCourse } from '@/services/enrollments'
 
 export function useCourse(slug: string, userId?: string) {
   const [course, setCourse] = useState<CourseWithHierarchy | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [isDemo, setIsDemo] = useState(false)
-  const [enrolling, setEnrolling] = useState(false)
+  const hasLoadedOnceRef = useRef<string | null>(null)
 
-  const fetchCourse = useCallback(async () => {
-    if (!slug) return
-    setLoading(true)
-    setError(null)
+  const fetchCourse = useCallback(
+    async (silent = false) => {
+      if (!slug) return
+      const cacheKey = `${slug}:${userId || 'anon'}`
+      if (!silent && hasLoadedOnceRef.current !== cacheKey) {
+        setLoading(true)
+      }
+      setError(null)
 
-    const { data, error: err, isDemo: demo } = await getCourseBySlug(slug, userId)
+      const { data, error: err, isDemo: demo } = await getCourseBySlug(slug, userId)
 
-    if (err) {
-      setError(err.message)
-      setCourse(null)
-    } else {
-      setCourse(data)
-      setIsDemo(Boolean(demo))
-    }
+      if (err) {
+        setError(err.message)
+        if (!silent) setCourse(null)
+      } else {
+        setCourse(data)
+        setIsDemo(Boolean(demo))
+        hasLoadedOnceRef.current = cacheKey
+      }
 
-    setLoading(false)
-  }, [slug, userId])
+      setLoading(false)
+    },
+    [slug, userId]
+  )
 
   useEffect(() => {
-    fetchCourse()
+    fetchCourse(false)
   }, [fetchCourse])
 
-  const enroll = async () => {
-    if (!userId || !course) {
-      return { success: false, error: 'Debes iniciar sesión para matricularte' }
-    }
-
-    setEnrolling(true)
-    const { data, error: err } = await enrollInCourse(userId, course.id)
-    setEnrolling(false)
-
-    if (err) {
-      return { success: false, error: err.message }
-    }
-
-    // Actualizar datos del curso con la nueva matrícula
-    await fetchCourse()
-    return { success: true, error: null, enrollment: data }
-  }
+  const refetch = useCallback(async () => {
+    await fetchCourse(true)
+  }, [fetchCourse])
 
   const isEnrolled = Boolean(course?.enrollment && course.enrollment.status === 'active')
 
@@ -60,8 +52,6 @@ export function useCourse(slug: string, userId?: string) {
     error,
     isDemo,
     isEnrolled,
-    enrolling,
-    enroll,
-    refetch: fetchCourse,
+    refetch,
   }
 }

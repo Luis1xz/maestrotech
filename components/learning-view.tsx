@@ -66,11 +66,13 @@ export default function LearningView({
   courseSlug = 'pedagogia-critica-y-constructivismo',
   onOpenAuth,
 }: LearningProps) {
-  const { user, profile, isAuthenticated } = useAuth()
-  const { course, loading, error, isEnrolled, enroll, enrolling, refetch } = useCourse(
+  const { user, profile, isAuthenticated, role } = useAuth()
+  const { course, loading, error, isEnrolled, refetch } = useCourse(
     courseSlug,
     user?.id
   )
+
+  const hasCourseAccess = isEnrolled || role === 'admin' || role === 'instructor'
 
   const [activeModuleId, setActiveModuleId] = useState<string | null>(null)
   const [activeLessonId, setActiveLessonId] = useState<string | null>(null)
@@ -154,10 +156,10 @@ export default function LearningView({
     setTimeout(() => setNoteSaved(false), 2000)
   }
 
-  // Determinar si la lección actual está bloqueada
-  const isCurrentLessonLocked = !isEnrolled && !activeLesson?.is_preview
+  // Solo estudiantes matriculados manualmente por un Administrador (o docentes/admins) pueden ver el contenido
+  const isCurrentLessonLocked = !hasCourseAccess
 
-  // Manejar guardado de progreso de video
+  // Manejar guardado silencioso de progreso de video (sin recargar la vista)
   const handleVideoProgress = async (watchedSeconds: number, totalSeconds: number) => {
     if (!user || !activeLesson || isCurrentLessonLocked) return
     const isFinished = watchedSeconds >= totalSeconds * 0.9
@@ -167,6 +169,10 @@ export default function LearningView({
       last_position_seconds: watchedSeconds,
       completed: isFinished,
     })
+
+    if (isFinished && !activeLesson.progress?.completed) {
+      await refetch()
+    }
   }
 
   // Marcar manualmente como completada
@@ -175,14 +181,15 @@ export default function LearningView({
       if (!isAuthenticated) onOpenAuth?.()
       return
     }
+    if (!hasCourseAccess) return
     await markLessonCompleted(user.id, activeLesson.id)
     await refetch()
   }
 
   // Emitir o abrir certificado del curso
   const handleOpenCertificate = async () => {
-    if (!user || !course) {
-      onOpenAuth?.()
+    if (!user || !course || !hasCourseAccess) {
+      if (!isAuthenticated) onOpenAuth?.()
       return
     }
     setIssuingCert(true)
@@ -194,12 +201,18 @@ export default function LearningView({
     }
   }
 
-  // Descarga segura de material
+  // Descarga segura de material (requiere matrícula activa o rol docente/admin)
   const handleDownloadMaterial = async (mat: Material) => {
     setMaterialError(null)
+    if (!hasCourseAccess) {
+      setMaterialError(
+        'Acceso restringido: Un administrador debe activar tu matrícula manualmente para descargar los recursos de este curso.'
+      )
+      return
+    }
     setDownloadingMatId(mat.id)
 
-    const { url, error: err } = await getMaterialAccess(mat, isEnrolled)
+    const { url, error: err } = await getMaterialAccess(mat, true)
     setDownloadingMatId(null)
 
     if (err || !url) {
@@ -351,7 +364,7 @@ export default function LearningView({
               <div className="p-1.5 space-y-1">
                 {mod.lessons.map((lesson) => {
                   const isCurrent = lesson.id === activeLesson?.id
-                  const isLocked = !isEnrolled && !lesson.is_preview
+                  const isLocked = !hasCourseAccess
                   const isCompleted = lesson.progress?.completed
 
                   return (
@@ -404,11 +417,6 @@ export default function LearningView({
                               {lesson.materials.length} PDF
                             </span>
                           )}
-                          {lesson.is_preview && !isEnrolled && (
-                            <span className="text-[9px] font-semibold text-emerald-500 bg-emerald-500/10 px-1.5 py-0.5 rounded-full">
-                              Vista previa
-                            </span>
-                          )}
                         </div>
                       </div>
                     </button>
@@ -423,27 +431,26 @@ export default function LearningView({
       {/* Main content */}
       <main className="flex-1 flex flex-col overflow-hidden">
         {/* Banner de matrícula si el usuario no está matriculado */}
-        {!isEnrolled && (
-          <div className="bg-gradient-to-r from-blue-600/15 via-violet-600/15 to-transparent border-b border-primary/20 px-6 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+        {!hasCourseAccess && (
+          <div className="bg-gradient-to-r from-amber-500/15 via-blue-600/10 to-transparent border-b border-amber-500/25 px-6 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
             <div className="flex items-center gap-2 text-foreground font-medium">
-              <Sparkles className="w-4 h-4 text-primary shrink-0" />
+              <Lock className="w-4 h-4 text-amber-500 shrink-0" />
               <span>
-                Estás viendo la vista previa pública. Matricúlate gratis con 1 clic para desbloquear todas las videoclases y guías PDF.
+                Acceso exclusivo para estudiantes matriculados. La inscripción a este curso es activada únicamente de forma manual por un Administrador.
               </span>
             </div>
-            <button
-              onClick={async () => {
-                if (!isAuthenticated) {
-                  onOpenAuth?.()
-                } else {
-                  await enroll()
-                }
-              }}
-              disabled={enrolling}
-              className="px-4 py-1.5 rounded-lg bg-primary text-primary-foreground font-semibold text-xs shadow-sm hover:shadow transition-all shrink-0"
-            >
-              {enrolling ? 'Matriculando...' : 'Matricularme al Curso Ahora'}
-            </button>
+            {!isAuthenticated ? (
+              <button
+                onClick={() => onOpenAuth?.()}
+                className="px-4 py-1.5 rounded-lg bg-primary text-primary-foreground font-semibold text-xs shadow-sm hover:shadow transition-all shrink-0"
+              >
+                Iniciar Sesión
+              </button>
+            ) : (
+              <span className="px-3 py-1 rounded-full bg-amber-500/15 text-amber-400 border border-amber-500/30 font-semibold text-[11px] shrink-0">
+                Requiere activación del Administrador
+              </span>
+            )}
           </div>
         )}
 
@@ -451,25 +458,36 @@ export default function LearningView({
         <div className="p-4 sm:p-6 pb-0">
           {isCurrentLessonLocked ? (
             <div className="relative bg-neutral-950 aspect-video w-full rounded-2xl flex flex-col items-center justify-center p-6 text-center border border-border/50">
-              <div className="w-16 h-16 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mb-4">
+              <div className="w-16 h-16 rounded-2xl bg-amber-500/10 text-amber-500 border border-amber-500/25 flex items-center justify-center mb-4">
                 <Lock className="w-8 h-8" />
               </div>
               <h3 className="font-display font-bold text-lg text-foreground mb-2">
-                Clase exclusiva para inscritos
+                Curso exclusivo para estudiantes matriculados
               </h3>
-              <p className="text-xs text-muted-foreground max-w-md mb-6 leading-relaxed">
-                Esta clase pertenece al contenido completo de {course.title}. Activa tu matrícula gratuita para acceder al video, materiales y certificado.
+              <p className="text-xs text-muted-foreground max-w-md mb-5 leading-relaxed">
+                Para acceder a las videoclases, guías PDF descargables, simulacros y certificado de{' '}
+                <strong className="text-foreground">{course.title}</strong>, un Administrador de MaestroTech debe activar tu matrícula manualmente en el sistema.
               </p>
-              <button
-                onClick={async () => {
-                  if (!isAuthenticated) onOpenAuth?.()
-                  else await enroll()
-                }}
-                disabled={enrolling}
-                className="px-6 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-violet-600 text-white font-semibold text-xs shadow-lg shadow-blue-600/25"
-              >
-                {enrolling ? 'Procesando...' : 'Activar Matrícula y Desbloquear'}
-              </button>
+              {!isAuthenticated ? (
+                <button
+                  onClick={() => onOpenAuth?.()}
+                  className="px-6 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-violet-600 text-white font-semibold text-xs shadow-lg shadow-blue-600/25"
+                >
+                  Iniciar Sesión con mi Cuenta
+                </button>
+              ) : (
+                <div className="flex flex-col sm:flex-row items-center gap-3">
+                  <div className="px-4 py-2.5 rounded-xl bg-muted/60 border border-border/70 text-xs text-muted-foreground">
+                    Cuenta activa: <strong className="text-foreground">{user?.email}</strong> · Sin matrícula en este curso
+                  </div>
+                  <button
+                    onClick={() => onNavigate('dashboard')}
+                    className="px-5 py-2.5 rounded-xl bg-primary text-primary-foreground font-semibold text-xs shadow"
+                  >
+                    Ir a Mis Cursos Matriculados
+                  </button>
+                </div>
+              )}
             </div>
           ) : (
             <VideoPlayer
@@ -641,7 +659,7 @@ export default function LearningView({
               {allCourseMaterials.length > 0 ? (
                 <div className="space-y-2.5">
                   {allCourseMaterials.map((mat) => {
-                    const isLocked = mat.is_free === false && !isEnrolled
+                    const isLocked = !hasCourseAccess
                     const isFromCurrentLesson = lessonMaterials.some((m) => m.id === mat.id)
                     return (
                       <div
@@ -673,9 +691,9 @@ export default function LearningView({
                         </div>
 
                         {isLocked ? (
-                          <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground px-3 py-1.5 rounded-lg bg-muted">
+                          <div className="flex items-center gap-1.5 text-[11px] text-amber-500 px-3 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/20">
                             <Lock className="w-3.5 h-3.5" />
-                            <span>Matricúlate</span>
+                            <span>Solo matriculados</span>
                           </div>
                         ) : (
                           <button

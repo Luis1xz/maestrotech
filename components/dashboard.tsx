@@ -153,7 +153,7 @@ export default function Dashboard({ onNavigate, onOpenAuth, onSelectCourse }: Da
     return () => {
       isMounted = false
     }
-  }, [user, isDemo])
+  }, [user?.id, isDemo])
 
   const navigate = (view: string) => {
     setActiveView(view)
@@ -511,16 +511,19 @@ export default function Dashboard({ onNavigate, onOpenAuth, onSelectCourse }: Da
                       Cargando tus cursos...
                     </div>
                   ) : filteredEnrollments.length === 0 ? (
-                    <div className="text-center py-8 px-4 rounded-xl bg-muted/20 border border-dashed border-border">
-                      <BookOpen className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
-                      <p className="text-xs font-semibold text-foreground mb-1">
-                        No se encontraron cursos
+                    <div className="text-center py-8 px-4 rounded-xl bg-muted/20 border border-dashed border-border space-y-2">
+                      <BookOpen className="w-8 h-8 text-amber-500 mx-auto mb-1" />
+                      <p className="text-xs font-semibold text-foreground">
+                        Aún no tienes cursos matriculados
+                      </p>
+                      <p className="text-[11px] text-muted-foreground max-w-md mx-auto leading-relaxed">
+                        La inscripción a los programas de MaestroTech es activada únicamente de forma manual por un Administrador. Solicita al Administrador que matricule tu cuenta (<span className="text-foreground font-mono">{user?.email}</span>).
                       </p>
                       <button
                         onClick={() => onNavigate('courses')}
-                        className="mt-2 px-4 py-2 rounded-xl bg-primary text-primary-foreground text-xs font-semibold shadow"
+                        className="mt-2 px-4 py-2 rounded-xl glass border border-border/70 hover:border-primary/40 text-foreground text-xs font-semibold"
                       >
-                        Explorar catálogo de cursos
+                        Ver catálogo informativo
                       </button>
                     </div>
                   ) : (

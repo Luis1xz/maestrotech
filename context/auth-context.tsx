@@ -234,9 +234,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (typeof window !== 'undefined') {
           window.localStorage.removeItem(CUSTOM_SESSION_STORAGE_KEY)
         }
-        setSession(currentSession)
-        setUser(currentSession.user)
-        userRef.current = currentSession.user
+        setSession((prev) =>
+          prev?.access_token === currentSession.access_token ? prev : currentSession
+        )
+        if (!userRef.current || userRef.current.id !== currentSession.user.id) {
+          setUser(currentSession.user)
+          userRef.current = currentSession.user
+        }
         if (loadedUserIdRef.current !== currentSession.user.id) {
           await loadUserProfile(currentSession.user.id, currentSession.user)
         }

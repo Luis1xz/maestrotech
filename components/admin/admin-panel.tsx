@@ -12,6 +12,11 @@ import { useAuth } from '@/hooks/use-auth'
 import { canAccessAdmin, UserRole, AdminUserListItem } from '@/types/database'
 import { getAdminUsersList, updateUserRole, createAdminUser, getPlatformOverview, PlatformOverviewStats } from '@/services/admin'
 import { getAllCoursesForTeacher, updateCourse } from '@/services/courses'
+import {
+  enrollInCourse,
+  getAllEnrollmentsForTeacher,
+  EnrollmentWithStudentAndCourse,
+} from '@/services/enrollments'
 import { Course } from '@/types/database'
 import Link from 'next/link'
 
@@ -33,9 +38,19 @@ export default function AdminPanel() {
   const [stats, setStats] = useState<PlatformOverviewStats | null>(null)
   const [users, setUsers] = useState<AdminUserListItem[]>([])
   const [courses, setCourses] = useState<Course[]>([])
+  const [enrollments, setEnrollments] = useState<EnrollmentWithStudentAndCourse[]>([])
   const [loadingData, setLoadingData] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
   const [roleFilter, setRoleFilter] = useState<'all' | UserRole>('all')
+
+  // Matrícula manual de estudiante por el Administrador
+  const [selectedStudentId, setSelectedStudentId] = useState<string>('')
+  const [selectedCourseId, setSelectedCourseId] = useState<string>('')
+  const [enrollingStudent, setEnrollingStudent] = useState(false)
+  const [enrollFeedback, setEnrollFeedback] = useState<{
+    type: 'success' | 'error'
+    text: string
+  } | null>(null)
 
   // Modal de Creación de Usuario
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
@@ -54,15 +69,23 @@ export default function AdminPanel() {
 
   const loadAll = useCallback(async () => {
     setLoadingData(true)
-    const [statsRes, usersRes, coursesRes] = await Promise.all([
+    const [statsRes, usersRes, coursesRes, enrollsRes] = await Promise.all([
       getPlatformOverview(),
       getAdminUsersList(token),
       getAllCoursesForTeacher(),
+      getAllEnrollmentsForTeacher(),
     ])
 
     if (statsRes.data) setStats(statsRes.data)
-    if (usersRes.data) setUsers(usersRes.data)
-    if (coursesRes.data) setCourses(coursesRes.data)
+    if (usersRes.data) {
+      setUsers(usersRes.data)
+      setSelectedStudentId((prev) => prev || usersRes.data?.[0]?.id || '')
+    }
+    if (coursesRes.data) {
+      setCourses(coursesRes.data)
+      setSelectedCourseId((prev) => prev || coursesRes.data?.[0]?.id || '')
+    }
+    if (enrollsRes.data) setEnrollments(enrollsRes.data)
     setLoadingData(false)
   }, [token])
 
@@ -129,6 +152,35 @@ export default function AdminPanel() {
       setCourses((prev) =>
         prev.map((c) => (c.id === courseId ? { ...c, published: !currentPublished } : c))
       )
+    }
+  }
+
+  // Matricular manualmente a un estudiante en un curso (exclusivo Admin)
+  const handleManualEnroll = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setEnrollFeedback(null)
+    if (!selectedStudentId || !selectedCourseId) {
+      setEnrollFeedback({
+        type: 'error',
+        text: 'Selecciona el estudiante y el curso para activar la matrícula.',
+      })
+      return
+    }
+
+    setEnrollingStudent(true)
+    const { error } = await enrollInCourse(selectedStudentId, selectedCourseId)
+    setEnrollingStudent(false)
+
+    if (error) {
+      setEnrollFeedback({ type: 'error', text: error.message })
+    } else {
+      const st = users.find((u) => u.id === selectedStudentId)
+      const cr = courses.find((c) => c.id === selectedCourseId)
+      setEnrollFeedback({
+        type: 'success',
+        text: `Matrícula activada exitosamente para ${st?.full_name || st?.email || 'el estudiante'} en «${cr?.title || 'el curso'}».`,
+      })
+      await loadAll()
     }
   }
 
@@ -430,7 +482,116 @@ export default function AdminPanel() {
 
           {/* SECCIÓN: USUARIOS / DOCENTES / ESTUDIANTES */}
           {(activeSection === 'users' || activeSection === 'teachers' || activeSection === 'students') && (
-            <div className="space-y-4">
+            <div className="space-y-6">
+              {/* Panel de Matrícula Manual de Estudiantes (Exclusivo Administrador) */}
+              {(activeSection === 'students' || activeSection === 'users') && (
+                <div className="p-6 rounded-3xl glass border border-emerald-500/30 bg-emerald-500/5 space-y-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div>
+                      <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                        Control Exclusivo de Matrículas
+                      </span>
+                      <h3 className="font-display font-bold text-base text-foreground mt-1.5">
+                        Matricular Estudiante Manualmente en un Curso
+                      </h3>
+                      <p className="text-xs text-muted-foreground">
+                        Los estudiantes nuevos no pueden auto-matricularse. Selecciona aquí al estudiante y el programa para habilitar su acceso a videoclases y recursos PDF.
+                      </p>
+                    </div>
+                  </div>
+
+                  {enrollFeedback && (
+                    <div
+                      className={`p-3 rounded-xl text-xs flex items-center gap-2 ${
+                        enrollFeedback.type === 'success'
+                          ? 'bg-emerald-500/15 border border-emerald-500/30 text-emerald-400'
+                          : 'bg-rose-500/15 border border-rose-500/30 text-rose-400'
+                      }`}
+                    >
+                      {enrollFeedback.type === 'success' ? (
+                        <CheckCircle2 className="w-4 h-4 shrink-0" />
+                      ) : (
+                        <AlertCircle className="w-4 h-4 shrink-0" />
+                      )}
+                      <span>{enrollFeedback.text}</span>
+                    </div>
+                  )}
+
+                  <form onSubmit={handleManualEnroll} className="grid md:grid-cols-3 gap-3 items-end">
+                    <div>
+                      <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
+                        1. Seleccionar Estudiante / Usuario
+                      </label>
+                      <select
+                        value={selectedStudentId}
+                        onChange={(e) => setSelectedStudentId(e.target.value)}
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-card border border-border/80 text-xs text-foreground outline-none"
+                      >
+                        {users.map((u) => (
+                          <option key={u.id} value={u.id}>
+                            {u.full_name || 'Estudiante'} ({u.email || u.id.slice(0, 8)})
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
+                        2. Seleccionar Curso a Habilitar
+                      </label>
+                      <select
+                        value={selectedCourseId}
+                        onChange={(e) => setSelectedCourseId(e.target.value)}
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-card border border-border/80 text-xs text-foreground outline-none"
+                      >
+                        {courses.map((c) => (
+                          <option key={c.id} value={c.id}>
+                            {c.title} {c.published ? '(Publicado)' : '(Borrador)'}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <button
+                      type="submit"
+                      disabled={enrollingStudent}
+                      className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 text-white text-xs font-bold shadow-lg shadow-emerald-600/20 hover:shadow-emerald-600/40 transition-all"
+                    >
+                      {enrollingStudent ? 'Activando matrícula...' : 'Activar Matrícula Manualmente'}
+                    </button>
+                  </form>
+
+                  {/* Resumen de Matrículas Activas */}
+                  {enrollments.length > 0 && (
+                    <div className="pt-3 border-t border-border/50">
+                      <p className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-2">
+                        Matrículas Activas Actuales ({enrollments.length})
+                      </p>
+                      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
+                        {enrollments.map((enr) => (
+                          <div
+                            key={enr.id}
+                            className="p-3 rounded-xl bg-card/80 border border-border/60 flex items-center justify-between gap-2 text-xs"
+                          >
+                            <div className="min-w-0">
+                              <p className="font-bold text-foreground truncate">
+                                {enr.student_name}
+                              </p>
+                              <p className="text-[10px] text-muted-foreground font-mono truncate">
+                                {enr.student_email}
+                              </p>
+                              <p className="text-[11px] text-emerald-400 font-semibold truncate mt-0.5">
+                                ✓ {enr.course_title}
+                              </p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
               {/* Barra de filtros y búsqueda */}
               <div className="flex flex-col sm:flex-row gap-3">
                 <div className="relative flex-1">
