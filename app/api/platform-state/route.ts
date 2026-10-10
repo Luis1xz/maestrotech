@@ -229,6 +229,24 @@ export async function POST(request: NextRequest) {
         break
       }
 
+      case 'delete_user': {
+        const { id, email } = payload
+        const cleanEmail = (email || '').trim().toLowerCase()
+        if (!state.deletedUserIds) state.deletedUserIds = []
+        if (id && !state.deletedUserIds.includes(id)) {
+          state.deletedUserIds.push(id)
+        }
+        state.users = state.users.filter(
+          (u) => u.id !== id && (!cleanEmail || (u.email || '').toLowerCase() !== cleanEmail)
+        )
+        if (id) {
+          state.enrollments = state.enrollments.filter((e) => e.user_id !== id)
+          state.lesson_progress = state.lesson_progress.filter((p) => p.user_id !== id)
+          state.certificates = state.certificates.filter((c) => c.user_id !== id)
+        }
+        break
+      }
+
       default:
         return NextResponse.json({ error: `Acción desconocida: ${action}` }, { status: 400 })
     }

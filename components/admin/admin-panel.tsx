@@ -6,11 +6,11 @@ import {
   Shield, Users, BookOpen, Target, BarChart3, Settings,
   Plus, CheckCircle2, AlertCircle, Search, Filter,
   ArrowLeft, ArrowRight, UserPlus, Sparkles, RefreshCw,
-  Lock, Mail, User, Layers, FileText, ChevronRight, Check
+  Lock, Mail, User, Layers, FileText, ChevronRight, Check, Trash2
 } from 'lucide-react'
 import { useAuth } from '@/hooks/use-auth'
 import { canAccessAdmin, UserRole, AdminUserListItem } from '@/types/database'
-import { getAdminUsersList, updateUserRole, createAdminUser, getPlatformOverview, PlatformOverviewStats } from '@/services/admin'
+import { getAdminUsersList, updateUserRole, createAdminUser, deleteAdminUser, getPlatformOverview, PlatformOverviewStats } from '@/services/admin'
 import { getAllCoursesForTeacher, updateCourse } from '@/services/courses'
 import {
   enrollInCourse,
@@ -62,8 +62,9 @@ export default function AdminPanel() {
   const [creatingUser, setCreatingUser] = useState(false)
   const [createFeedback, setCreateFeedback] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
 
-  // Feedback de cambio de rol
+  // Feedback de cambio de rol y eliminación
   const [roleUpdatingId, setRoleUpdatingId] = useState<string | null>(null)
+  const [deletingUserId, setDeletingUserId] = useState<string | null>(null)
   const [roleFeedback, setRoleFeedback] = useState<{
     type: 'success' | 'error'
     text: string
@@ -162,6 +163,36 @@ export default function AdminPanel() {
       setRoleFeedback({
         type: 'error',
         text: error?.message || 'Error al actualizar el rol del usuario.',
+      })
+    }
+  }
+
+  // Manejar eliminación de usuario
+  const handleDeleteUser = async (targetUser: AdminUserListItem) => {
+    if (user?.id === targetUser.id) {
+      alert('No puedes eliminar tu propia cuenta de superusuario en sesión activa.')
+      return
+    }
+    const confirmDelete = window.confirm(
+      `¿Estás seguro de que deseas eliminar permanentemente al usuario "${targetUser.full_name || targetUser.email}"?\n\nEsta acción revocará su acceso a la plataforma y removerá sus matrículas activas.`
+    )
+    if (!confirmDelete) return
+
+    setDeletingUserId(targetUser.id)
+    setRoleFeedback(null)
+    const { success, error } = await deleteAdminUser(targetUser.id, targetUser.email, token)
+    setDeletingUserId(null)
+
+    if (success) {
+      setUsers((prev) => prev.filter((u) => u.id !== targetUser.id))
+      setRoleFeedback({
+        type: 'success',
+        text: `Usuario "${targetUser.full_name || targetUser.email}" eliminado exitosamente del sistema.`,
+      })
+    } else {
+      setRoleFeedback({
+        type: 'error',
+        text: error?.message || 'Error al eliminar usuario.',
       })
     }
   }
@@ -712,16 +743,27 @@ export default function AdminPanel() {
                               {new Date(u.created_at).toLocaleDateString('es-CO')}
                             </td>
                             <td className="p-4 text-right">
-                              <select
-                                disabled={roleUpdatingId === u.id}
-                                value={u.role}
-                                onChange={(e) => handleRoleChange(u, e.target.value as UserRole)}
-                                className="px-2.5 py-1.5 rounded-lg bg-muted/80 border border-border/80 text-xs font-medium text-foreground outline-none cursor-pointer focus:border-primary"
-                              >
-                                <option value="student">Estudiante</option>
-                                <option value="instructor">Docente</option>
-                                <option value="admin">Administrador / Superusuario</option>
-                              </select>
+                              <div className="flex items-center justify-end gap-2">
+                                <select
+                                  disabled={roleUpdatingId === u.id || deletingUserId === u.id}
+                                  value={u.role}
+                                  onChange={(e) => handleRoleChange(u, e.target.value as UserRole)}
+                                  className="px-2.5 py-1.5 rounded-lg bg-muted/80 border border-border/80 text-xs font-medium text-foreground outline-none cursor-pointer focus:border-primary"
+                                >
+                                  <option value="student">Estudiante</option>
+                                  <option value="instructor">Docente</option>
+                                  <option value="admin">Administrador / Superusuario</option>
+                                </select>
+                                <button
+                                  type="button"
+                                  disabled={deletingUserId === u.id || user?.id === u.id}
+                                  onClick={() => handleDeleteUser(u)}
+                                  className="p-1.5 rounded-lg text-muted-foreground hover:text-rose-400 hover:bg-rose-500/10 transition-colors disabled:opacity-30 disabled:pointer-events-none"
+                                  title={user?.id === u.id ? 'No puedes auto-eliminar tu cuenta activa' : 'Eliminar usuario del sistema'}
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
+                              </div>
                             </td>
                           </tr>
                         ))
@@ -868,16 +910,27 @@ export default function AdminPanel() {
                             </span>
                           </td>
                           <td className="p-4 text-right">
-                            <select
-                              disabled={roleUpdatingId === u.id}
-                              value={u.role}
-                              onChange={(e) => handleRoleChange(u, e.target.value as UserRole)}
-                              className="px-2.5 py-1.5 rounded-lg bg-muted/80 border border-border/80 text-xs font-medium text-foreground outline-none cursor-pointer focus:border-primary"
-                            >
-                              <option value="student">Estudiante</option>
-                              <option value="instructor">Docente</option>
-                              <option value="admin">Administrador / Superusuario</option>
-                            </select>
+                            <div className="flex items-center justify-end gap-2">
+                              <select
+                                disabled={roleUpdatingId === u.id || deletingUserId === u.id}
+                                value={u.role}
+                                onChange={(e) => handleRoleChange(u, e.target.value as UserRole)}
+                                className="px-2.5 py-1.5 rounded-lg bg-muted/80 border border-border/80 text-xs font-medium text-foreground outline-none cursor-pointer focus:border-primary"
+                              >
+                                <option value="student">Estudiante</option>
+                                <option value="instructor">Docente</option>
+                                <option value="admin">Administrador / Superusuario</option>
+                              </select>
+                              <button
+                                type="button"
+                                disabled={deletingUserId === u.id || user?.id === u.id}
+                                onClick={() => handleDeleteUser(u)}
+                                className="p-1.5 rounded-lg text-muted-foreground hover:text-rose-400 hover:bg-rose-500/10 transition-colors disabled:opacity-30 disabled:pointer-events-none"
+                                title={user?.id === u.id ? 'No puedes auto-eliminar tu cuenta activa' : 'Eliminar usuario del sistema'}
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
                           </td>
                         </tr>
                       ))}

@@ -28,6 +28,7 @@ export interface PlatformStateData {
   users: (AdminUserListItem & { password?: string })[]
   courses: Course[]
   deletedCourseIds: string[]
+  deletedUserIds?: string[]
   modules: Module[]
   lessons: Lesson[]
   materials: Material[]
@@ -95,6 +96,7 @@ export const INITIAL_PLATFORM_STATE: PlatformStateData = {
     },
   ],
   deletedCourseIds: [],
+  deletedUserIds: [],
   courses: [
     {
       id: '2aac8ece-e71b-4c7c-99be-9b4fe37879da',

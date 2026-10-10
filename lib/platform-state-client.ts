@@ -2,6 +2,7 @@ import { INITIAL_PLATFORM_STATE, PlatformStateData } from './platform-store'
 
 const LOCAL_STORAGE_KEY = 'maestrotech_platform_state_v3'
 const DELETED_IDS_KEY = 'maestrotech_deleted_ids_v3'
+const DELETED_USER_IDS_KEY = 'maestrotech_deleted_user_ids_v3'
 
 let cachedState: PlatformStateData | null = null
 
@@ -41,6 +42,43 @@ function removeDeletedId(id: string) {
     if (set.has(id)) {
       set.delete(id)
       localStorage.setItem(DELETED_IDS_KEY, JSON.stringify(Array.from(set)))
+    }
+  } catch {
+    // ignore
+  }
+}
+
+function getDeletedUserIds(): Set<string> {
+  if (typeof window === 'undefined') return new Set()
+  try {
+    const raw = localStorage.getItem(DELETED_USER_IDS_KEY)
+    if (raw) {
+      return new Set(JSON.parse(raw) as string[])
+    }
+  } catch {
+    // ignore
+  }
+  return new Set()
+}
+
+function addDeletedUserId(id: string) {
+  if (typeof window === 'undefined' || !id) return
+  try {
+    const set = getDeletedUserIds()
+    set.add(id)
+    localStorage.setItem(DELETED_USER_IDS_KEY, JSON.stringify(Array.from(set)))
+  } catch {
+    // ignore
+  }
+}
+
+function removeDeletedUserId(id: string) {
+  if (typeof window === 'undefined' || !id) return
+  try {
+    const set = getDeletedUserIds()
+    if (set.has(id)) {
+      set.delete(id)
+      localStorage.setItem(DELETED_USER_IDS_KEY, JSON.stringify(Array.from(set)))
     }
   } catch {
     // ignore
@@ -113,6 +151,10 @@ function mergeStates(
   for (const delId of local.deletedCourseIds || []) deleted.add(delId)
   for (const delId of server.deletedCourseIds || []) deleted.add(delId)
 
+  const deletedUsers = getDeletedUserIds()
+  for (const delUid of local.deletedUserIds || []) deletedUsers.add(delUid)
+  for (const delUid of server.deletedUserIds || []) deletedUsers.add(delUid)
+
   return {
     courses: mergeById(local.courses, server.courses, deleted),
     modules: mergeById(local.modules, server.modules, deleted).sort(
@@ -122,12 +164,19 @@ function mergeStates(
       (a, b) => (a.order_index || 0) - (b.order_index || 0)
     ),
     materials: mergeById(local.materials, server.materials, deleted),
-    enrollments: mergeById(local.enrollments, server.enrollments, deleted),
-    lesson_progress: mergeById(local.lesson_progress, server.lesson_progress, deleted),
-    certificates: mergeById(local.certificates, server.certificates, deleted),
-    users: mergeById(local.users, server.users, deleted),
+    enrollments: mergeById(local.enrollments, server.enrollments, deleted).filter(
+      (e) => !deletedUsers.has(e.user_id)
+    ),
+    lesson_progress: mergeById(local.lesson_progress, server.lesson_progress, deleted).filter(
+      (p) => !deletedUsers.has(p.user_id)
+    ),
+    certificates: mergeById(local.certificates, server.certificates, deleted).filter(
+      (c) => !deletedUsers.has(c.user_id)
+    ),
+    users: mergeById(local.users, server.users, deletedUsers),
     exam_questions: mergeById(local.exam_questions, server.exam_questions, deleted),
     deletedCourseIds: Array.from(deleted),
+    deletedUserIds: Array.from(deletedUsers),
   }
 }
 
@@ -268,6 +317,7 @@ function applyMutationToState(state: PlatformStateData, action: string, payload:
 
     case 'upsert_user': {
       const usr = payload
+      if (usr?.id) removeDeletedUserId(usr.id)
       const idx = state.users.findIndex(
         (u) =>
           u.id === usr.id ||
@@ -357,6 +407,25 @@ function applyMutationToState(state: PlatformStateData, action: string, payload:
       const { id } = payload
       addDeletedId(id)
       state.exam_questions = state.exam_questions.filter((q) => q.id !== id)
+      break
+    }
+
+    case 'delete_user': {
+      const { id, email } = payload
+      const cleanEmail = (email || '').trim().toLowerCase()
+      if (id) addDeletedUserId(id)
+      if (!state.deletedUserIds) state.deletedUserIds = []
+      if (id && !state.deletedUserIds.includes(id)) {
+        state.deletedUserIds.push(id)
+      }
+      state.users = state.users.filter(
+        (u) => u.id !== id && (!cleanEmail || (u.email || '').toLowerCase() !== cleanEmail)
+      )
+      if (id) {
+        state.enrollments = state.enrollments.filter((e) => e.user_id !== id)
+        state.lesson_progress = state.lesson_progress.filter((p) => p.user_id !== id)
+        state.certificates = state.certificates.filter((c) => c.user_id !== id)
+      }
       break
     }
   }

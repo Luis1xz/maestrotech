@@ -93,7 +93,10 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    return NextResponse.json({ users: Array.from(userMap.values()) })
+    const deletedSet = new Set(store.deletedUserIds || [])
+    const filteredUsers = Array.from(userMap.values()).filter((u) => !deletedSet.has(u.id))
+
+    return NextResponse.json({ users: filteredUsers })
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Error interno del servidor'
     return NextResponse.json({ error: message }, { status: 500 })
@@ -356,6 +359,122 @@ export async function PATCH(request: NextRequest) {
     })
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Error al actualizar el rol'
+    return NextResponse.json({ error: message }, { status: 500 })
+  }
+}
+
+export async function DELETE(request: NextRequest) {
+  try {
+    const authHeader = request.headers.get('authorization')
+    const authVerification = await verifyAdminRequest(authHeader)
+
+    if (!authVerification.authorized) {
+      return NextResponse.json(
+        { error: authVerification.error || 'No autorizado para eliminar usuarios' },
+        { status: 403 }
+      )
+    }
+
+    const { searchParams } = new URL(request.url)
+    let id = searchParams.get('id')
+    let email = searchParams.get('email')
+
+    if (!id && request.headers.get('content-type')?.includes('application/json')) {
+      try {
+        const body = await request.json()
+        if (body.id) id = body.id
+        if (body.email) email = body.email
+      } catch {
+        // query params fallback
+      }
+    }
+
+    if (!id && !email) {
+      return NextResponse.json(
+        { error: 'Se requiere ID o correo del usuario a eliminar.' },
+        { status: 400 }
+      )
+    }
+
+    // Proteger contra auto-eliminación accidental del superadmin en sesión activa
+    if (authVerification.userId && id && authVerification.userId === id) {
+      return NextResponse.json(
+        { error: 'No puedes eliminar tu propia cuenta de superusuario en sesión activa.' },
+        { status: 400 }
+      )
+    }
+
+    const cleanEmail = (email || '').trim().toLowerCase()
+    const adminClient = getSupabaseAdminClient()
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.VITE_SUPABASE_URL
+    const anonKey =
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
+      process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
+
+    // Eliminar en Supabase
+    if (adminClient && id) {
+      try {
+        await adminClient.from('enrollments').delete().eq('user_id', id)
+        await adminClient.from('lesson_progress').delete().eq('user_id', id)
+        await adminClient.from('certificates').delete().eq('user_id', id)
+        await adminClient.from('profiles').delete().eq('id', id)
+        await adminClient.auth.admin.deleteUser(id)
+      } catch {
+        // Fallback a platform-store
+      }
+    } else if (url && anonKey && id) {
+      const token = (authHeader || '').replace('Bearer ', '').trim()
+      if (token && !token.startsWith('custom-session:')) {
+        try {
+          const authedClient = createClient(url, anonKey, {
+            auth: { persistSession: false, autoRefreshToken: false },
+            global: {
+              headers: {
+                apikey: anonKey,
+                Authorization: `Bearer ${token}`,
+              },
+            },
+          })
+
+          if (authVerification.userId) {
+            await authedClient
+              .from('profiles')
+              .update({ role: 'admin' })
+              .eq('id', authVerification.userId)
+          }
+
+          await authedClient.from('enrollments').delete().eq('user_id', id)
+          await authedClient.from('lesson_progress').delete().eq('user_id', id)
+          await authedClient.from('certificates').delete().eq('user_id', id)
+          await authedClient.from('profiles').delete().eq('id', id)
+        } catch {
+          // Continuar con platform-store
+        }
+      }
+    }
+
+    // Persistir eliminación en el almacén de plataforma del servidor
+    mutateStore((state) => {
+      if (!state.deletedUserIds) state.deletedUserIds = []
+      if (id && !state.deletedUserIds.includes(id)) {
+        state.deletedUserIds.push(id)
+      }
+      state.users = state.users.filter(
+        (u) => u.id !== id && (!cleanEmail || (u.email || '').toLowerCase() !== cleanEmail)
+      )
+      if (id) {
+        state.enrollments = state.enrollments.filter((e) => e.user_id !== id)
+        state.lesson_progress = state.lesson_progress.filter((p) => p.user_id !== id)
+        state.certificates = state.certificates.filter((c) => c.user_id !== id)
+      }
+    })
+
+    return NextResponse.json({
+      success: true,
+      message: 'Usuario eliminado exitosamente del sistema.',
+    })
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Error al eliminar usuario'
     return NextResponse.json({ error: message }, { status: 500 })
   }
 }
