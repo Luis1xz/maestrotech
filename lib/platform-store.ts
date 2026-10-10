@@ -64,6 +64,16 @@ export const INITIAL_PLATFORM_STATE: PlatformStateData = {
       created_at: '2026-01-02T00:00:00Z',
     },
     {
+      id: '849d7cc6-4d5e-4cae-88e0-abb134051cae',
+      full_name: 'Patricia',
+      first_name: 'Patricia',
+      last_name: null,
+      email: 'patricia@maestrotech.co',
+      role: 'admin',
+      avatar_url: null,
+      created_at: '2026-10-10T12:53:42.435Z',
+    },
+    {
       id: INSTRUCTOR_TEST_USER_ID,
       full_name: 'Dra. Elena Restrepo',
       first_name: 'Elena',

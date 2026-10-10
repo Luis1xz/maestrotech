@@ -145,7 +145,18 @@ export async function POST(request: NextRequest) {
             (usr.email && (u.email || '').toLowerCase() === usr.email.toLowerCase())
         )
         if (idx >= 0) {
-          state.users[idx] = { ...state.users[idx], ...usr }
+          const existing = state.users[idx]
+          const keepExistingRole =
+            existing.role_updated_at &&
+            (!usr.role_updated_at || existing.role_updated_at > usr.role_updated_at)
+          state.users[idx] = {
+            ...existing,
+            ...usr,
+            role: keepExistingRole ? existing.role : usr.role || existing.role,
+            role_updated_at: keepExistingRole
+              ? existing.role_updated_at
+              : usr.role_updated_at || existing.role_updated_at,
+          }
         } else {
           state.users.unshift(usr)
         }
@@ -153,10 +164,50 @@ export async function POST(request: NextRequest) {
       }
 
       case 'update_user_role': {
-        const { id, role } = payload
-        const idx = state.users.findIndex((u) => u.id === id)
-        if (idx >= 0) {
-          state.users[idx].role = role
+        const {
+          id,
+          role,
+          email,
+          full_name,
+          first_name,
+          last_name,
+          avatar_url,
+          created_at,
+          role_updated_at,
+        } = payload
+        const cleanEmail = (email || '').trim().toLowerCase()
+        const updatedAt = role_updated_at || new Date().toISOString()
+        let matched = false
+
+        state.users = state.users.map((u) => {
+          if (u.id === id || (cleanEmail && (u.email || '').toLowerCase() === cleanEmail)) {
+            matched = true
+            return {
+              ...u,
+              role,
+              role_updated_at: updatedAt,
+              email: u.email || email || 'usuario@maestrotech.co',
+              full_name: u.full_name || full_name || 'Docente MaestroTech',
+              first_name: u.first_name ?? first_name ?? null,
+              last_name: u.last_name ?? last_name ?? null,
+              avatar_url: u.avatar_url ?? avatar_url ?? null,
+            }
+          }
+          return u
+        })
+
+        if (!matched && id) {
+          state.users.unshift({
+            id,
+            email: email || 'usuario@maestrotech.co',
+            full_name: full_name || 'Docente MaestroTech',
+            first_name: first_name ?? null,
+            last_name: last_name ?? null,
+            role,
+            role_updated_at: updatedAt,
+            avatar_url: avatar_url ?? null,
+            created_at: created_at || new Date().toISOString(),
+          })
         }
         break
       }

@@ -64,6 +64,10 @@ export default function AdminPanel() {
 
   // Feedback de cambio de rol
   const [roleUpdatingId, setRoleUpdatingId] = useState<string | null>(null)
+  const [roleFeedback, setRoleFeedback] = useState<{
+    type: 'success' | 'error'
+    text: string
+  } | null>(null)
 
   const token = session?.access_token
 
@@ -131,17 +135,34 @@ export default function AdminPanel() {
   }
 
   // Manejar cambio de rol interactivo
-  const handleRoleChange = async (userId: string, newRole: UserRole) => {
-    setRoleUpdatingId(userId)
-    const { success, error } = await updateUserRole(userId, newRole)
+  const handleRoleChange = async (targetUser: AdminUserListItem, newRole: UserRole) => {
+    setRoleUpdatingId(targetUser.id)
+    setRoleFeedback(null)
+    const { success, error } = await updateUserRole(targetUser.id, newRole, targetUser, token)
     setRoleUpdatingId(null)
 
     if (success) {
+      const updatedAt = new Date().toISOString()
       setUsers((prev) =>
-        prev.map((u) => (u.id === userId ? { ...u, role: newRole } : u))
+        prev.map((u) =>
+          u.id === targetUser.id ? { ...u, role: newRole, role_updated_at: updatedAt } : u
+        )
       )
+      const roleLabel =
+        newRole === 'admin'
+          ? 'Superusuario (Administrador)'
+          : newRole === 'instructor'
+          ? 'Docente (Instructor)'
+          : 'Estudiante'
+      setRoleFeedback({
+        type: 'success',
+        text: `Rol de "${targetUser.full_name || targetUser.email}" actualizado a ${roleLabel}.`,
+      })
     } else {
-      alert(error?.message || 'Error al actualizar rol')
+      setRoleFeedback({
+        type: 'error',
+        text: error?.message || 'Error al actualizar el rol del usuario.',
+      })
     }
   }
 
@@ -625,6 +646,23 @@ export default function AdminPanel() {
                 )}
               </div>
 
+              {roleFeedback && (
+                <div
+                  className={`p-3.5 rounded-xl text-xs flex items-center gap-2 ${
+                    roleFeedback.type === 'success'
+                      ? 'bg-emerald-500/15 border border-emerald-500/30 text-emerald-400'
+                      : 'bg-rose-500/15 border border-rose-500/30 text-rose-400'
+                  }`}
+                >
+                  {roleFeedback.type === 'success' ? (
+                    <CheckCircle2 className="w-4 h-4 shrink-0" />
+                  ) : (
+                    <AlertCircle className="w-4 h-4 shrink-0" />
+                  )}
+                  <span>{roleFeedback.text}</span>
+                </div>
+              )}
+
               {/* Tabla de Usuarios */}
               <div className="rounded-2xl border border-border/60 bg-card/60 backdrop-blur-md overflow-hidden shadow-lg">
                 <div className="overflow-x-auto">
@@ -677,7 +715,7 @@ export default function AdminPanel() {
                               <select
                                 disabled={roleUpdatingId === u.id}
                                 value={u.role}
-                                onChange={(e) => handleRoleChange(u.id, e.target.value as UserRole)}
+                                onChange={(e) => handleRoleChange(u, e.target.value as UserRole)}
                                 className="px-2.5 py-1.5 rounded-lg bg-muted/80 border border-border/80 text-xs font-medium text-foreground outline-none cursor-pointer focus:border-primary"
                               >
                                 <option value="student">Estudiante</option>
@@ -775,6 +813,76 @@ export default function AdminPanel() {
                       </li>
                     </ul>
                   </div>
+                </div>
+              </div>
+
+              {roleFeedback && (
+                <div
+                  className={`p-3.5 rounded-xl text-xs flex items-center gap-2 ${
+                    roleFeedback.type === 'success'
+                      ? 'bg-emerald-500/15 border border-emerald-500/30 text-emerald-400'
+                      : 'bg-rose-500/15 border border-rose-500/30 text-rose-400'
+                  }`}
+                >
+                  {roleFeedback.type === 'success' ? (
+                    <CheckCircle2 className="w-4 h-4 shrink-0" />
+                  ) : (
+                    <AlertCircle className="w-4 h-4 shrink-0" />
+                  )}
+                  <span>{roleFeedback.text}</span>
+                </div>
+              )}
+
+              <div className="rounded-2xl border border-border/60 bg-card/60 backdrop-blur-md overflow-hidden shadow-lg">
+                <div className="p-4 border-b border-border/60 flex items-center justify-between">
+                  <h4 className="font-display font-bold text-sm text-foreground">
+                    Asignación Directa de Roles ({users.length} usuarios)
+                  </h4>
+                </div>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-xs">
+                    <thead className="bg-muted/40 border-b border-border/60 text-muted-foreground uppercase text-[10px] tracking-wider font-semibold">
+                      <tr>
+                        <th className="p-4">Usuario</th>
+                        <th className="p-4">Correo Electrónico</th>
+                        <th className="p-4">Rol Actual</th>
+                        <th className="p-4 text-right">Cambiar Rol</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-border/40">
+                      {users.map((u) => (
+                        <tr key={u.id} className="hover:bg-muted/30 transition-colors">
+                          <td className="p-4 font-semibold text-foreground">{u.full_name || 'Sin nombre'}</td>
+                          <td className="p-4 text-muted-foreground font-mono text-[11px]">{u.email || '—'}</td>
+                          <td className="p-4">
+                            <span
+                              className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                                u.role === 'admin'
+                                  ? 'bg-violet-500/15 text-violet-400 border border-violet-500/30'
+                                  : u.role === 'instructor'
+                                  ? 'bg-blue-500/15 text-blue-400 border border-blue-500/30'
+                                  : 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
+                              }`}
+                            >
+                              {u.role === 'admin' ? 'Superusuario' : u.role === 'instructor' ? 'Docente' : 'Estudiante'}
+                            </span>
+                          </td>
+                          <td className="p-4 text-right">
+                            <select
+                              disabled={roleUpdatingId === u.id}
+                              value={u.role}
+                              onChange={(e) => handleRoleChange(u, e.target.value as UserRole)}
+                              className="px-2.5 py-1.5 rounded-lg bg-muted/80 border border-border/80 text-xs font-medium text-foreground outline-none cursor-pointer focus:border-primary"
+                            >
+                              <option value="student">Estudiante</option>
+                              <option value="instructor">Docente</option>
+                              <option value="admin">Administrador / Superusuario</option>
+                            </select>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
               </div>
             </div>

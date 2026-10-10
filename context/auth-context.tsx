@@ -212,6 +212,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const parsed = JSON.parse(raw)
         if (parsed && parsed.id && parsed.email) {
           activateCustomSession(parsed)
+          // Sincronizar rol con platform-state en segundo plano por si un Superusuario lo promovió
+          fetchPlatformState()
+            .then((state) => {
+              if (!isMounted || !state?.users) return
+              const cleanEmail = (parsed.email || '').trim().toLowerCase()
+              const stateUser = state.users.find(
+                (u) => u.id === parsed.id || (cleanEmail && (u.email || '').toLowerCase() === cleanEmail)
+              )
+              if (stateUser && stateUser.role && stateUser.role !== parsed.role) {
+                activateCustomSession({
+                  ...parsed,
+                  role: stateUser.role,
+                  full_name: stateUser.full_name || parsed.full_name,
+                })
+              }
+            })
+            .catch(() => {})
           return true
         }
       } catch {

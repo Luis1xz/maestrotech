@@ -41,6 +41,9 @@ export async function getProfile(
 
     if (stateUser || dbProfile) {
       let resolvedRole: UserRole = stateUser?.role || dbProfile?.role || 'student'
+      if (!stateUser?.role_updated_at && dbProfile?.role === 'admin') {
+        resolvedRole = 'admin'
+      }
       if (cleanEmail && SUPERADMIN_EMAILS.has(cleanEmail)) {
         resolvedRole = 'admin'
       }
@@ -54,6 +57,29 @@ export async function getProfile(
         avatar_url: stateUser?.avatar_url || dbProfile?.avatar_url || null,
         created_at: dbProfile?.created_at || stateUser?.created_at || new Date().toISOString(),
       }
+
+      // Sincronizar rol hacia public.profiles cuando el propio usuario inicia sesión (permitido por RLS auth.uid() = id)
+      if (isSupabaseConfigured() && dbProfile && dbProfile.role !== resolvedRole) {
+        try {
+          const client = getSupabase()
+          await client
+            .from('profiles')
+            .update({ role: resolvedRole, updated_at: new Date().toISOString() })
+            .eq('id', userId)
+        } catch {
+          // Ignore RLS/network errors
+        }
+      }
+
+      // Registrar en state.users si aún no estaba o si faltaba su correo real
+      if (!stateUser || (cleanEmail && stateUser.email !== cleanEmail) || stateUser.role !== resolvedRole) {
+        await mutatePlatformState('upsert_user', {
+          ...merged,
+          email: cleanEmail || stateUser?.email || 'usuario@maestrotech.co',
+          role_updated_at: stateUser?.role_updated_at,
+        })
+      }
+
       return { data: merged, error: null, isDemo: false }
     }
 
@@ -99,6 +125,7 @@ export async function updateProfile(
       first_name: updates.first_name ?? existing?.first_name ?? null,
       last_name: updates.last_name ?? existing?.last_name ?? null,
       role: (updates.role || existing?.role || dbUpdated?.role || 'student') as UserRole,
+      role_updated_at: existing?.role_updated_at,
       avatar_url: updates.avatar_url ?? existing?.avatar_url ?? null,
       created_at: existing?.created_at || new Date().toISOString(),
     }
@@ -162,11 +189,21 @@ export async function ensureProfile(
           .maybeSingle()
 
         if (existing) {
-          if (existing.role === 'admin' || existing.role === 'instructor') {
-            resolvedRole = existing.role
+          if (!stateUser?.role_updated_at && !stateUser?.role) {
+            if (existing.role === 'admin' || existing.role === 'instructor') {
+              resolvedRole = existing.role
+            }
+          } else if (existing.role === 'admin' && !stateUser?.role_updated_at) {
+            resolvedRole = 'admin'
           }
           if (cleanEmail && SUPERADMIN_EMAILS.has(cleanEmail)) {
             resolvedRole = 'admin'
+          }
+          if (existing.role !== resolvedRole) {
+            await client
+              .from('profiles')
+              .update({ role: resolvedRole, updated_at: new Date().toISOString() })
+              .eq('id', userId)
           }
         } else {
           await client.from('profiles').insert({
@@ -190,6 +227,7 @@ export async function ensureProfile(
       first_name: initialData.first_name || stateUser?.first_name || null,
       last_name: initialData.last_name || stateUser?.last_name || null,
       role: resolvedRole,
+      role_updated_at: stateUser?.role_updated_at,
       avatar_url: initialData.avatar_url || stateUser?.avatar_url || null,
       created_at: stateUser?.created_at || new Date().toISOString(),
     }

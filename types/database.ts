@@ -174,6 +174,7 @@ export const canCreateContent = (role: UserRole | null | undefined): boolean => 
 export interface AdminUserListItem extends Profile {
   email?: string
   enrollments_count?: number
+  role_updated_at?: string
 }
 
 export interface CreateUserPayload {

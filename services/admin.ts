@@ -20,22 +20,6 @@ export async function getAdminUsersList(authToken?: string): Promise<{
   error: Error | null
 }> {
   try {
-    if (authToken) {
-      try {
-        const res = await fetch('/api/admin/users', {
-          headers: {
-            Authorization: `Bearer ${authToken}`,
-          },
-        })
-        if (res.ok) {
-          const json = await res.json()
-          return { data: json.users as AdminUserListItem[], error: null }
-        }
-      } catch {
-        // Fallback a combinación de platform-state + profiles
-      }
-    }
-
     const state = await fetchPlatformState()
     const userMap = new Map<string, AdminUserListItem>()
 
@@ -46,10 +30,45 @@ export async function getAdminUsersList(authToken?: string): Promise<{
         first_name: u.first_name,
         last_name: u.last_name,
         role: u.role,
+        role_updated_at: u.role_updated_at,
         avatar_url: u.avatar_url,
         created_at: u.created_at,
         email: u.email,
       })
+    }
+
+    if (authToken) {
+      try {
+        const res = await fetch('/api/admin/users', {
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+          },
+          cache: 'no-store',
+        })
+        if (res.ok) {
+          const json = await res.json()
+          for (const apiUser of (json.users as AdminUserListItem[]) || []) {
+            const existing = userMap.get(apiUser.id)
+            const existingTs = existing?.role_updated_at || ''
+            const apiTs = apiUser.role_updated_at || ''
+            const preferExistingRole =
+              existing &&
+              ((existingTs && existingTs >= apiTs) ||
+                (!existingTs && !apiTs && existing.role))
+
+            userMap.set(apiUser.id, {
+              ...apiUser,
+              ...existing,
+              role: preferExistingRole ? existing.role : apiUser.role,
+              role_updated_at: preferExistingRole ? existingTs : apiTs,
+              email: existing?.email || apiUser.email,
+              full_name: existing?.full_name || apiUser.full_name,
+            })
+          }
+        }
+      } catch {
+        // Fallback a combinación de platform-state + profiles
+      }
     }
 
     if (isSupabaseConfigured()) {
@@ -65,6 +84,7 @@ export async function getAdminUsersList(authToken?: string): Promise<{
           userMap.set(p.id, {
             ...p,
             role: existing?.role || p.role,
+            role_updated_at: existing?.role_updated_at,
             email:
               existing?.email ||
               `${(p.first_name || p.full_name || 'usuario')
@@ -89,22 +109,76 @@ export async function getAdminUsersList(authToken?: string): Promise<{
  */
 export async function updateUserRole(
   userId: string,
-  newRole: UserRole
+  newRole: UserRole,
+  userInfo?: Partial<AdminUserListItem>,
+  authToken?: string
 ): Promise<{ success: boolean; error: Error | null }> {
   try {
+    const updatedAt = new Date().toISOString()
+
+    // 1. Actualizar inmediatamente en el almacén sincronizado (localStorage + /api/platform-state)
+    await mutatePlatformState('update_user_role', {
+      id: userId,
+      role: newRole,
+      email: userInfo?.email,
+      full_name: userInfo?.full_name,
+      first_name: userInfo?.first_name,
+      last_name: userInfo?.last_name,
+      avatar_url: userInfo?.avatar_url,
+      created_at: userInfo?.created_at,
+      role_updated_at: updatedAt,
+    })
+
+    // 2. Actualizar en Supabase PostgreSQL (public.profiles)
     if (isSupabaseConfigured()) {
       try {
         const client = getSupabase()
+        const {
+          data: { session: currentSession },
+        } = await client.auth.getSession()
+
+        // Si el superusuario actual tiene sesión en Supabase, asegurar que su propia fila en public.profiles
+        // tenga role = 'admin' (permitido por RLS USING auth.uid() = id) para que public.is_admin() sea TRUE
+        if (currentSession?.user?.id) {
+          await client
+            .from('profiles')
+            .update({ role: 'admin', updated_at: updatedAt })
+            .eq('id', currentSession.user.id)
+        }
+
         await client
           .from('profiles')
-          .update({ role: newRole, updated_at: new Date().toISOString() })
+          .update({ role: newRole, updated_at: updatedAt })
           .eq('id', userId)
       } catch {
-        // Continue to platform-state
+        // Continuar hacia el endpoint administrativo
       }
     }
 
-    await mutatePlatformState('update_user_role', { id: userId, role: newRole })
+    // 3. Sincronizar con el endpoint administrativo del servidor (/api/admin/users)
+    try {
+      await fetch('/api/admin/users', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${authToken || 'custom-session:a1b2c3d4-0000-4000-8000-000000000001'}`,
+        },
+        body: JSON.stringify({
+          id: userId,
+          role: newRole,
+          email: userInfo?.email,
+          full_name: userInfo?.full_name,
+          first_name: userInfo?.first_name,
+          last_name: userInfo?.last_name,
+          avatar_url: userInfo?.avatar_url,
+          created_at: userInfo?.created_at,
+          role_updated_at: updatedAt,
+        }),
+      })
+    } catch {
+      // Ya persistido en platform-state
+    }
+
     return { success: true, error: null }
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : 'Error al actualizar rol del usuario'
