@@ -3,6 +3,9 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { CheckCircle2, Zap, Shield, Star, ArrowRight, Sparkles } from 'lucide-react'
+import { useAuth } from '@/hooks/use-auth'
+import NequiCheckoutModal from '@/components/nequi-checkout-modal'
+import { NEQUI_CONFIG } from '@/services/payments'
 
 const PLANS = [
   {
@@ -66,12 +69,27 @@ interface PricingProps {
 }
 
 export default function PricingView({ onNavigate }: PricingProps) {
+  const { user, profile } = useAuth()
   const [annual, setAnnual] = useState(true)
+  const [isNequiModalOpen, setIsNequiModalOpen] = useState(false)
 
   const format = (n: number | null) => {
     if (n === null) return 'A medida'
     if (n === 0) return 'Gratis'
     return `$${(n / 1000).toFixed(0)}K`
+  }
+
+  const handlePlanClick = (planName: string) => {
+    if (planName === 'Docente Pro') {
+      setIsNequiModalOpen(true)
+    } else if (planName === 'Institucional') {
+      window.open(
+        'https://wa.me/573108924512?text=Hola,%20deseo%20información%20sobre%20el%20Plan%20Institucional%20para%20colegios',
+        '_blank'
+      )
+    } else {
+      onNavigate('dashboard')
+    }
   }
 
   return (
@@ -173,7 +191,7 @@ export default function PricingView({ onNavigate }: PricingProps) {
               </ul>
 
               <button
-                onClick={() => onNavigate('dashboard')}
+                onClick={() => handlePlanClick(name)}
                 className={`group w-full py-3.5 rounded-2xl font-semibold text-sm transition-all duration-300 btn-magnetic flex items-center justify-center gap-2 ${
                   popular
                     ? `bg-gradient-to-r ${gradient} text-white shadow-xl shadow-primary/20 hover:shadow-primary/40`
@@ -206,6 +224,26 @@ export default function PricingView({ onNavigate }: PricingProps) {
           </div>
         </motion.div>
       </div>
+
+      {/* Modal Nequi Negocio */}
+      <NequiCheckoutModal
+        isOpen={isNequiModalOpen}
+        onClose={() => setIsNequiModalOpen(false)}
+        productTitle="Suscripción Docente Pro"
+        productPlan={annual ? 'Plan Anual Facturado (Ahorro del 20%)' : 'Plan Mensual Recurrente'}
+        courseId="plan_pro"
+        amount={annual ? 39900 : 49900}
+        user={{
+          id: user?.id,
+          email: user?.email,
+          name: profile?.full_name || undefined,
+        }}
+        onPaymentSubmitted={() => {
+          setTimeout(() => {
+            onNavigate('dashboard')
+          }, 2500)
+        }}
+      />
     </div>
   )
 }

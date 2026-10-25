@@ -15,9 +15,25 @@ import {
   Flag,
   RotateCcw,
   Home,
+  Sparkles,
+  Lightbulb,
+  Zap,
+  Award,
+  BookOpen,
 } from 'lucide-react'
 import { RadarChart, PolarGrid, PolarAngleAxis, Radar, ResponsiveContainer } from 'recharts'
 import { getExamQuestions } from '@/services/exams'
+import AIMentor, { MentorMood } from '@/components/ai-mentor'
+import CelebrationParticles from '@/components/celebration-particles'
+import {
+  recordQuestionAnswer,
+  getUserGamification,
+} from '@/services/gamification'
+import {
+  UserGamificationState,
+  Badge,
+  TopicPerformance,
+} from '@/types/gamification'
 
 interface ExamProps {
   onNavigate: (view: string) => void
@@ -93,6 +109,18 @@ export default function ExamSimulator({ onNavigate }: ExamProps) {
   const [timeLeft, setTimeLeft] = useState(60 * 60)
   const [answered, setAnswered] = useState(false)
 
+  // Estados Pedagógicos & Gamificación
+  const [gamification, setGamification] = useState<UserGamificationState>(() => getUserGamification())
+  const [mentorMood, setMentorMood] = useState<MentorMood>('thinking')
+  const [showParticles, setShowParticles] = useState(false)
+  const [retriedQuestions, setRetriedQuestions] = useState<Record<number, boolean>>({})
+  const [showHintForQuestion, setShowHintForQuestion] = useState<Record<number, boolean>>({})
+  const [sessionXp, setSessionXp] = useState(0)
+
+  useEffect(() => {
+    setGamification(getUserGamification())
+  }, [])
+
   useEffect(() => {
     async function loadBank() {
       const { data } = await getExamQuestions()
@@ -142,21 +170,66 @@ export default function ExamSimulator({ onNavigate }: ExamProps) {
     newSelected[current] = idx
     setSelected(newSelected)
     setAnswered(true)
+
+    const isCorrect = idx === questions[current]?.correct
+    const isRetry = Boolean(retriedQuestions[current])
+
+    const res = recordQuestionAnswer({
+      competency: questions[current]?.competency || 'Pedagogía',
+      isCorrect,
+      isRetry,
+    })
+
+    setGamification(res.state)
+    setSessionXp((prev) => prev + res.xpGained)
+
+    if (isCorrect) {
+      setShowParticles(true)
+      setMentorMood(isRetry ? 'encouraging' : 'celebrating')
+    } else {
+      setMentorMood('empathic')
+    }
+  }
+
+  const handleRetryQuestion = () => {
+    setRetriedQuestions((prev) => ({ ...prev, [current]: true }))
+    setShowHintForQuestion((prev) => ({ ...prev, [current]: true }))
+    const newSelected = [...selected]
+    newSelected[current] = null
+    setSelected(newSelected)
+    setAnswered(false)
+    setMentorMood('thinking')
   }
 
   const goNext = () => {
+    setShowParticles(false)
     if (current < questions.length - 1) {
       setCurrent(current + 1)
-      setAnswered(selected[current + 1] !== null)
+      const nextAnswered = selected[current + 1] !== null
+      setAnswered(nextAnswered)
+      if (!nextAnswered) {
+        setMentorMood('thinking')
+      } else {
+        const wasCorrect = selected[current + 1] === questions[current + 1]?.correct
+        setMentorMood(wasCorrect ? 'happy' : 'empathic')
+      }
     } else {
       setPhase('result')
     }
   }
 
   const goPrev = () => {
+    setShowParticles(false)
     if (current > 0) {
       setCurrent(current - 1)
-      setAnswered(selected[current - 1] !== null)
+      const prevAnswered = selected[current - 1] !== null
+      setAnswered(prevAnswered)
+      if (!prevAnswered) {
+        setMentorMood('thinking')
+      } else {
+        const wasCorrect = selected[current - 1] === questions[current - 1]?.correct
+        setMentorMood(wasCorrect ? 'happy' : 'empathic')
+      }
     }
   }
 
@@ -241,39 +314,41 @@ export default function ExamSimulator({ onNavigate }: ExamProps) {
   if (phase === 'result') {
     return (
       <div className="min-h-screen bg-background aurora-bg px-6 py-16 flex items-center justify-center">
+        <CelebrationParticles trigger={passed} />
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
-          className="w-full max-w-3xl"
+          className="w-full max-w-3xl space-y-6"
         >
-          <div className="p-10 rounded-3xl glass border border-border/60 text-center mb-6">
+          {/* Main Score Card */}
+          <div className="p-8 sm:p-10 rounded-3xl glass border border-border/60 text-center">
             <div
-              className={`w-24 h-24 rounded-3xl bg-gradient-to-br ${
+              className={`w-20 h-20 rounded-3xl bg-gradient-to-br ${
                 passed ? 'from-emerald-500 to-cyan-500' : 'from-orange-500 to-rose-500'
-              } flex items-center justify-center mx-auto mb-6 shadow-xl`}
+              } flex items-center justify-center mx-auto mb-5 shadow-xl`}
             >
               {passed ? (
-                <Trophy className="w-12 h-12 text-white" strokeWidth={1.5} />
+                <Trophy className="w-10 h-10 text-white" strokeWidth={1.5} />
               ) : (
-                <Target className="w-12 h-12 text-white" strokeWidth={1.5} />
+                <Target className="w-10 h-10 text-white" strokeWidth={1.5} />
               )}
             </div>
 
             <p
-              className={`text-sm font-semibold uppercase tracking-widest mb-2 ${
+              className={`text-xs font-bold uppercase tracking-widest mb-1.5 ${
                 passed ? 'text-emerald-500' : 'text-orange-500'
               }`}
             >
-              {passed ? 'Simulacro aprobado' : 'Sigue practicando'}
+              {passed ? '¡Simulacro Superado con Éxito!' : '¡Buen Esfuerzo! Cada Intento Suma'}
             </p>
             <h2 className="font-display font-bold text-5xl md:text-6xl text-foreground mb-2">
               {pct}%
             </h2>
-            <p className="text-muted-foreground mb-8">
-              {score} de {questions.length} respuestas correctas
+            <p className="text-muted-foreground text-xs sm:text-sm mb-6">
+              {score} de {questions.length} respuestas acertadas · {sessionXp} XP obtenidos en esta sesión
             </p>
 
-            <div className="h-2 bg-muted rounded-full overflow-hidden max-w-sm mx-auto mb-8">
+            <div className="h-2.5 bg-muted rounded-full overflow-hidden max-w-sm mx-auto mb-6">
               <motion.div
                 initial={{ width: 0 }}
                 animate={{ width: `${pct}%` }}
@@ -286,7 +361,7 @@ export default function ExamSimulator({ onNavigate }: ExamProps) {
               />
             </div>
 
-            <div className="grid grid-cols-3 gap-4 max-w-sm mx-auto">
+            <div className="grid grid-cols-3 gap-3 max-w-sm mx-auto">
               {[
                 { label: 'Correctas', value: score, color: 'text-emerald-500' },
                 { label: 'Incorrectas', value: questions.length - score, color: 'text-rose-500' },
@@ -296,20 +371,145 @@ export default function ExamSimulator({ onNavigate }: ExamProps) {
                   color: 'text-amber-500',
                 },
               ].map(({ label, value, color }) => (
-                <div key={label} className="p-3 rounded-xl bg-muted/50">
-                  <p className={`text-2xl font-bold font-display ${color}`}>{value}</p>
-                  <p className="text-xs text-muted-foreground">{label}</p>
+                <div key={label} className="p-3 rounded-2xl bg-muted/40 border border-border/40">
+                  <p className={`text-xl font-bold font-display ${color}`}>{value}</p>
+                  <p className="text-[10px] text-muted-foreground">{label}</p>
                 </div>
               ))}
             </div>
           </div>
 
-          <div className="p-8 rounded-3xl glass border border-border/60 mb-6">
-            <h3 className="font-display font-semibold text-foreground mb-1">
-              Análisis por competencias
+          {/* AI Mentor Pedagogical Summary */}
+          <AIMentor
+            mood={passed ? 'celebrating' : 'encouraging'}
+            variant="card"
+            message={
+              passed
+                ? `¡Extraordinario desempeño, colega! Obtuviste un ${pct}%. Tu criterio para abordar situaciones de aula, evaluación y convivencia refleja un sólido dominio del marco pedagógico y normativo del MEN.`
+                : `¡Muy buen esfuerzo! Lograste un ${pct}%. Recuerda que en pedagogía no hay respuestas fallidas, sino hipótesis de aprendizaje. Revisa los ejes recomendados para afianzar tus competencias.`
+            }
+            hint={
+              passed
+                ? 'Consejo pedagógico: Profundiza ahora en los modelos de gestión directiva y liderazgo comunitario.'
+                : 'Pista pedagógica: Recuerda que el Decreto 1290 prioriza la autorregulación formativa y la flexibilización curricular.'
+            }
+          />
+
+          {/* Gamification & Badges Card */}
+          <div className="p-6 rounded-3xl glass border border-violet-500/30 bg-violet-500/5 space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-xl bg-violet-600 text-white flex items-center justify-center shadow-md">
+                  <Zap className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-display font-bold text-sm text-foreground">
+                    Nivel de Dominio Docente: {gamification.levelTitle}
+                  </h3>
+                  <p className="text-[11px] text-muted-foreground">
+                    Nivel {gamification.level} · {gamification.xp} XP totales acumulados
+                  </p>
+                </div>
+              </div>
+              <span className="px-3 py-1 rounded-full bg-violet-500/15 text-violet-400 font-bold text-xs border border-violet-500/30">
+                +{sessionXp} XP ganados
+              </span>
+            </div>
+
+            <div className="space-y-1.5">
+              <div className="flex justify-between text-[11px] text-muted-foreground">
+                <span>Progreso hacia el siguiente nivel</span>
+                <span>{gamification.xp} / {gamification.nextLevelXp} XP</span>
+              </div>
+              <div className="h-2 bg-muted rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-gradient-to-r from-blue-500 to-violet-500 rounded-full"
+                  style={{
+                    width: `${Math.min(100, Math.round((gamification.xp / gamification.nextLevelXp) * 100))}%`,
+                  }}
+                />
+              </div>
+            </div>
+
+            {/* Badges unlocked */}
+            <div className="pt-2">
+              <p className="text-xs font-semibold text-foreground mb-2 flex items-center gap-1.5">
+                <Award className="w-3.5 h-3.5 text-amber-500" /> Insignias Obtenidas ({gamification.unlockedBadges.length})
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {gamification.unlockedBadges.map((badge: Badge) => (
+                  <span
+                    key={badge.id}
+                    className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-muted/60 border border-border/80 text-xs font-medium text-foreground"
+                    title={badge.description}
+                  >
+                    <span>{badge.icon}</span>
+                    <span>{badge.title}</span>
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Seguimiento de Progreso: Fortalezas y Ejes a Fortalecer */}
+          <div className="grid md:grid-cols-2 gap-4">
+            {/* Fortalezas */}
+            <div className="p-6 rounded-3xl glass border border-emerald-500/30 bg-emerald-500/5 space-y-3">
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="w-5 h-5 text-emerald-500" />
+                <h4 className="font-display font-bold text-sm text-foreground">
+                  Fortalezas Detectadas
+                </h4>
+              </div>
+              <p className="text-[11px] text-muted-foreground leading-relaxed">
+                Tus respuestas evidencian gran solvencia y comprensión pedagógica en:
+              </p>
+              <div className="space-y-2">
+                {gamification.strengths.map((str: TopicPerformance) => (
+                  <div key={str.topic} className="p-3 rounded-2xl bg-muted/40 border border-border/50">
+                    <p className="text-xs font-bold text-emerald-400">{str.topic}</p>
+                    <p className="text-[10px] text-muted-foreground mt-0.5">{str.suggestion}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Ejes a Fortalecer y Recomendaciones */}
+            <div className="p-6 rounded-3xl glass border border-amber-500/30 bg-amber-500/5 space-y-3">
+              <div className="flex items-center gap-2">
+                <Lightbulb className="w-5 h-5 text-amber-500" />
+                <h4 className="font-display font-bold text-sm text-foreground">
+                  Ejes por Reforzar
+                </h4>
+              </div>
+              <p className="text-[11px] text-muted-foreground leading-relaxed">
+                Recomendaciones personalizadas para elevar tu puntaje en el concurso:
+              </p>
+              <div className="space-y-2">
+                {gamification.improvementAreas.map((imp: TopicPerformance) => (
+                  <div key={imp.topic} className="p-3 rounded-2xl bg-muted/40 border border-border/50">
+                    <p className="text-xs font-bold text-amber-400">{imp.topic}</p>
+                    <p className="text-[10px] text-muted-foreground mt-0.5">{imp.suggestion}</p>
+                  </div>
+                ))}
+              </div>
+              <button
+                onClick={() => onNavigate('courses')}
+                className="w-full mt-2 py-2.5 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 text-amber-400 text-xs font-bold flex items-center justify-center gap-1.5 transition-colors"
+              >
+                <BookOpen className="w-3.5 h-3.5" />
+                Ver Cursos y Guías de Apoyo
+              </button>
+            </div>
+          </div>
+
+          {/* Competency Radar Chart */}
+          <div className="p-6 sm:p-8 rounded-3xl glass border border-border/60">
+            <h3 className="font-display font-semibold text-foreground mb-1 text-sm sm:text-base">
+              Radar de Competencias CNSC
             </h3>
-            <p className="text-sm text-muted-foreground mb-5">
-              Tu nivel de dominio en cada eje evaluado por el MEN
+            <p className="text-xs text-muted-foreground mb-4">
+              Alineación y dominio por cada eje evaluado por el Ministerio de Educación Nacional
             </p>
             <div className="h-56">
               <ResponsiveContainer width="100%" height="100%">
@@ -323,7 +523,7 @@ export default function ExamSimulator({ onNavigate }: ExamProps) {
                     dataKey="A"
                     stroke="#1a56db"
                     fill="#1a56db"
-                    fillOpacity={0.2}
+                    fillOpacity={0.25}
                     strokeWidth={2}
                   />
                 </RadarChart>
@@ -331,6 +531,7 @@ export default function ExamSimulator({ onNavigate }: ExamProps) {
             </div>
           </div>
 
+          {/* Action Buttons */}
           <div className="grid grid-cols-2 gap-4">
             <button
               onClick={() => {
@@ -340,15 +541,19 @@ export default function ExamSimulator({ onNavigate }: ExamProps) {
                 setFlagged(Array(questions.length).fill(false))
                 setTimeLeft(3600)
                 setAnswered(false)
+                setSessionXp(0)
+                setRetriedQuestions({})
+                setShowHintForQuestion({})
+                setMentorMood('thinking')
               }}
-              className="flex items-center justify-center gap-2 py-4 rounded-2xl glass border border-border hover:border-primary/30 text-foreground font-semibold transition-all btn-magnetic"
+              className="flex items-center justify-center gap-2 py-4 rounded-2xl glass border border-border hover:border-primary/30 text-foreground font-semibold text-sm transition-all btn-magnetic"
             >
               <RotateCcw className="w-4 h-4" />
               Repetir simulacro
             </button>
             <button
               onClick={() => onNavigate('dashboard')}
-              className="flex items-center justify-center gap-2 py-4 rounded-2xl bg-gradient-to-r from-blue-600 to-violet-600 text-white font-semibold shadow-xl shadow-blue-600/20 hover:shadow-blue-600/40 transition-all btn-magnetic"
+              className="flex items-center justify-center gap-2 py-4 rounded-2xl bg-gradient-to-r from-blue-600 to-violet-600 text-white font-semibold text-sm shadow-xl shadow-blue-600/20 hover:shadow-blue-600/40 transition-all btn-magnetic"
             >
               <Home className="w-4 h-4" />
               Volver al Dashboard
@@ -401,8 +606,30 @@ export default function ExamSimulator({ onNavigate }: ExamProps) {
         </div>
       </header>
 
-      {/* Question */}
-      <div className="flex-1 flex flex-col max-w-3xl mx-auto w-full px-6 py-10">
+      {/* Celebration burst */}
+      <CelebrationParticles trigger={showParticles} onComplete={() => setShowParticles(false)} />
+
+      {/* Question Container */}
+      <div className="flex-1 flex flex-col max-w-3xl mx-auto w-full px-6 py-8">
+        {/* AI Mentor Companion Bar */}
+        <div className="mb-6">
+          <AIMentor
+            mood={mentorMood}
+            variant="inline"
+            message={
+              !answered
+                ? retriedQuestions[current]
+                  ? '¡Gran actitud! Revisa las opciones con calma teniendo presente la pista pedagógica.'
+                  : 'Analiza la situación contextual. ¿Cuál opción prioriza el aprendizaje activo y la convivencia armónica?'
+                : sel === q.correct
+                  ? retriedQuestions[current]
+                    ? '¡Bravo! Lograste la respuesta correcta en tu segundo intento. ¡Eso demuestra tu capacidad reflexiva y resiliencia pedagógica!'
+                    : '¡Magistral! Tu análisis es acertado y se alinea plenamente con los lineamientos del MEN.'
+                  : '¡Tranquilo(a), no pasa nada! Equivocarse es el punto de partida del aprendizaje significativo. Lee la retroalimentación y reintenta.'
+            }
+          />
+        </div>
+
         <AnimatePresence mode="wait">
           <motion.div
             key={current}
@@ -412,8 +639,8 @@ export default function ExamSimulator({ onNavigate }: ExamProps) {
             transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
             className="flex-1 flex flex-col"
           >
-            <div className="flex items-center justify-between mb-6">
-              <span className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+            <div className="flex items-center justify-between mb-4">
+              <span className="text-xs font-semibold uppercase tracking-widest text-primary px-3 py-1 rounded-full bg-primary/10 border border-primary/20">
                 {q.competency}
               </span>
               <button
@@ -432,11 +659,28 @@ export default function ExamSimulator({ onNavigate }: ExamProps) {
               </button>
             </div>
 
-            <div className="p-8 rounded-3xl glass border border-border/60 mb-6">
-              <p className="text-lg md:text-xl font-medium text-foreground leading-relaxed">
+            <div className="p-7 sm:p-8 rounded-3xl glass border border-border/60 mb-6">
+              <p className="text-base sm:text-lg font-medium text-foreground leading-relaxed">
                 {q.text}
               </p>
             </div>
+
+            {/* Hint if retrying */}
+            {showHintForQuestion[current] && (
+              <motion.div
+                initial={{ opacity: 0, y: -8 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mb-4 p-4 rounded-2xl bg-amber-500/10 border border-amber-500/25 flex items-start gap-3 text-xs text-amber-300"
+              >
+                <Lightbulb className="w-4 h-4 shrink-0 mt-0.5 text-amber-400" />
+                <div>
+                  <span className="font-bold block text-amber-400">Pista Pedagógica Orientadora:</span>
+                  <span>
+                    En el marco del Decreto 1278 y 1290, se privilegian las acciones formativas, concertadas y dialógicas por encima de sanciones punitivas o enfoques meramente memorísticos.
+                  </span>
+                </div>
+              </motion.div>
+            )}
 
             <div className="space-y-3 mb-6">
               {q.options.map((opt, i) => {
@@ -490,6 +734,7 @@ export default function ExamSimulator({ onNavigate }: ExamProps) {
               })}
             </div>
 
+            {/* Retroalimentación Pedagógica Personalizada */}
             <AnimatePresence>
               {answered && (
                 <motion.div
@@ -498,15 +743,56 @@ export default function ExamSimulator({ onNavigate }: ExamProps) {
                   exit={{ opacity: 0, height: 0 }}
                   className="mb-6 overflow-hidden"
                 >
-                  <div className="p-5 rounded-2xl border border-blue-500/20 bg-blue-500/6">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Brain className="w-4 h-4 text-blue-500" />
-                      <span className="text-sm font-semibold text-blue-600 dark:text-blue-400">
-                        Retroalimentación Pedagógica Oficial
-                      </span>
+                  {sel === q.correct ? (
+                    /* Acierto */
+                    <div className="p-5 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <CheckCircle2 className="w-5 h-5 text-emerald-400" />
+                          <span className="text-sm font-bold text-emerald-400">
+                            ¡Respuesta Correcta! {retriedQuestions[current] ? '🏆 Superado al Reintentar' : '🎉'}
+                          </span>
+                        </div>
+                        <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300">
+                          +{retriedQuestions[current] ? 15 : 25} XP
+                        </span>
+                      </div>
+                      <p className="text-xs text-foreground leading-relaxed pt-1">
+                        {q.explanation}
+                      </p>
                     </div>
-                    <p className="text-sm text-foreground leading-relaxed">{q.explanation}</p>
-                  </div>
+                  ) : (
+                    /* Error pedagógico constructivo y reintento */
+                    <div className="p-5 rounded-2xl border border-purple-500/30 bg-purple-500/10 space-y-3">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2 text-violet-400 font-bold text-sm">
+                          <Brain className="w-5 h-5 text-violet-400" />
+                          <span>Oportunidad de Aprendizaje Reflexivo</span>
+                        </div>
+                        <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-violet-500/20 text-violet-300">
+                          +5 XP por perseverancia
+                        </span>
+                      </div>
+                      <p className="text-xs text-muted-foreground leading-relaxed">
+                        ¡Tranquilo(a), no pasa nada! No hay respuestas fallidas sino momentos formativos.
+                        <br />
+                        <span className="text-foreground font-medium">{q.explanation}</span>
+                      </p>
+
+                      <div className="pt-2 flex flex-col sm:flex-row items-center gap-3">
+                        <button
+                          onClick={handleRetryQuestion}
+                          className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-violet-600 to-blue-600 text-white text-xs font-bold shadow-md hover:shadow-lg transition-all"
+                        >
+                          <RotateCcw className="w-3.5 h-3.5" />
+                          Ver pista y reintentar pregunta
+                        </button>
+                        <span className="text-[11px] text-muted-foreground">
+                          Aprender de los errores fortalece tu memoria a largo plazo.
+                        </span>
+                      </div>
+                    </div>
+                  )}
                 </motion.div>
               )}
             </AnimatePresence>

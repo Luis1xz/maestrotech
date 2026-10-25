@@ -25,6 +25,8 @@ import {
   AlertCircle,
   Shield,
   Printer,
+  Lightbulb,
+  Sparkles,
 } from 'lucide-react'
 import {
   RadarChart,
@@ -42,6 +44,9 @@ import { getUserEnrollments, EnrollmentWithCourse } from '@/services/enrollments
 import { getUserGlobalProgress, UserGlobalProgress } from '@/services/progress'
 import { getUserCertificates, CertificateWithCourse } from '@/services/certificates'
 import { getAvatarUrl } from '@/lib/supabase/storage'
+import AIMentor from '@/components/ai-mentor'
+import { getUserGamification } from '@/services/gamification'
+import { Badge, TopicPerformance, UserGamificationState } from '@/types/gamification'
 import Link from 'next/link'
 
 interface DashboardProps {
@@ -96,6 +101,11 @@ export default function Dashboard({ onNavigate, onOpenAuth, onSelectCourse }: Da
   const [selectedCert, setSelectedCert] = useState<CertificateWithCourse | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [gamification, setGamification] = useState<UserGamificationState>(() => getUserGamification())
+
+  useEffect(() => {
+    setGamification(getUserGamification(user?.id))
+  }, [user?.id])
 
   const [aiMessage, setAiMessage] = useState('')
   const [aiHistory, setAiHistory] = useState([
@@ -419,6 +429,20 @@ export default function Dashboard({ onNavigate, onOpenAuth, onSelectCourse }: Da
               </button>
             </motion.div>
 
+            {/* AI Mentor Companion Card */}
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+            >
+              <AIMentor
+                mood="happy"
+                variant="card"
+                message={`¡Hola de nuevo, ${displayName}! Tu evolución docente avanza con gran compromiso. Hoy tienes activa tu racha de estudio de ${gamification.streakDays} días consecutivos.`}
+                hint="Consejo del día: En las pruebas de juicio situacional docente, prioriza siempre el diálogo reflexivo, la mediación formativa y los derechos fundamentales de los estudiantes."
+              />
+            </motion.div>
+
             {error && (
               <div className="flex items-center justify-between p-4 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-500 text-xs">
                 <div className="flex items-center gap-2">
@@ -477,6 +501,142 @@ export default function Dashboard({ onNavigate, onOpenAuth, onSelectCourse }: Da
                   <p className="text-xs mt-1 text-muted-foreground">{sub}</p>
                 </motion.div>
               ))}
+            </div>
+
+            {/* Gamificación & Seguimiento del Progreso */}
+            <div className="grid lg:grid-cols-3 gap-6">
+              {/* Nivel y XP */}
+              <motion.div
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.15 }}
+                className="p-6 rounded-2xl glass border border-violet-500/30 bg-violet-500/5 space-y-4 flex flex-col justify-between"
+              >
+                <div>
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-violet-400">
+                      Ruta de Maestría Pedagógica
+                    </span>
+                    <span className="flex items-center gap-1 text-xs font-bold text-orange-400 bg-orange-500/10 px-2.5 py-0.5 rounded-full border border-orange-500/20">
+                      <Flame className="w-3.5 h-3.5 fill-orange-400" /> {gamification.streakDays} días
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-violet-600 to-blue-600 flex items-center justify-center text-white shadow-lg shadow-violet-600/30">
+                      <Zap className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <h3 className="font-display font-bold text-lg text-foreground">
+                        Nivel {gamification.level}: {gamification.levelTitle}
+                      </h3>
+                      <p className="text-xs text-muted-foreground">
+                        {gamification.xp} XP acumulados
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-1.5 mb-4">
+                    <div className="flex justify-between text-[11px] text-muted-foreground font-medium">
+                      <span>Progreso hacia Nivel {Math.min(5, gamification.level + 1)}</span>
+                      <span>{gamification.xp} / {gamification.nextLevelXp} XP</span>
+                    </div>
+                    <div className="h-2.5 bg-muted rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-gradient-to-r from-blue-500 to-violet-500 rounded-full transition-all duration-1000"
+                        style={{
+                          width: `${Math.min(100, Math.round((gamification.xp / gamification.nextLevelXp) * 100))}%`,
+                        }}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <p className="text-xs font-semibold text-foreground mb-2 flex items-center gap-1.5">
+                    <Award className="w-3.5 h-3.5 text-amber-500" /> Insignias Obtenidas ({gamification.unlockedBadges.length})
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {gamification.unlockedBadges.map((badge: Badge) => (
+                      <span
+                        key={badge.id}
+                        className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-card border border-border/80 text-xs font-medium text-foreground shadow-sm"
+                        title={badge.description}
+                      >
+                        <span>{badge.icon}</span>
+                        <span>{badge.title}</span>
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </motion.div>
+
+              {/* Fortalezas y Recomendaciones (Seguimiento del Progreso) */}
+              <motion.div
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.18 }}
+                className="lg:col-span-2 p-6 rounded-2xl glass border border-border/60 flex flex-col justify-between"
+              >
+                <div>
+                  <div className="flex items-center justify-between mb-4">
+                    <div>
+                      <h3 className="font-display font-semibold text-foreground">
+                        Seguimiento y Recomendaciones Pedagógicas
+                      </h3>
+                      <p className="text-xs text-muted-foreground">
+                        Análisis cognitivo de tus respuestas en simulacros y lecciones
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => onNavigate('exam')}
+                      className="text-xs text-primary font-bold hover:underline"
+                    >
+                      Nuevo Simulacro →
+                    </button>
+                  </div>
+
+                  <div className="grid sm:grid-cols-2 gap-4">
+                    {/* Fortalezas */}
+                    <div className="space-y-2">
+                      <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-1.5">
+                        <CheckCircle2 className="w-3.5 h-3.5" /> Tus Mayores Fortalezas
+                      </span>
+                      {gamification.strengths.map((str: TopicPerformance) => (
+                        <div key={str.topic} className="p-3 rounded-xl bg-emerald-500/5 border border-emerald-500/20">
+                          <p className="text-xs font-bold text-foreground">{str.topic}</p>
+                          <p className="text-[11px] text-muted-foreground mt-0.5">{str.suggestion}</p>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Ejes por Reforzar */}
+                    <div className="space-y-2">
+                      <span className="text-[11px] font-bold uppercase tracking-wider text-amber-400 flex items-center gap-1.5">
+                        <Lightbulb className="w-3.5 h-3.5" /> Ejes Clave por Reforzar
+                      </span>
+                      {gamification.improvementAreas.map((imp: TopicPerformance) => (
+                        <div key={imp.topic} className="p-3 rounded-xl bg-amber-500/5 border border-amber-500/20">
+                          <p className="text-xs font-bold text-foreground">{imp.topic}</p>
+                          <p className="text-[11px] text-muted-foreground mt-0.5">{imp.suggestion}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="pt-4 mt-2 border-t border-border/50 flex flex-col sm:flex-row items-center justify-between gap-3">
+                  <span className="text-xs text-muted-foreground">
+                    💡 Recomendación activa: Módulo Decreto 1278 y Evaluación Formativa Decreto 1290
+                  </span>
+                  <button
+                    onClick={() => onNavigate('courses')}
+                    className="px-4 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-violet-600 text-white text-xs font-bold shadow-md hover:shadow-lg transition-all"
+                  >
+                    Estudiar temas recomendados
+                  </button>
+                </div>
+              </motion.div>
             </div>
 
             {/* Courses + AI */}

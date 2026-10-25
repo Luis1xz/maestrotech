@@ -6,7 +6,7 @@ import {
   Shield, Users, BookOpen, Target, BarChart3, Settings,
   Plus, CheckCircle2, AlertCircle, Search, Filter,
   ArrowLeft, ArrowRight, UserPlus, Sparkles, RefreshCw,
-  Lock, Mail, User, Layers, FileText, ChevronRight, Check, Trash2
+  Lock, Mail, User, Layers, FileText, ChevronRight, Check, Trash2, CreditCard, ExternalLink, CheckCircle
 } from 'lucide-react'
 import { useAuth } from '@/hooks/use-auth'
 import { canAccessAdmin, UserRole, AdminUserListItem } from '@/types/database'
@@ -17,6 +17,7 @@ import {
   getAllEnrollmentsForTeacher,
   EnrollmentWithStudentAndCourse,
 } from '@/services/enrollments'
+import { getAllNequiPayments, confirmNequiPayment, NequiPaymentRecord } from '@/services/payments'
 import { Course } from '@/types/database'
 import Link from 'next/link'
 
@@ -29,6 +30,7 @@ type AdminSection =
   | 'courses'
   | 'modules'
   | 'exams'
+  | 'payments'
 
 export default function AdminPanel() {
   const { user, profile, role, session, isLoading } = useAuth()
@@ -70,15 +72,24 @@ export default function AdminPanel() {
     text: string
   } | null>(null)
 
+  // Pagos Nequi Negocio
+  const [nequiPayments, setNequiPayments] = useState<NequiPaymentRecord[]>([])
+  const [confirmingPaymentId, setConfirmingPaymentId] = useState<string | null>(null)
+  const [paymentFeedback, setPaymentFeedback] = useState<{
+    type: 'success' | 'error'
+    text: string
+  } | null>(null)
+
   const token = session?.access_token
 
   const loadAll = useCallback(async () => {
     setLoadingData(true)
-    const [statsRes, usersRes, coursesRes, enrollsRes] = await Promise.all([
+    const [statsRes, usersRes, coursesRes, enrollsRes, paymentsRes] = await Promise.all([
       getPlatformOverview(),
       getAdminUsersList(token),
       getAllCoursesForTeacher(),
       getAllEnrollmentsForTeacher(),
+      getAllNequiPayments(),
     ])
 
     if (statsRes.data) setStats(statsRes.data)
@@ -91,6 +102,7 @@ export default function AdminPanel() {
       setSelectedCourseId((prev) => prev || coursesRes.data?.[0]?.id || '')
     }
     if (enrollsRes.data) setEnrollments(enrollsRes.data)
+    if (paymentsRes) setNequiPayments(paymentsRes)
     setLoadingData(false)
   }, [token])
 
@@ -236,6 +248,28 @@ export default function AdminPanel() {
     }
   }
 
+  // Confirmar pago Nequi y activar matrícula instantánea
+  const handleConfirmNequiPayment = async (paymentId: string) => {
+    setPaymentFeedback(null)
+    setConfirmingPaymentId(paymentId)
+    const adminName = profile?.full_name || 'Superusuario MaestroTech'
+    const res = await confirmNequiPayment(paymentId, adminName)
+    setConfirmingPaymentId(null)
+
+    if (res.success) {
+      setPaymentFeedback({
+        type: 'success',
+        text: `¡Pago confirmado exitosamente! El estudiante ha sido matriculado de inmediato.`,
+      })
+      await loadAll()
+    } else {
+      setPaymentFeedback({
+        type: 'error',
+        text: res.error || 'No se pudo confirmar el pago.',
+      })
+    }
+  }
+
   // Manejar creación segura de usuario vía API Route
   const handleCreateUserSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -334,6 +368,7 @@ export default function AdminPanel() {
               <div className="space-y-1">
                 {[
                   { id: 'overview', label: 'Resumen Global', icon: BarChart3 },
+                  { id: 'payments', label: 'Pagos Nequi Negocio', icon: CreditCard },
                   { id: 'users', label: 'Todos los Usuarios', icon: Users },
                   { id: 'teachers', label: 'Cuerpo Docente', icon: Sparkles },
                   { id: 'students', label: 'Estudiantes Inscritos', icon: Users },
@@ -415,6 +450,7 @@ export default function AdminPanel() {
               </div>
               <h1 className="font-display font-bold text-2xl md:text-3xl text-foreground">
                 {activeSection === 'overview' && 'Resumen Ejecutivo y Métricas'}
+                {activeSection === 'payments' && 'Gestión y Confirmación de Pagos Nequi Negocio'}
                 {activeSection === 'users' && 'Directorio Global de Usuarios'}
                 {activeSection === 'teachers' && 'Gestión de Docentes y Formadores'}
                 {activeSection === 'students' && 'Estudiantes y Matrículas Activas'}
@@ -528,6 +564,176 @@ export default function AdminPanel() {
                     Ver Superusuarios ({users.filter((u) => u.role === 'admin').length})
                   </button>
                 </div>
+              </div>
+            </div>
+          )}
+
+          {/* SECCIÓN: PAGOS NEQUI NEGOCIO & MATRÍCULAS */}
+          {activeSection === 'payments' && (
+            <div className="space-y-6">
+              {/* Feedback de confirmación */}
+              {paymentFeedback && (
+                <div
+                  className={`p-4 rounded-2xl text-xs flex items-center gap-3 ${
+                    paymentFeedback.type === 'success'
+                      ? 'bg-emerald-500/15 border border-emerald-500/30 text-emerald-400'
+                      : 'bg-rose-500/15 border border-rose-500/30 text-rose-400'
+                  }`}
+                >
+                  {paymentFeedback.type === 'success' ? (
+                    <CheckCircle2 className="w-5 h-5 shrink-0" />
+                  ) : (
+                    <AlertCircle className="w-5 h-5 shrink-0" />
+                  )}
+                  <span className="font-medium">{paymentFeedback.text}</span>
+                </div>
+              )}
+
+              {/* Métricas Nequi */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="p-5 rounded-2xl glass border border-pink-500/30 bg-pink-500/5">
+                  <p className="text-xs text-muted-foreground mb-1">Total Recaudado Nequi</p>
+                  <p className="font-display font-bold text-2xl text-foreground font-mono">
+                    ${nequiPayments
+                      .filter((p) => p.status === 'completed')
+                      .reduce((acc, p) => acc + (p.amount || 0), 0)
+                      .toLocaleString('es-CO')}{' '}
+                    COP
+                  </p>
+                  <p className="text-[11px] text-muted-foreground mt-1">Transacciones verificadas</p>
+                </div>
+
+                <div className="p-5 rounded-2xl glass border border-amber-500/30 bg-amber-500/5">
+                  <p className="text-xs text-amber-400 font-semibold mb-1">Pagos Pendientes por Validar</p>
+                  <p className="font-display font-bold text-2xl text-foreground">
+                    {nequiPayments.filter((p) => p.status === 'pending').length}
+                  </p>
+                  <p className="text-[11px] text-muted-foreground mt-1">Requieren confirmación de 1 clic</p>
+                </div>
+
+                <div className="p-5 rounded-2xl glass border border-emerald-500/30 bg-emerald-500/5">
+                  <p className="text-xs text-emerald-400 font-semibold mb-1">Matrículas Nequi Activas</p>
+                  <p className="font-display font-bold text-2xl text-foreground">
+                    {nequiPayments.filter((p) => p.status === 'completed').length}
+                  </p>
+                  <p className="text-[11px] text-muted-foreground mt-1">Estudiantes con acceso Pro</p>
+                </div>
+              </div>
+
+              {/* Tabla de pagos */}
+              <div className="p-6 rounded-3xl glass border border-border/60 space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div>
+                    <h3 className="font-display font-bold text-base text-foreground">
+                      Registro de Órdenes Nequi Negocio
+                    </h3>
+                    <p className="text-xs text-muted-foreground">
+                      Revisa los comprobantes reportados y confirma para activar la matrícula de inmediato.
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => loadAll()}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl glass border border-border text-xs text-muted-foreground hover:text-foreground"
+                  >
+                    <RefreshCw className={`w-3.5 h-3.5 ${loadingData ? 'animate-spin' : ''}`} />
+                    Actualizar pagos
+                  </button>
+                </div>
+
+                {nequiPayments.length === 0 ? (
+                  <div className="text-center py-12 text-xs text-muted-foreground">
+                    No hay transacciones registradas de Nequi Negocio aún.
+                  </div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left text-xs">
+                      <thead>
+                        <tr className="border-b border-border/60 text-muted-foreground">
+                          <th className="pb-3 font-semibold">Estudiante</th>
+                          <th className="pb-3 font-semibold">Curso / Plan</th>
+                          <th className="pb-3 font-semibold">Valor</th>
+                          <th className="pb-3 font-semibold">Comprobante Nequi</th>
+                          <th className="pb-3 font-semibold">Fecha</th>
+                          <th className="pb-3 font-semibold">Estado</th>
+                          <th className="pb-3 font-semibold text-right">Acción</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-border/40">
+                        {nequiPayments.map((p) => (
+                          <tr key={p.id} className="hover:bg-muted/30 transition-colors">
+                            <td className="py-4 pr-3">
+                              <p className="font-bold text-foreground">{p.userName}</p>
+                              <p className="text-[11px] text-muted-foreground font-mono">{p.userEmail}</p>
+                            </td>
+                            <td className="py-4 pr-3">
+                              <p className="font-semibold text-foreground truncate max-w-[200px]">
+                                {p.courseTitle}
+                              </p>
+                              <p className="text-[10px] text-violet-400 font-medium">{p.planName || 'Docente Pro'}</p>
+                            </td>
+                            <td className="py-4 pr-3 font-mono font-bold text-foreground">
+                              ${p.amount?.toLocaleString('es-CO')} COP
+                            </td>
+                            <td className="py-4 pr-3">
+                              <div className="space-y-0.5">
+                                <span className="inline-block px-2 py-0.5 rounded bg-pink-500/10 text-pink-400 font-mono font-bold text-[11px]">
+                                  {p.nequiReference}
+                                </span>
+                                {p.nequiPhone && (
+                                  <p className="text-[10px] text-muted-foreground">Tel: {p.nequiPhone}</p>
+                                )}
+                              </div>
+                            </td>
+                            <td className="py-4 pr-3 text-muted-foreground text-[11px]">
+                              {new Date(p.createdAt).toLocaleDateString('es-CO', {
+                                day: '2-digit',
+                                month: 'short',
+                                hour: '2-digit',
+                                minute: '2-digit',
+                              })}
+                            </td>
+                            <td className="py-4 pr-3">
+                              {p.status === 'completed' ? (
+                                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-500/15 text-emerald-400 text-[10px] font-bold border border-emerald-500/30">
+                                  <Check className="w-3 h-3" /> Matriculado
+                                </span>
+                              ) : (
+                                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-500/15 text-amber-400 text-[10px] font-bold border border-amber-500/30 animate-pulse">
+                                  Pendiente
+                                </span>
+                              )}
+                            </td>
+                            <td className="py-4 text-right">
+                              {p.status === 'pending' ? (
+                                <button
+                                  onClick={() => handleConfirmNequiPayment(p.id)}
+                                  disabled={confirmingPaymentId === p.id}
+                                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold text-xs shadow-md shadow-emerald-600/20 hover:shadow-emerald-600/40 disabled:opacity-50 transition-all"
+                                >
+                                  {confirmingPaymentId === p.id ? (
+                                    <>
+                                      <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                                      Activando...
+                                    </>
+                                  ) : (
+                                    <>
+                                      <CheckCircle2 className="w-3.5 h-3.5" />
+                                      Confirmar y Matricular
+                                    </>
+                                  )}
+                                </button>
+                              ) : (
+                                <span className="text-[11px] text-emerald-400 font-medium">
+                                  Verificado ✓
+                                </span>
+                              )}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
               </div>
             </div>
           )}

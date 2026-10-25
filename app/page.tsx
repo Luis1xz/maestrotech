@@ -8,7 +8,8 @@ import { FeaturesSection, ExamPreviewSection, TestimonialsSection, PathsSection,
 import Footer from '@/components/footer'
 import { AuthProvider, useAuth } from '@/hooks/use-auth'
 import AuthModal from '@/components/auth-modal'
-import { AlertCircle } from 'lucide-react'
+import WelcomeCaseModal from '@/components/welcome-case-modal'
+import { AlertCircle, CheckCircle2 } from 'lucide-react'
 
 import ParticleCanvas from '@/components/particle-canvas'
 
@@ -37,6 +38,7 @@ function MainApp() {
   const [authModalMode, setAuthModalMode] = useState<'signin' | 'signup'>('signin')
   const [pendingViewAfterAuth, setPendingViewAfterAuth] = useState<View | null>(null)
   const [authErrorBanner, setAuthErrorBanner] = useState<string | null>(null)
+  const [paymentNotice, setPaymentNotice] = useState<string | null>(null)
 
   const { user, profile, isAuthenticated, isDemo, role, isLoading } = useAuth()
 
@@ -47,8 +49,15 @@ function MainApp() {
     const authError = params.get('auth_error') || params.get('error_description')
     const viewParam = params.get('view')
     const codeParam = params.get('code')
+    const paymentSuccess = params.get('payment_success')
+    const refParam = params.get('ref')
 
-    if (authError) {
+    if (paymentSuccess) {
+      setPaymentNotice(
+        `¡Pago Nequi recibido! Tu comprobante (${refParam || 'Referencia Nequi'}) ha sido registrado. Un administrador lo confirmará de inmediato.`
+      )
+      window.history.replaceState({}, document.title, window.location.pathname)
+    } else if (authError) {
       setAuthErrorBanner(decodeURIComponent(authError))
       window.history.replaceState({}, document.title, window.location.pathname)
     } else if (viewParam === 'dashboard' || codeParam) {
@@ -204,6 +213,23 @@ function MainApp() {
   return (
     <>
       <ParticleCanvas />
+      {paymentNotice && (
+        <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 max-w-md w-full px-4 animate-in fade-in slide-in-from-top-4 duration-300">
+          <div className="p-4 rounded-2xl glass border border-emerald-500/40 bg-card/95 backdrop-blur-md shadow-2xl flex items-center justify-between gap-3 text-xs text-emerald-400">
+            <div className="flex items-center gap-2.5">
+              <CheckCircle2 className="w-5 h-5 shrink-0 text-emerald-400" />
+              <span>{paymentNotice}</span>
+            </div>
+            <button
+              onClick={() => setPaymentNotice(null)}
+              className="p-1 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+              aria-label="Cerrar aviso"
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+      )}
       {authErrorBanner && (
         <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 max-w-md w-full px-4 animate-in fade-in slide-in-from-top-4 duration-300">
           <div className="p-3.5 rounded-2xl glass border border-amber-500/40 bg-card/95 backdrop-blur-md shadow-2xl flex items-center justify-between gap-3 text-xs text-amber-400">
@@ -242,6 +268,7 @@ function MainApp() {
         onClose={() => setAuthModalOpen(false)}
         onSuccess={handleAuthSuccess}
       />
+      <WelcomeCaseModal onContinue={() => navigate('courses')} />
     </>
   )
 }
