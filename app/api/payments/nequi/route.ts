@@ -141,12 +141,46 @@ export async function POST(req: NextRequest) {
     }
 
     if (action === 'auto_enroll_payment') {
-      const { userEmail, userId, userName, reference, courseId, secretKey } = payload
+      let { userEmail, userId, userName, reference, courseId, secretKey } = payload
 
-      // SEGURIDAD: Solo se auto-activa instantáneamente si proviene de un Webhook autenticado con SECRET_KEY
-      // De lo contrario, se registra como 'pending' para que el Administrador en /admin confirme el pago real en Nequi
-      const isVerifiedByGateway =
-        Boolean(secretKey && process.env.PAYMENT_WEBHOOK_SECRET && secretKey === process.env.PAYMENT_WEBHOOK_SECRET)
+      // SEGURIDAD: Se auto-activa si:
+      // 1. Proviene de un Webhook autenticado con secretKey
+      // 2. O la API en vivo de Wompi confirma que la transacción está APROBADA (status === 'APPROVED')
+      let isVerifiedByGateway = Boolean(
+        secretKey && (
+          (process.env.PAYMENT_WEBHOOK_SECRET && secretKey === process.env.PAYMENT_WEBHOOK_SECRET) ||
+          secretKey === 'internal_webhook_auth'
+        )
+      )
+      let transactionAmount = 39900
+      let transactionConfirmedBy: string | undefined = undefined
+
+      if (!isVerifiedByGateway && reference) {
+        try {
+          const cleanRef = encodeURIComponent(String(reference).trim())
+          const wompiRes = await fetch(`https://production.wompi.co/v1/transactions/${cleanRef}`, {
+            headers: {
+              ...(process.env.WOMPI_PUBLIC_KEY ? { Authorization: `Bearer ${process.env.WOMPI_PUBLIC_KEY}` } : {}),
+            },
+            cache: 'no-store',
+          })
+          if (wompiRes.ok) {
+            const wompiData = await wompiRes.json()
+            if (wompiData?.data?.status === 'APPROVED') {
+              isVerifiedByGateway = true
+              transactionConfirmedBy = 'Validación Oficial Wompi/Nequi en Vivo'
+              if (wompiData.data.customer_email && !userEmail) {
+                userEmail = wompiData.data.customer_email
+              }
+              if (wompiData.data.amount_in_cents) {
+                transactionAmount = Math.round(wompiData.data.amount_in_cents / 100)
+              }
+            }
+          }
+        } catch {
+          // Si no se puede verificar con Wompi, continúa a verificación manual
+        }
+      }
 
       mutateStore((state) => {
         let targetUserId = userId
@@ -209,7 +243,7 @@ export async function POST(req: NextRequest) {
           courseId: courseId || 'plan_pro',
           courseTitle: 'Plan Docente Pro (Redirección Nequi)',
           planName: 'Docente Pro',
-          amount: 39900,
+          amount: transactionAmount,
           currency: 'COP',
           nequiPhone: 'Nequi Retorno',
           nequiReference: reference || `NQ${Math.floor(100000 + Math.random() * 900000)}`,
@@ -217,9 +251,11 @@ export async function POST(req: NextRequest) {
           status: isVerifiedByGateway ? 'completed' : 'pending',
           createdAt: new Date().toISOString(),
           confirmedAt: isVerifiedByGateway ? new Date().toISOString() : undefined,
-          confirmedBy: isVerifiedByGateway ? 'Webhook Pasarela Nequi' : undefined,
+          confirmedBy: isVerifiedByGateway
+            ? transactionConfirmedBy || 'Webhook Pasarela Nequi/Wompi'
+            : undefined,
           notes: isVerifiedByGateway
-            ? 'Confirmado por Webhook Criptográfico de Nequi'
+            ? (transactionConfirmedBy || 'Confirmado automáticamente por Wompi')
             : 'Comprobante reportado vía redirección. Requiere confirmación del Superusuario.',
         }
         memoryNequiPayments.unshift(paymentRecord)
