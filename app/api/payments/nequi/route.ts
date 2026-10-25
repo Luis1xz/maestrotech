@@ -141,7 +141,12 @@ export async function POST(req: NextRequest) {
     }
 
     if (action === 'auto_enroll_payment') {
-      const { userEmail, userId, userName, reference, courseId } = payload
+      const { userEmail, userId, userName, reference, courseId, secretKey } = payload
+
+      // SEGURIDAD: Solo se auto-activa instantáneamente si proviene de un Webhook autenticado con SECRET_KEY
+      // De lo contrario, se registra como 'pending' para que el Administrador en /admin confirme el pago real en Nequi
+      const isVerifiedByGateway =
+        Boolean(secretKey && process.env.PAYMENT_WEBHOOK_SECRET && secretKey === process.env.PAYMENT_WEBHOOK_SECRET)
 
       mutateStore((state) => {
         let targetUserId = userId
@@ -168,37 +173,39 @@ export async function POST(req: NextRequest) {
 
         if (!targetUserId) targetUserId = 'guest_user'
 
-        // Matricular en todos los cursos si es Plan Pro, o en el curso específico
-        const coursesToEnroll =
-          courseId && courseId !== 'all' && courseId !== 'plan_pro'
-            ? state.courses.filter((c) => c.id === courseId)
-            : state.courses
+        // Solo matricular si está verificado por pasarela/administrador
+        if (isVerifiedByGateway) {
+          const coursesToEnroll =
+            courseId && courseId !== 'all' && courseId !== 'plan_pro'
+              ? state.courses.filter((c) => c.id === courseId)
+              : state.courses
 
-        for (const c of coursesToEnroll) {
-          const existing = state.enrollments.find(
-            (e) => e.user_id === targetUserId && e.course_id === c.id
-          )
-          if (existing) {
-            existing.status = 'active'
-          } else {
-            state.enrollments.unshift({
-              id: `enr_${Date.now()}_${c.id.slice(0, 4)}`,
-              user_id: targetUserId,
-              course_id: c.id,
-              enrolled_at: new Date().toISOString(),
-              status: 'active',
-              student_name: userName || userEmail || 'Estudiante Matriculado',
-              student_email: userEmail,
-            })
+          for (const c of coursesToEnroll) {
+            const existing = state.enrollments.find(
+              (e) => e.user_id === targetUserId && e.course_id === c.id
+            )
+            if (existing) {
+              existing.status = 'active'
+            } else {
+              state.enrollments.unshift({
+                id: `enr_${Date.now()}_${c.id.slice(0, 4)}`,
+                user_id: targetUserId,
+                course_id: c.id,
+                enrolled_at: new Date().toISOString(),
+                status: 'active',
+                student_name: userName || userEmail || 'Estudiante Matriculado',
+                student_email: userEmail,
+              })
+            }
           }
         }
 
-        // Registrar el pago completado
+        // Registrar el pago en la lista de pagos para el Superusuario
         const paymentRecord: NequiPaymentRecord = {
-          id: `neq_auto_${Date.now()}`,
+          id: `neq_ret_${Date.now()}`,
           userId: targetUserId,
           userEmail: userEmail || 'estudiante@maestrotech.co',
-          userName: userName || 'Docente Matriculado',
+          userName: userName || 'Docente Aspirante',
           courseId: courseId || 'plan_pro',
           courseTitle: 'Plan Docente Pro (Redirección Nequi)',
           planName: 'Docente Pro',
@@ -207,18 +214,23 @@ export async function POST(req: NextRequest) {
           nequiPhone: 'Nequi Retorno',
           nequiReference: reference || `NQ${Math.floor(100000 + Math.random() * 900000)}`,
           provider: 'nequi',
-          status: 'completed',
+          status: isVerifiedByGateway ? 'completed' : 'pending',
           createdAt: new Date().toISOString(),
-          confirmedAt: new Date().toISOString(),
-          confirmedBy: 'Pasarela Nequi (Redirección Automática)',
-          notes: 'Confirmado por redirección de pago Nequi Negocio',
+          confirmedAt: isVerifiedByGateway ? new Date().toISOString() : undefined,
+          confirmedBy: isVerifiedByGateway ? 'Webhook Pasarela Nequi' : undefined,
+          notes: isVerifiedByGateway
+            ? 'Confirmado por Webhook Criptográfico de Nequi'
+            : 'Comprobante reportado vía redirección. Requiere confirmación del Superusuario.',
         }
         memoryNequiPayments.unshift(paymentRecord)
       })
 
       return NextResponse.json({
         success: true,
-        message: 'Matrícula activada con éxito por pasarela Nequi',
+        verified: isVerifiedByGateway,
+        message: isVerifiedByGateway
+          ? 'Pago verificado y matrícula activada automáticamente'
+          : 'Comprobante registrado. Queda en cola de verificación del Administrador.',
       })
     }
 
