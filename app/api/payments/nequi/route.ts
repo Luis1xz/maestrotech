@@ -140,6 +140,88 @@ export async function POST(req: NextRequest) {
       })
     }
 
+    if (action === 'auto_enroll_payment') {
+      const { userEmail, userId, userName, reference, courseId } = payload
+
+      mutateStore((state) => {
+        let targetUserId = userId
+        if (!targetUserId && userEmail) {
+          const found = state.users.find(
+            (u) => Boolean(u.email) && u.email!.toLowerCase() === userEmail.toLowerCase()
+          )
+          if (found) {
+            targetUserId = found.id
+          } else {
+            targetUserId = `usr_${Date.now()}`
+            state.users.push({
+              id: targetUserId,
+              email: userEmail,
+              full_name: userName || userEmail.split('@')[0],
+              first_name: (userName || userEmail).split(' ')[0],
+              last_name: '',
+              role: 'student',
+              avatar_url: null,
+              created_at: new Date().toISOString(),
+            })
+          }
+        }
+
+        if (!targetUserId) targetUserId = 'guest_user'
+
+        // Matricular en todos los cursos si es Plan Pro, o en el curso específico
+        const coursesToEnroll =
+          courseId && courseId !== 'all' && courseId !== 'plan_pro'
+            ? state.courses.filter((c) => c.id === courseId)
+            : state.courses
+
+        for (const c of coursesToEnroll) {
+          const existing = state.enrollments.find(
+            (e) => e.user_id === targetUserId && e.course_id === c.id
+          )
+          if (existing) {
+            existing.status = 'active'
+          } else {
+            state.enrollments.unshift({
+              id: `enr_${Date.now()}_${c.id.slice(0, 4)}`,
+              user_id: targetUserId,
+              course_id: c.id,
+              enrolled_at: new Date().toISOString(),
+              status: 'active',
+              student_name: userName || userEmail || 'Estudiante Matriculado',
+              student_email: userEmail,
+            })
+          }
+        }
+
+        // Registrar el pago completado
+        const paymentRecord: NequiPaymentRecord = {
+          id: `neq_auto_${Date.now()}`,
+          userId: targetUserId,
+          userEmail: userEmail || 'estudiante@maestrotech.co',
+          userName: userName || 'Docente Matriculado',
+          courseId: courseId || 'plan_pro',
+          courseTitle: 'Plan Docente Pro (Redirección Nequi)',
+          planName: 'Docente Pro',
+          amount: 39900,
+          currency: 'COP',
+          nequiPhone: 'Nequi Retorno',
+          nequiReference: reference || `NQ${Math.floor(100000 + Math.random() * 900000)}`,
+          provider: 'nequi',
+          status: 'completed',
+          createdAt: new Date().toISOString(),
+          confirmedAt: new Date().toISOString(),
+          confirmedBy: 'Pasarela Nequi (Redirección Automática)',
+          notes: 'Confirmado por redirección de pago Nequi Negocio',
+        }
+        memoryNequiPayments.unshift(paymentRecord)
+      })
+
+      return NextResponse.json({
+        success: true,
+        message: 'Matrícula activada con éxito por pasarela Nequi',
+      })
+    }
+
     return NextResponse.json({ success: false, error: 'Acción no soportada' }, { status: 400 })
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : 'Error al procesar pago Nequi'
