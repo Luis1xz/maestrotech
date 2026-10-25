@@ -368,7 +368,7 @@ export default function AdminPanel() {
               <div className="space-y-1">
                 {[
                   { id: 'overview', label: 'Resumen Global', icon: BarChart3 },
-                  { id: 'payments', label: 'Pagos Nequi Negocio', icon: CreditCard },
+                  { id: 'payments', label: 'Pagos en Línea', icon: CreditCard },
                   { id: 'users', label: 'Todos los Usuarios', icon: Users },
                   { id: 'teachers', label: 'Cuerpo Docente', icon: Sparkles },
                   { id: 'students', label: 'Estudiantes Inscritos', icon: Users },
@@ -450,7 +450,7 @@ export default function AdminPanel() {
               </div>
               <h1 className="font-display font-bold text-2xl md:text-3xl text-foreground">
                 {activeSection === 'overview' && 'Resumen Ejecutivo y Métricas'}
-                {activeSection === 'payments' && 'Gestión y Confirmación de Pagos Nequi Negocio'}
+                {activeSection === 'payments' && 'Gestión y Confirmación de Pagos en Línea'}
                 {activeSection === 'users' && 'Directorio Global de Usuarios'}
                 {activeSection === 'teachers' && 'Gestión de Docentes y Formadores'}
                 {activeSection === 'students' && 'Estudiantes y Matrículas Activas'}
@@ -568,7 +568,7 @@ export default function AdminPanel() {
             </div>
           )}
 
-          {/* SECCIÓN: PAGOS NEQUI NEGOCIO & MATRÍCULAS */}
+          {/* SECCIÓN: PAGOS EN LÍNEA & MATRÍCULAS */}
           {activeSection === 'payments' && (
             <div className="space-y-6">
               {/* Feedback de confirmación */}
@@ -589,10 +589,10 @@ export default function AdminPanel() {
                 </div>
               )}
 
-              {/* Métricas Nequi */}
+              {/* Métricas de Pagos */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div className="p-5 rounded-2xl glass border border-pink-500/30 bg-pink-500/5">
-                  <p className="text-xs text-muted-foreground mb-1">Total Recaudado Nequi</p>
+                <div className="p-5 rounded-2xl glass border border-blue-500/30 bg-blue-500/5">
+                  <p className="text-xs text-muted-foreground mb-1">Total Recaudado en Línea</p>
                   <p className="font-display font-bold text-2xl text-foreground font-mono">
                     ${nequiPayments
                       .filter((p) => p.status === 'completed')
@@ -612,7 +612,7 @@ export default function AdminPanel() {
                 </div>
 
                 <div className="p-5 rounded-2xl glass border border-emerald-500/30 bg-emerald-500/5">
-                  <p className="text-xs text-emerald-400 font-semibold mb-1">Matrículas Nequi Activas</p>
+                  <p className="text-xs text-emerald-400 font-semibold mb-1">Matrículas Activas Verificadas</p>
                   <p className="font-display font-bold text-2xl text-foreground">
                     {nequiPayments.filter((p) => p.status === 'completed').length}
                   </p>
@@ -625,7 +625,7 @@ export default function AdminPanel() {
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div>
                     <h3 className="font-display font-bold text-base text-foreground">
-                      Registro de Órdenes Nequi Negocio
+                      Registro de Órdenes de Pago
                     </h3>
                     <p className="text-xs text-muted-foreground">
                       Revisa los comprobantes reportados y confirma para activar la matrícula de inmediato.
@@ -642,7 +642,7 @@ export default function AdminPanel() {
 
                 {nequiPayments.length === 0 ? (
                   <div className="text-center py-12 text-xs text-muted-foreground">
-                    No hay transacciones registradas de Nequi Negocio aún.
+                    No hay transacciones registradas aún.
                   </div>
                 ) : (
                   <div className="overflow-x-auto">
@@ -652,7 +652,7 @@ export default function AdminPanel() {
                           <th className="pb-3 font-semibold">Estudiante</th>
                           <th className="pb-3 font-semibold">Curso / Plan</th>
                           <th className="pb-3 font-semibold">Valor</th>
-                          <th className="pb-3 font-semibold">Comprobante Nequi</th>
+                          <th className="pb-3 font-semibold">Comprobante / Referencia</th>
                           <th className="pb-3 font-semibold">Fecha</th>
                           <th className="pb-3 font-semibold">Estado</th>
                           <th className="pb-3 font-semibold text-right">Acción</th>
@@ -676,11 +676,11 @@ export default function AdminPanel() {
                             </td>
                             <td className="py-4 pr-3">
                               <div className="space-y-0.5">
-                                <span className="inline-block px-2 py-0.5 rounded bg-pink-500/10 text-pink-400 font-mono font-bold text-[11px]">
+                                <span className="inline-block px-2 py-0.5 rounded bg-primary/10 text-primary font-mono font-bold text-[11px]">
                                   {p.nequiReference}
                                 </span>
                                 {p.nequiPhone && (
-                                  <p className="text-[10px] text-muted-foreground">Tel: {p.nequiPhone}</p>
+                                  <p className="text-[10px] text-muted-foreground">Contacto: {p.nequiPhone}</p>
                                 )}
                               </div>
                             </td>

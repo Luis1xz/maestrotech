@@ -18,7 +18,7 @@ import {
 import AIMentor from '@/components/ai-mentor'
 import CelebrationParticles from '@/components/celebration-particles'
 import { useAuth, AuthProvider } from '@/hooks/use-auth'
-import { NEQUI_CONFIG } from '@/services/payments'
+import { PAYMENT_CONFIG } from '@/services/payments'
 import Link from 'next/link'
 
 function PagoConfirmadoContent() {
@@ -130,21 +130,21 @@ function PagoConfirmadoContent() {
               No se detectó transacción activa
             </h1>
             <p className="text-muted-foreground text-xs sm:text-sm leading-relaxed max-w-md mx-auto">
-              Para proteger la seguridad de la plataforma, el acceso a los cursos oficiales no se activa ingresando directamente a este enlace. Si acabas de transferir por Nequi, ingresa tu comprobante a continuación:
+              Para proteger la seguridad de la plataforma, el acceso a los cursos oficiales no se activa ingresando directamente a este enlace. Si acabas de realizar tu pago en línea, ingresa tu número de comprobante a continuación:
             </p>
           </div>
 
           <form onSubmit={handleManualReport} className="p-5 rounded-2xl bg-muted/40 border border-border/80 text-left space-y-3">
             <div>
               <label className="block text-xs font-bold text-foreground mb-1">
-                Número de Referencia o Comprobante Nequi <span className="text-rose-500">*</span>
+                Número de Referencia o Comprobante de Pago <span className="text-rose-500">*</span>
               </label>
               <input
                 type="text"
                 required
                 value={manualInputRef}
                 onChange={(e) => setManualInputRef(e.target.value)}
-                placeholder="Ej. M184920 o Código de transacción"
+                placeholder="Ej. REF-184920 o Código de transacción"
                 className="w-full px-3.5 py-2.5 rounded-xl bg-background border border-border text-xs text-foreground font-mono outline-none focus:border-violet-500"
               />
             </div>
@@ -170,7 +170,7 @@ function PagoConfirmadoContent() {
               disabled={isReporting}
               className="w-full py-3 rounded-xl bg-gradient-to-r from-blue-600 to-violet-600 text-white text-xs font-bold shadow-lg hover:shadow-xl disabled:opacity-50 transition-all"
             >
-              {isReporting ? 'Verificando con Nequi...' : 'Registrar Comprobante para Activación'}
+              {isReporting ? 'Verificando transacción...' : 'Registrar Comprobante para Activación'}
             </button>
           </form>
 
@@ -214,13 +214,13 @@ function PagoConfirmadoContent() {
           variant="card"
           message={
             isVerified
-              ? `¡Extraordinaria noticia, colega docente! Tu pago en Nequi ha sido verificado satisfactoriamente. Todos tus cursos, videoclases y simulacros CNSC están desbloqueados.`
-              : `¡Hemos recibido el registro de tu pago Nequi con referencia ${reference}! Por seguridad contra fraudes, el Administrador confirma la transacción con el banco para activar tu acceso definitivo.`
+              ? `¡Extraordinaria noticia, colega docente! Tu pago en línea ha sido verificado satisfactoriamente. Todos tus cursos, videoclases y simulacros CNSC están desbloqueados.`
+              : `¡Hemos recibido el registro de tu pago con referencia ${reference}! Por seguridad contra fraudes, el Administrador confirma la transacción con la entidad bancaria para activar tu acceso definitivo.`
           }
           hint={
             isVerified
               ? 'Puedes ingresar de inmediato a tu Aula Virtual desde el Dashboard.'
-              : 'Para activación inmediata en menos de 2 minutos, también puedes enviar la captura de tu comprobante a nuestro canal directo de WhatsApp.'
+              : 'Para activación inmediata en menos de 2 minutos, también puedes enviar la captura de tu comprobante a nuestro canal de soporte.'
           }
         />
 
@@ -230,7 +230,7 @@ function PagoConfirmadoContent() {
           </h1>
           <p className="text-muted-foreground text-xs sm:text-sm max-w-lg mx-auto leading-relaxed">
             {isVerified
-              ? 'Hemos validado tu transacción en Nequi. Tu cuenta ahora cuenta con acceso completo a los programas oficiales de MaestroTech.'
+              ? 'Hemos validado tu pago seguro. Tu cuenta ahora cuenta con acceso completo a los programas oficiales de MaestroTech.'
               : 'Tu referencia se encuentra en cola de aprobación. Puedes notificar al Administrador para habilitar tus cursos sin esperas.'}
           </p>
         </div>
@@ -238,7 +238,7 @@ function PagoConfirmadoContent() {
         {/* Detalles de la transacción */}
         <div className="p-4 sm:p-5 rounded-2xl bg-muted/40 border border-border/60 text-left space-y-2.5">
           <div className="flex flex-wrap items-center justify-between text-xs gap-2">
-            <span className="text-muted-foreground">Comprobante Nequi:</span>
+            <span className="text-muted-foreground">Comprobante de Pago:</span>
             <span className="font-mono font-bold text-foreground bg-primary/10 px-2.5 py-0.5 rounded border border-primary/20">
               {reference}
             </span>
@@ -267,7 +267,7 @@ function PagoConfirmadoContent() {
         <div className="pt-2 flex flex-col sm:flex-row gap-3 justify-center">
           {!isVerified && (
             <a
-              href={`${NEQUI_CONFIG.supportWhatsapp}%20Comprobante:%20${reference}`}
+              href={`${PAYMENT_CONFIG.supportWhatsapp}%20Comprobante:%20${reference}`}
               target="_blank"
               rel="noopener noreferrer"
               className="flex-1 inline-flex items-center justify-center gap-2 py-3.5 px-6 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs sm:text-sm font-bold shadow-xl shadow-emerald-600/25 transition-all"

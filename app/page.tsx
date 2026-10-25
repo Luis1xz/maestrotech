@@ -54,7 +54,7 @@ function MainApp() {
 
     if (paymentSuccess) {
       setPaymentNotice(
-        `¡Pago Nequi recibido! Tu comprobante (${refParam || 'Referencia Nequi'}) ha sido registrado. Un administrador lo confirmará de inmediato.`
+        `¡Pago recibido! Tu comprobante (${refParam || 'Referencia de pago'}) ha sido registrado. Tu cuenta se activará de inmediato.`
       )
       window.history.replaceState({}, document.title, window.location.pathname)
     } else if (authError) {
