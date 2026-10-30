@@ -6,7 +6,7 @@ import { AuthProvider } from '@/hooks/use-auth'
 export default function AdminPage() {
   return (
     <AuthProvider>
-      <div className="dark">
+      <div className="min-h-screen bg-[#F3F8FD]">
         <AdminPanel />
       </div>
     </AuthProvider>

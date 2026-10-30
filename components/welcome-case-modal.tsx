@@ -136,23 +136,23 @@ export default function WelcomeCaseModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/75 backdrop-blur-md overflow-y-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/40 backdrop-blur-sm overflow-y-auto">
       <motion.div
         initial={{ opacity: 0, scale: 0.95, y: 16 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 16 }}
-        className="relative w-full max-w-2xl rounded-3xl glass border border-primary/30 bg-card/95 shadow-2xl p-6 sm:p-8 overflow-hidden my-auto"
+        className="relative w-full max-w-2xl rounded-3xl bg-white border border-[#E5EDF5] shadow-2xl p-6 sm:p-8 overflow-hidden my-auto text-[#142D49]"
       >
         {showCelebration && <CelebrationParticles count={36} />}
 
         {/* Top Header Badge */}
         <div className="flex items-center justify-between mb-4">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary border border-primary/20 text-xs font-semibold tracking-wide">
-            <Sparkles className="w-3.5 h-3.5" />
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#176FC1]/10 text-[#176FC1] border border-[#176FC1]/20 text-xs font-semibold tracking-wide">
+            <Sparkles className="w-3.5 h-3.5 text-[#39BDEB]" />
             {WELCOME_CASE.missionTitle}
           </div>
 
-          <span className="text-[11px] text-muted-foreground font-medium">
+          <span className="text-[11px] text-[#536B83] font-semibold">
             Reto de 1 minuto · Sin registros previos
           </span>
         </div>
@@ -162,20 +162,20 @@ export default function WelcomeCaseModal({
           <AIMentor
             mood={mentorMood}
             message={mentorSpeech}
-            speechTitle="Maestro Leo · Tu Mentor de Bienvenida"
+            speechTitle="Mentor Pedagógico IA"
             size="md"
           />
         </div>
 
         {/* Context Case Box */}
-        <div className="p-4 sm:p-5 rounded-2xl bg-muted/40 border border-border/70 mb-5 space-y-2.5">
-          <span className="text-[10px] font-bold uppercase tracking-wider text-primary">
+        <div className="p-4 sm:p-5 rounded-2xl bg-[#F3F8FD] border border-[#E5EDF5] mb-5 space-y-2.5">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-[#176FC1]">
             {WELCOME_CASE.contextBadge}
           </span>
-          <p className="text-xs sm:text-sm text-foreground/90 leading-relaxed font-normal">
+          <p className="text-xs sm:text-sm text-[#142D49] leading-relaxed font-normal">
             {WELCOME_CASE.situation}
           </p>
-          <p className="text-xs sm:text-sm font-semibold text-foreground pt-1 border-t border-border/40">
+          <p className="text-xs sm:text-sm font-bold text-[#142D49] pt-1.5 border-t border-[#E5EDF5]">
             {WELCOME_CASE.question}
           </p>
         </div>
@@ -184,15 +184,15 @@ export default function WelcomeCaseModal({
         <div className="space-y-2.5 mb-5">
           {WELCOME_CASE.options.map((opt) => {
             const isSelected = selectedOption === opt.id
-            let buttonStyle = 'border-border/70 bg-card hover:border-primary/40 hover:bg-primary/5 text-foreground'
+            let buttonStyle = 'border-[#E5EDF5] bg-white hover:border-[#176FC1]/50 hover:bg-[#F3F8FD] text-[#142D49]'
 
             if (answered) {
               if (opt.isCorrect) {
-                buttonStyle = 'border-emerald-500/60 bg-emerald-500/10 text-foreground ring-1 ring-emerald-500/30'
+                buttonStyle = 'border-[#176FC1] bg-[#176FC1]/10 text-[#142D49] font-semibold ring-1 ring-[#176FC1]/30'
               } else if (isSelected && !opt.isCorrect) {
-                buttonStyle = 'border-rose-500/60 bg-rose-500/10 text-foreground ring-1 ring-rose-500/30'
+                buttonStyle = 'border-rose-400 bg-rose-50 text-[#142D49] ring-1 ring-rose-300'
               } else {
-                buttonStyle = 'border-border/30 bg-card/40 text-muted-foreground opacity-60'
+                buttonStyle = 'border-[#E5EDF5] bg-gray-50/50 text-[#536B83] opacity-60'
               }
             }
 
@@ -208,11 +208,11 @@ export default function WelcomeCaseModal({
                   className={`w-7 h-7 rounded-lg flex items-center justify-center font-bold text-xs shrink-0 transition-all ${
                     answered
                       ? opt.isCorrect
-                        ? 'bg-emerald-500 text-white'
+                        ? 'bg-[#176FC1] text-white'
                         : isSelected
                         ? 'bg-rose-500 text-white'
-                        : 'bg-muted text-muted-foreground'
-                      : 'bg-muted text-foreground'
+                        : 'bg-[#F3F8FD] text-[#536B83] border border-[#E5EDF5]'
+                      : 'bg-[#F3F8FD] text-[#142D49] border border-[#E5EDF5]'
                   }`}
                 >
                   {answered ? (
@@ -245,26 +245,26 @@ export default function WelcomeCaseModal({
               <div
                 className={`p-4 rounded-2xl border text-xs leading-relaxed space-y-2 ${
                   isCorrect
-                    ? 'bg-emerald-500/10 border-emerald-500/30 text-foreground'
-                    : 'bg-violet-500/10 border-violet-500/30 text-foreground'
+                    ? 'bg-[#176FC1]/10 border-[#176FC1]/30 text-[#142D49]'
+                    : 'bg-[#F3F8FD] border-[#E5EDF5] text-[#142D49]'
                 }`}
               >
-                <div className="flex items-center gap-2 font-semibold">
-                  <BookOpen className="w-4 h-4 text-primary shrink-0" />
+                <div className="flex items-center gap-2 font-bold text-[#142D49]">
+                  <BookOpen className="w-4 h-4 text-[#176FC1] shrink-0" />
                   <span>
                     {isCorrect ? 'Explicación Pedagógica del Acierto:' : 'Oportunidad de Reflexión Pedagógica:'}
                   </span>
                 </div>
-                <p className="text-foreground/90">{chosen.feedback}</p>
+                <p className="text-[#142D49] leading-relaxed">{chosen.feedback}</p>
 
                 {!isCorrect && chosen.hint && (
-                  <div className="pt-2 border-t border-violet-500/20 text-violet-300 font-medium">
+                  <div className="pt-2 border-t border-[#E5EDF5] text-[#176FC1] font-semibold">
                     💡 <strong>Pista de Maestro Leo:</strong> {chosen.hint}
                   </div>
                 )}
 
                 {badgeAwarded && (
-                  <div className="pt-2 border-t border-emerald-500/20 flex items-center gap-2 text-emerald-400 font-bold">
+                  <div className="pt-2 border-t border-[#176FC1]/20 flex items-center gap-2 text-[#E9A83A] font-bold">
                     <Award className="w-4 h-4" />
                     <span>¡Insignia Desbloqueada: &quot;Pionero del Aprendizaje&quot; (+50 XP)!</span>
                   </div>
@@ -275,17 +275,17 @@ export default function WelcomeCaseModal({
         </AnimatePresence>
 
         {/* Action Controls */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2 border-t border-[#E5EDF5]">
           {answered && !isCorrect ? (
             <button
               onClick={handleRetry}
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl glass border border-border/80 hover:bg-muted text-xs font-semibold text-foreground transition-all"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-white border border-[#E5EDF5] hover:bg-[#F3F8FD] text-xs font-semibold text-[#142D49] transition-all"
             >
-              <RotateCcw className="w-3.5 h-3.5" />
+              <RotateCcw className="w-3.5 h-3.5 text-[#176FC1]" />
               Reintentar con la pista
             </button>
           ) : (
-            <div className="text-[11px] text-muted-foreground hidden sm:block">
+            <div className="text-[11px] text-[#536B83] font-medium hidden sm:block">
               {answered
                 ? '¡Listo para tu viaje formativo!'
                 : 'Selecciona una opción para experimentar la retroalimentación'}
@@ -295,10 +295,10 @@ export default function WelcomeCaseModal({
           <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
             <button
               onClick={handleFinish}
-              className={`w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl text-xs sm:text-sm font-bold shadow-lg transition-all ${
+              className={`w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl text-xs sm:text-sm font-bold shadow-md transition-all ${
                 answered
-                  ? 'bg-gradient-to-r from-blue-600 to-violet-600 text-white shadow-blue-600/30 hover:scale-[1.02]'
-                  : 'glass border border-border/70 text-foreground hover:bg-muted'
+                  ? 'bg-[#176FC1] hover:bg-[#142D49] text-white'
+                  : 'bg-[#F3F8FD] border border-[#E5EDF5] text-[#142D49] hover:bg-[#E5EDF5]'
               }`}
             >
               {answered ? (

@@ -102,15 +102,17 @@ function MainApp() {
     if (pendingViewAfterAuth) {
       setView(pendingViewAfterAuth)
       setPendingViewAfterAuth(null)
+    } else {
+      setView('dashboard')
     }
   }
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-background flex flex-col items-center justify-center aurora-bg">
-        <div className="w-10 h-10 border-2 border-primary border-t-transparent rounded-full animate-spin mb-4" />
-        <span className="font-display font-bold text-foreground text-sm tracking-tight animate-pulse">
-          Maestro
+      <div className="min-h-screen bg-[#F3F8FD] flex flex-col items-center justify-center">
+        <div className="w-10 h-10 border-2 border-[#176FC1] border-t-transparent rounded-full animate-spin mb-4" />
+        <span className="font-display font-bold text-[#142D49] text-sm tracking-tight animate-pulse">
+          MaestroTech
         </span>
       </div>
     )
@@ -119,7 +121,7 @@ function MainApp() {
   // Dashboard view
   if (view === 'dashboard') {
     return (
-      <div className="dark">
+      <div className="min-h-screen bg-background text-foreground">
         <Dashboard
           onNavigate={navigate}
           onOpenAuth={() => openAuth('signin')}
@@ -131,6 +133,7 @@ function MainApp() {
           onClose={() => setAuthModalOpen(false)}
           onSuccess={handleAuthSuccess}
         />
+        <WelcomeCaseModal onContinue={() => navigate('courses')} />
       </div>
     )
   }
@@ -138,7 +141,7 @@ function MainApp() {
   // Exam simulator view
   if (view === 'exam') {
     return (
-      <div className="dark">
+      <div className="min-h-screen bg-background text-foreground">
         <ExamSimulator onNavigate={navigate} />
         <AuthModal
           isOpen={authModalOpen}
@@ -153,7 +156,7 @@ function MainApp() {
   // Learning / Course detail view
   if (view === 'learning') {
     return (
-      <div className="dark">
+      <div className="min-h-screen bg-background text-foreground">
         <LearningView
           courseSlug={selectedCourseSlug}
           onNavigate={navigate}

@@ -219,7 +219,7 @@ export default function VideoPlayer({
   const ytId = videoId ? extractYouTubeId(videoId) : null
   if ((videoProvider === 'youtube' || (videoId && (videoId.includes('youtube.com') || videoId.includes('youtu.be')))) && ytId) {
     return (
-      <div className={`relative bg-black aspect-video w-full overflow-hidden rounded-2xl border border-border/40 shadow-2xl ${className}`}>
+      <div className={`relative bg-black aspect-video w-full overflow-hidden rounded-2xl border border-[#E5EDF5] shadow-lg ${className}`}>
         <iframe
           src={`https://www.youtube-nocookie.com/embed/${ytId}?rel=0&modestbranding=1`}
           title={title || 'Clase'}
@@ -235,7 +235,7 @@ export default function VideoPlayer({
   const vimeoId = videoId ? extractVimeoId(videoId) : null
   if ((videoProvider === 'vimeo' || (videoId && videoId.includes('vimeo.com'))) && vimeoId) {
     return (
-      <div className={`relative bg-black aspect-video w-full overflow-hidden rounded-2xl border border-border/40 shadow-2xl ${className}`}>
+      <div className={`relative bg-black aspect-video w-full overflow-hidden rounded-2xl border border-[#E5EDF5] shadow-lg ${className}`}>
         <iframe
           src={`https://player.vimeo.com/video/${vimeoId}?title=0&byline=0`}
           title={title || 'Clase'}
@@ -250,7 +250,7 @@ export default function VideoPlayer({
   // 3. Proveedor: Cloudflare Stream
   if ((videoProvider === 'cloudflare' || videoProvider === 'cloudflare_stream') && videoId && !resolvedVideoUrl) {
     return (
-      <div className={`relative bg-black aspect-video w-full overflow-hidden rounded-2xl border border-border/40 shadow-2xl ${className}`}>
+      <div className={`relative bg-black aspect-video w-full overflow-hidden rounded-2xl border border-[#E5EDF5] shadow-lg ${className}`}>
         <iframe
           src={`https://iframe.videodelivery.net/${videoId}?poster=${encodeURIComponent(
             thumbnailUrl || ''
@@ -272,7 +272,7 @@ export default function VideoPlayer({
       ref={containerRef}
       onMouseEnter={() => setShowControls(true)}
       onMouseLeave={() => setShowControls(false)}
-      className={`relative bg-neutral-950 aspect-video w-full overflow-hidden select-none group rounded-2xl border border-border/40 shadow-2xl ${className}`}
+      className={`relative bg-[#142D49] aspect-video w-full overflow-hidden select-none group rounded-2xl border border-[#E5EDF5] shadow-xl ${className}`}
     >
       {/* Elemento de video HTML5 real si hay URL resuelta */}
       {resolvedVideoUrl ? (
@@ -311,9 +311,9 @@ export default function VideoPlayer({
           className="w-full h-full object-contain bg-black cursor-pointer"
         />
       ) : (
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-950/60 via-background to-violet-950/60 flex items-center justify-center">
-          <div className="absolute w-72 h-72 rounded-full bg-blue-600/10 blur-3xl pointer-events-none" />
-          <div className="absolute w-64 h-64 rounded-full bg-violet-600/10 blur-3xl pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-br from-[#142D49] via-[#176FC1]/20 to-[#142D49] flex items-center justify-center">
+          <div className="absolute w-72 h-72 rounded-full bg-[#176FC1]/20 blur-3xl pointer-events-none" />
+          <div className="absolute w-64 h-64 rounded-full bg-[#39BDEB]/15 blur-3xl pointer-events-none" />
         </div>
       )}
 
@@ -321,13 +321,13 @@ export default function VideoPlayer({
       {(!isPlaying || loadingUrl) && (
         <div
           onClick={togglePlay}
-          className="absolute inset-0 flex items-center justify-center bg-black/30 backdrop-blur-[2px] cursor-pointer z-10"
+          className="absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-[2px] cursor-pointer z-10"
         >
           <motion.button
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.95 }}
             type="button"
-            className="w-20 h-20 rounded-2xl bg-white/15 backdrop-blur-md flex items-center justify-center border border-white/25 hover:bg-white/25 transition-all shadow-2xl"
+            className="w-20 h-20 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center border border-white/30 hover:bg-white/30 transition-all shadow-2xl"
             aria-label={isPlaying ? 'Pausar' : 'Reproducir'}
           >
             {loadingUrl ? (
@@ -346,14 +346,14 @@ export default function VideoPlayer({
         }`}
       >
         <div className="flex items-center gap-2">
-          <div className="w-6 h-6 rounded-lg bg-blue-500/20 border border-blue-500/30 flex items-center justify-center">
-            <Sparkles className="w-3.5 h-3.5 text-blue-400" />
+          <div className="w-6 h-6 rounded-lg bg-[#176FC1]/30 border border-[#39BDEB]/40 flex items-center justify-center">
+            <Sparkles className="w-3.5 h-3.5 text-[#39BDEB]" />
           </div>
-          <span className="text-xs font-semibold text-white/90 tracking-wide truncate max-w-md">
+          <span className="text-xs font-semibold text-white/95 tracking-wide truncate max-w-md">
             {title || 'Clase de MaestroTech'}
           </span>
         </div>
-        <span className="text-xs px-2.5 py-0.5 rounded-full bg-white/10 text-white/80 font-mono">
+        <span className="text-xs px-2.5 py-0.5 rounded-full bg-white/15 text-white font-mono">
           {videoProvider === 'supabase'
             ? 'Supabase Video Stream'
             : resolvedVideoUrl
@@ -376,11 +376,11 @@ export default function VideoPlayer({
             max={realDuration}
             value={currentTime}
             onChange={handleSeek}
-            className="w-full h-1.5 bg-white/25 rounded-lg appearance-none cursor-pointer accent-blue-500 focus:outline-none"
+            className="w-full h-1.5 bg-white/25 rounded-lg appearance-none cursor-pointer accent-[#39BDEB] focus:outline-none"
           />
         </div>
 
-        <div className="flex items-center justify-between text-xs text-white/85">
+        <div className="flex items-center justify-between text-xs text-white/90">
           <div className="flex items-center gap-3">
             <button
               type="button"
@@ -404,7 +404,7 @@ export default function VideoPlayer({
             >
               {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
             </button>
-            <span className="font-mono text-white/75">
+            <span className="font-mono text-white/80">
               {formatTime(currentTime)} / {formatTime(realDuration)}
             </span>
           </div>
@@ -418,7 +418,7 @@ export default function VideoPlayer({
             >
               {playbackRate}x
             </button>
-            <span className="text-[11px] text-emerald-400 font-medium">
+            <span className="text-[11px] text-[#39BDEB] font-semibold">
               {progressPercent >= 90 ? 'Completado ✓' : `${Math.round(progressPercent)}%`}
             </span>
             <button

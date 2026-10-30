@@ -598,21 +598,21 @@ export default function TeacherPanel() {
 
   if (!hasAccess) {
     return (
-      <div className="min-h-screen bg-background aurora-bg flex items-center justify-center p-6">
-        <div className="max-w-md w-full p-8 rounded-3xl glass border border-rose-500/20 text-center">
-          <div className="w-14 h-14 rounded-2xl bg-rose-500/10 text-rose-500 flex items-center justify-center mx-auto mb-4">
+      <div className="min-h-screen bg-[#F3F8FD] flex items-center justify-center p-6">
+        <div className="max-w-md w-full p-8 rounded-3xl bg-white border border-rose-200 text-center shadow-md">
+          <div className="w-14 h-14 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center mx-auto mb-4">
             <Shield className="w-7 h-7" />
           </div>
-          <h2 className="font-display font-bold text-xl text-foreground mb-2">
+          <h2 className="font-display font-bold text-xl text-[#142D49] mb-2">
             Acceso Restringido
           </h2>
-          <p className="text-xs text-muted-foreground mb-6 leading-relaxed">
+          <p className="text-xs text-[#536B83] mb-6 leading-relaxed">
             Esta sección es de uso exclusivo para docentes e instructores autorizados de MaestroTech.
             Si eres superusuario o docente, por favor inicia sesión con tu cuenta con permisos.
           </p>
           <Link
             href="/"
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-primary-foreground text-xs font-semibold"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#176FC1] hover:bg-[#142D49] text-white text-xs font-semibold shadow-xs transition-colors"
           >
             <ArrowLeft className="w-4 h-4" /> Volver al Inicio
           </Link>
@@ -676,27 +676,27 @@ export default function TeacherPanel() {
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground flex flex-col md:flex-row">
+    <div className="min-h-screen bg-[#F3F8FD] text-[#142D49] flex flex-col md:flex-row">
       {/* Sidebar Docente */}
-      <aside className="w-full md:w-64 border-b md:border-b-0 md:border-r border-border/60 bg-card/60 backdrop-blur-md shrink-0 p-6 flex flex-col justify-between">
+      <aside className="w-full md:w-64 border-b md:border-b-0 md:border-r border-[#E5EDF5] bg-white shrink-0 p-6 flex flex-col justify-between shadow-xs">
         <div>
           <div className="flex items-center justify-between mb-8">
             <Link href="/" className="flex items-center gap-2.5 group">
-              <div className="w-8 h-8 rounded-xl overflow-hidden ring-1 ring-border/60 shadow-md group-hover:scale-105 transition-all duration-300 shrink-0 bg-black">
+              <div className="w-8 h-8 rounded-xl overflow-hidden ring-1 ring-[#E5EDF5] shadow-xs group-hover:scale-105 transition-all duration-300 shrink-0 bg-white">
                 <img src="/logo.png" alt="Maestro Logo" className="w-full h-full object-cover" />
               </div>
-              <span className="font-bold font-display text-foreground text-sm">MaestroTech</span>
+              <span className="font-bold font-display text-[#142D49] text-sm">MaestroTech</span>
             </Link>
-            <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
+            <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
               Docente
             </span>
           </div>
 
-          <div className="mb-6 pb-4 border-b border-border/50">
-            <p className="text-xs font-semibold text-foreground truncate">
+          <div className="mb-6 pb-4 border-b border-[#E5EDF5]">
+            <p className="text-xs font-bold text-[#142D49] truncate">
               {profile?.full_name || 'Docente'}
             </p>
-            <p className="text-[11px] text-muted-foreground capitalize">
+            <p className="text-[11px] text-[#536B83] capitalize">
               {role === 'admin' ? 'Superusuario (Acceso Total)' : 'Instructor Oficial'}
             </p>
           </div>
@@ -713,10 +713,10 @@ export default function TeacherPanel() {
               <button
                 key={id}
                 onClick={() => setActiveTab(id as TeacherTab)}
-                className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-medium transition-all ${
+                className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all ${
                   activeTab === id
-                    ? 'bg-primary/10 text-primary border border-primary/20'
-                    : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'
+                    ? 'bg-[#176FC1] text-white shadow-xs'
+                    : 'text-[#536B83] hover:bg-[#F3F8FD] hover:text-[#142D49]'
                 }`}
               >
                 <Icon className="w-4 h-4" />
@@ -726,21 +726,21 @@ export default function TeacherPanel() {
           </nav>
         </div>
 
-        <div className="pt-6 border-t border-border/50 space-y-2">
+        <div className="pt-6 border-t border-[#E5EDF5] space-y-2">
           {role === 'admin' && (
             <Link
               href="/admin"
-              className="w-full flex items-center justify-between p-2.5 rounded-xl bg-violet-500/10 border border-violet-500/20 text-violet-400 text-xs font-semibold hover:bg-violet-500/20 transition-colors"
+              className="w-full flex items-center justify-between p-2.5 rounded-xl bg-[#142D49]/5 border border-[#142D49]/15 text-[#142D49] text-xs font-semibold hover:bg-[#142D49]/10 transition-colors"
             >
               <span className="flex items-center gap-2">
-                <Shield className="w-4 h-4" /> Panel Superusuario
+                <Shield className="w-4 h-4 text-[#176FC1]" /> Panel Superusuario
               </span>
               <ChevronRight className="w-3.5 h-3.5" />
             </Link>
           )}
           <Link
             href="/"
-            className="w-full flex items-center gap-2 p-2 rounded-xl text-xs text-muted-foreground hover:text-foreground transition-colors"
+            className="w-full flex items-center gap-2 p-2 rounded-xl text-xs text-[#536B83] hover:text-[#142D49] transition-colors font-medium"
           >
             <ArrowLeft className="w-4 h-4" /> Volver a la plataforma
           </Link>
@@ -748,12 +748,12 @@ export default function TeacherPanel() {
       </aside>
 
       {/* Main Panel Content */}
-      <main className="flex-1 overflow-y-auto p-6 md:p-10 aurora-bg">
+      <main className="flex-1 overflow-y-auto p-6 md:p-10 bg-[#F3F8FD]">
         <div className="max-w-5xl mx-auto space-y-8">
           {/* Header de la pestaña */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-              <h1 className="font-display font-bold text-2xl md:text-3xl text-foreground">
+              <h1 className="font-display font-bold text-2xl md:text-3xl text-[#142D49]">
                 {activeTab === 'courses' && 'Gestión de Cursos y Publicación'}
                 {activeTab === 'create-course' && 'Crear Nuevo Curso Docente'}
                 {activeTab === 'content' && 'Módulos, Lecciones y Videos (Supabase)'}
@@ -761,7 +761,7 @@ export default function TeacherPanel() {
                 {activeTab === 'exams' && 'Diseñador de Simulacros CNSC / MEN'}
                 {activeTab === 'students' && 'Estudiantes Matriculados y Asignación'}
               </h1>
-              <p className="text-xs text-muted-foreground mt-1">
+              <p className="text-xs text-[#536B83] mt-1">
                 Herramientas pedagógicas oficiales conectadas en tiempo real con el catálogo y aula virtual.
               </p>
             </div>
@@ -769,7 +769,7 @@ export default function TeacherPanel() {
             {activeTab !== 'create-course' && (
               <button
                 onClick={() => setActiveTab('create-course')}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-violet-600 text-white text-xs font-semibold shadow-md hover:shadow-lg transition-all"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#176FC1] hover:bg-[#142D49] text-white text-xs font-bold shadow-xs transition-colors"
               >
                 <Plus className="w-4 h-4" /> Crear Curso
               </button>
@@ -780,21 +780,21 @@ export default function TeacherPanel() {
           {activeTab === 'courses' && (
             <div className="space-y-4">
               {loadingCourses ? (
-                <div className="p-8 text-center text-xs text-muted-foreground">
+                <div className="p-8 text-center text-xs text-[#536B83]">
                   Cargando cursos...
                 </div>
               ) : courses.length === 0 ? (
-                <div className="p-12 rounded-3xl glass border border-border/60 text-center">
-                  <BookOpen className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
-                  <h3 className="font-semibold text-foreground text-sm mb-1">
+                <div className="p-12 rounded-3xl bg-white border border-[#E5EDF5] shadow-xs text-center">
+                  <BookOpen className="w-10 h-10 text-[#536B83] mx-auto mb-3" />
+                  <h3 className="font-bold text-[#142D49] text-sm mb-1">
                     Aún no hay cursos creados
                   </h3>
-                  <p className="text-xs text-muted-foreground mb-4">
+                  <p className="text-xs text-[#536B83] mb-4">
                     Comienza creando tu primer curso formativo.
                   </p>
                   <button
                     onClick={() => setActiveTab('create-course')}
-                    className="px-4 py-2 rounded-xl bg-primary text-primary-foreground text-xs font-semibold"
+                    className="px-4 py-2 rounded-xl bg-[#176FC1] hover:bg-[#142D49] text-white text-xs font-semibold shadow-xs transition-colors"
                   >
                     Crear mi primer curso
                   </button>
@@ -804,18 +804,18 @@ export default function TeacherPanel() {
                   {courses.map((c) => (
                     <div
                       key={c.id}
-                      className="p-5 rounded-2xl glass border border-border/60 flex flex-col justify-between card-lift"
+                      className="p-5 rounded-2xl bg-white border border-[#E5EDF5] shadow-xs hover:border-[#176FC1]/40 hover:shadow-md transition-all flex flex-col justify-between"
                     >
                       <div>
                         <div className="flex items-center justify-between mb-3">
-                          <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-md bg-primary/10 text-primary">
+                          <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-md bg-[#176FC1]/10 text-[#176FC1] border border-[#176FC1]/20">
                             {c.category || 'Pedagogía'}
                           </span>
                           <span
                             className={`text-[10px] font-semibold px-2.5 py-0.5 rounded-full flex items-center gap-1 ${
                               c.published
-                                ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20'
-                                : 'bg-amber-500/10 text-amber-500 border border-amber-500/20'
+                                ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                                : 'bg-[#E9A83A]/15 text-[#E9A83A] border border-[#E9A83A]/30'
                             }`}
                           >
                             {c.published ? (
@@ -829,20 +829,20 @@ export default function TeacherPanel() {
                             )}
                           </span>
                         </div>
-                        <h4 className="font-display font-bold text-sm text-foreground mb-2 line-clamp-2">
+                        <h4 className="font-display font-bold text-sm text-[#142D49] mb-2 line-clamp-2">
                           {c.title}
                         </h4>
-                        <p className="text-xs text-muted-foreground line-clamp-2 mb-4">
+                        <p className="text-xs text-[#536B83] line-clamp-2 mb-4">
                           {c.short_description || c.description}
                         </p>
                       </div>
 
-                      <div className="space-y-3 pt-3 border-t border-border/50">
+                      <div className="space-y-3 pt-3 border-t border-[#E5EDF5]">
                         <div className="flex items-center justify-between text-xs">
-                          <span className="font-mono text-muted-foreground">
+                          <span className="font-mono text-[#142D49] font-bold">
                             {c.price === 0 ? 'Gratis' : `$${Number(c.price).toLocaleString()} COP`}
                           </span>
-                          <span className="text-[11px] text-muted-foreground">
+                          <span className="text-[11px] text-[#536B83]">
                             {c.duration_hours || 24}h • {c.level || 'Intermedio'}
                           </span>
                         </div>
@@ -855,7 +855,7 @@ export default function TeacherPanel() {
                               setSelectedCourseIdForContent(c.id)
                               setActiveTab('content')
                             }}
-                            className="px-2.5 py-1.5 rounded-xl bg-primary/10 hover:bg-primary/20 text-primary text-[11px] font-semibold flex items-center justify-center gap-1.5 transition-colors"
+                            className="px-2.5 py-1.5 rounded-xl bg-[#176FC1]/10 hover:bg-[#176FC1]/20 text-[#176FC1] text-[11px] font-semibold flex items-center justify-center gap-1.5 transition-colors"
                           >
                             <Video className="w-3.5 h-3.5" /> Módulos / Videos
                           </button>
@@ -865,7 +865,7 @@ export default function TeacherPanel() {
                               setSelectedCourseIdForMaterials(c.id)
                               setActiveTab('materials')
                             }}
-                            className="px-2.5 py-1.5 rounded-xl bg-violet-500/10 hover:bg-violet-500/20 text-violet-400 text-[11px] font-semibold flex items-center justify-center gap-1.5 transition-colors"
+                            className="px-2.5 py-1.5 rounded-xl bg-[#39BDEB]/15 hover:bg-[#39BDEB]/25 text-[#176FC1] text-[11px] font-semibold flex items-center justify-center gap-1.5 transition-colors"
                           >
                             <Upload className="w-3.5 h-3.5" /> Subir PDFs
                           </button>
@@ -878,8 +878,8 @@ export default function TeacherPanel() {
                             onClick={() => handleTogglePublishCourse(c)}
                             className={`flex-1 py-1.5 px-3 rounded-xl text-[11px] font-bold transition-all flex items-center justify-center gap-1.5 ${
                               c.published
-                                ? 'bg-amber-500/10 hover:bg-amber-500/20 text-amber-500 border border-amber-500/20'
-                                : 'bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-400 border border-emerald-500/30'
+                                ? 'bg-[#E9A83A]/10 hover:bg-[#E9A83A]/20 text-[#E9A83A] border border-[#E9A83A]/30'
+                                : 'bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200'
                             }`}
                           >
                             {togglingCourseId === c.id ? (
@@ -899,7 +899,7 @@ export default function TeacherPanel() {
                             type="button"
                             disabled={deletingCourseId === c.id}
                             onClick={() => handleDeleteCourse(c)}
-                            className="p-1.5 rounded-xl glass border border-border/60 hover:bg-rose-500/10 hover:text-rose-400 text-muted-foreground transition-colors"
+                            className="p-1.5 rounded-xl bg-white border border-[#E5EDF5] hover:bg-rose-50 hover:border-rose-200 hover:text-rose-600 text-[#536B83] transition-colors"
                             title="Eliminar curso"
                           >
                             {deletingCourseId === c.id ? (
@@ -919,11 +919,11 @@ export default function TeacherPanel() {
 
           {/* TAB: Crear Curso */}
           {activeTab === 'create-course' && (
-            <div className="max-w-2xl p-8 rounded-3xl glass border border-border/70 bg-card/90">
-              <h3 className="font-display font-bold text-lg text-foreground mb-1">
+            <div className="max-w-2xl p-8 rounded-3xl bg-white border border-[#E5EDF5] shadow-xs">
+              <h3 className="font-display font-bold text-lg text-[#142D49] mb-1">
                 Información General del Curso
               </h3>
-              <p className="text-xs text-muted-foreground mb-6">
+              <p className="text-xs text-[#536B83] mb-6">
                 Define el título, categoría y parámetros pedagógicos del programa.
               </p>
 
@@ -931,14 +931,14 @@ export default function TeacherPanel() {
                 <div
                   className={`p-3.5 rounded-xl text-xs flex items-center gap-2 mb-6 ${
                     courseFeedback.type === 'success'
-                      ? 'bg-emerald-500/10 border border-emerald-500/20 text-emerald-500'
-                      : 'bg-rose-500/10 border border-rose-500/20 text-rose-500'
+                      ? 'bg-emerald-50 border border-emerald-200 text-emerald-800'
+                      : 'bg-rose-50 border border-rose-200 text-rose-800'
                   }`}
                 >
                   {courseFeedback.type === 'success' ? (
-                    <CheckCircle2 className="w-4 h-4 shrink-0" />
+                    <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-600" />
                   ) : (
-                    <AlertCircle className="w-4 h-4 shrink-0" />
+                    <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
                   )}
                   <span>{courseFeedback.text}</span>
                 </div>
@@ -946,7 +946,7 @@ export default function TeacherPanel() {
 
               <form onSubmit={handleCreateCourseSubmit} className="space-y-4">
                 <div>
-                  <label className="block text-xs font-medium text-foreground mb-1.5">
+                  <label className="block text-xs font-semibold text-[#142D49] mb-1.5">
                     Título del Curso
                   </label>
                   <input
@@ -955,19 +955,19 @@ export default function TeacherPanel() {
                     placeholder="Ej. Evaluación de Competencias Docentes — Decreto 1278"
                     value={newTitle}
                     onChange={(e) => setNewTitle(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-xl bg-muted/60 border border-border/80 focus:border-primary/50 text-sm text-foreground placeholder-muted-foreground outline-none"
+                    className="w-full px-4 py-2.5 rounded-xl bg-[#F3F8FD] border border-[#E5EDF5] focus:border-[#176FC1] text-sm text-[#142D49] placeholder-[#536B83] outline-none"
                   />
                 </div>
 
                 <div className="grid sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-medium text-foreground mb-1.5">
+                    <label className="block text-xs font-semibold text-[#142D49] mb-1.5">
                       Categoría
                     </label>
                     <select
                       value={newCategory}
                       onChange={(e) => setNewCategory(e.target.value)}
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-muted/60 border border-border/80 text-sm text-foreground outline-none"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-[#F3F8FD] border border-[#E5EDF5] text-sm text-[#142D49] outline-none"
                     >
                       <option value="Pedagogía">Pedagogía</option>
                       <option value="Legislación">Legislación</option>
@@ -979,13 +979,13 @@ export default function TeacherPanel() {
                   </div>
 
                   <div>
-                    <label className="block text-xs font-medium text-foreground mb-1.5">
+                    <label className="block text-xs font-semibold text-[#142D49] mb-1.5">
                       Nivel
                     </label>
                     <select
                       value={newLevel}
                       onChange={(e) => setNewLevel(e.target.value)}
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-muted/60 border border-border/80 text-sm text-foreground outline-none"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-[#F3F8FD] border border-[#E5EDF5] text-sm text-[#142D49] outline-none"
                     >
                       <option value="Inicial">Inicial</option>
                       <option value="Intermedio">Intermedio</option>
@@ -996,7 +996,7 @@ export default function TeacherPanel() {
 
                 <div className="grid sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-medium text-foreground mb-1.5">
+                    <label className="block text-xs font-semibold text-[#142D49] mb-1.5">
                       Precio (COP - 0 para Gratis)
                     </label>
                     <input
@@ -1005,12 +1005,12 @@ export default function TeacherPanel() {
                       step="1000"
                       value={newPrice}
                       onChange={(e) => setNewPrice(e.target.value)}
-                      className="w-full px-4 py-2.5 rounded-xl bg-muted/60 border border-border/80 text-sm text-foreground outline-none"
+                      className="w-full px-4 py-2.5 rounded-xl bg-[#F3F8FD] border border-[#E5EDF5] text-sm text-[#142D49] outline-none"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs font-medium text-foreground mb-1.5">
+                    <label className="block text-xs font-semibold text-[#142D49] mb-1.5">
                       Duración Estimada (Horas)
                     </label>
                     <input
@@ -1018,13 +1018,13 @@ export default function TeacherPanel() {
                       min="1"
                       value={newDuration}
                       onChange={(e) => setNewDuration(e.target.value)}
-                      className="w-full px-4 py-2.5 rounded-xl bg-muted/60 border border-border/80 text-sm text-foreground outline-none"
+                      className="w-full px-4 py-2.5 rounded-xl bg-[#F3F8FD] border border-[#E5EDF5] text-sm text-[#142D49] outline-none"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-foreground mb-1.5">
+                  <label className="block text-xs font-semibold text-[#142D49] mb-1.5">
                     Descripción Pedagógica
                   </label>
                   <textarea
@@ -1033,7 +1033,7 @@ export default function TeacherPanel() {
                     placeholder="Describe los objetivos formativos, contenidos temáticos y metodologías aplicadas..."
                     value={newDescription}
                     onChange={(e) => setNewDescription(e.target.value)}
-                    className="w-full p-4 rounded-xl bg-muted/60 border border-border/80 focus:border-primary/50 text-xs sm:text-sm text-foreground placeholder-muted-foreground outline-none resize-none leading-relaxed"
+                    className="w-full p-4 rounded-xl bg-[#F3F8FD] border border-[#E5EDF5] focus:border-[#176FC1] text-xs sm:text-sm text-[#142D49] placeholder-[#536B83] outline-none resize-none leading-relaxed"
                   />
                 </div>
 
@@ -1043,11 +1043,11 @@ export default function TeacherPanel() {
                     id="publishCheck"
                     checked={isPublished}
                     onChange={(e) => setIsPublished(e.target.checked)}
-                    className="w-4 h-4 rounded text-primary focus:ring-primary/30"
+                    className="w-4 h-4 rounded text-[#176FC1] focus:ring-[#176FC1]/30 accent-[#176FC1]"
                   />
                   <label
                     htmlFor="publishCheck"
-                    className="text-xs text-foreground font-medium cursor-pointer"
+                    className="text-xs text-[#142D49] font-medium cursor-pointer"
                   >
                     Publicar inmediatamente en el catálogo de estudiantes
                   </label>
@@ -1057,14 +1057,14 @@ export default function TeacherPanel() {
                   <button
                     type="submit"
                     disabled={submittingCourse}
-                    className="flex-1 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-violet-600 text-white text-xs font-bold shadow-lg shadow-blue-600/25 disabled:opacity-50"
+                    className="flex-1 py-3 rounded-xl bg-[#176FC1] hover:bg-[#142D49] text-white text-xs font-bold shadow-md shadow-[#176FC1]/20 disabled:opacity-50 transition-colors"
                   >
                     {submittingCourse ? 'Guardando...' : 'Crear Curso y Configurar Módulos'}
                   </button>
                   <button
                     type="button"
                     onClick={() => setActiveTab('courses')}
-                    className="px-5 py-3 rounded-xl glass border border-border/60 text-xs text-foreground font-semibold"
+                    className="px-5 py-3 rounded-xl bg-white border border-[#E5EDF5] text-xs text-[#536B83] hover:text-[#142D49] font-semibold transition-colors"
                   >
                     Cancelar
                   </button>
@@ -1077,19 +1077,19 @@ export default function TeacherPanel() {
           {activeTab === 'content' && (
             <div className="space-y-6">
               {/* Selector de curso */}
-              <div className="p-5 rounded-2xl glass border border-border/60 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="p-5 rounded-2xl bg-white border border-[#E5EDF5] shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                  <label className="block text-xs font-semibold text-foreground mb-1">
+                  <label className="block text-xs font-bold text-[#142D49] mb-1">
                     Curso en Edición Curricular
                   </label>
-                  <p className="text-[11px] text-muted-foreground">
+                  <p className="text-[11px] text-[#536B83]">
                     Crea módulos, sube clases en video a Supabase Storage o vincula enlaces de YouTube / MP4.
                   </p>
                 </div>
                 <select
                   value={selectedCourseIdForContent}
                   onChange={(e) => setSelectedCourseIdForContent(e.target.value)}
-                  className="px-4 py-2.5 rounded-xl bg-muted/70 border border-border text-xs text-foreground font-semibold outline-none cursor-pointer max-w-md w-full"
+                  className="px-4 py-2.5 rounded-xl bg-[#F3F8FD] border border-[#E5EDF5] text-xs text-[#142D49] font-semibold outline-none cursor-pointer max-w-md w-full"
                 >
                   {courses.map((c) => (
                     <option key={c.id} value={c.id}>
@@ -1103,14 +1103,14 @@ export default function TeacherPanel() {
                 <div
                   className={`p-3.5 rounded-xl text-xs flex items-center gap-2 ${
                     contentFeedback.type === 'success'
-                      ? 'bg-emerald-500/10 border border-emerald-500/20 text-emerald-400'
-                      : 'bg-rose-500/10 border border-rose-500/20 text-rose-400'
+                      ? 'bg-emerald-50 border border-emerald-200 text-emerald-800'
+                      : 'bg-rose-50 border border-rose-200 text-rose-800'
                   }`}
                 >
                   {contentFeedback.type === 'success' ? (
-                    <CheckCircle2 className="w-4 h-4 shrink-0" />
+                    <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-600" />
                   ) : (
-                    <AlertCircle className="w-4 h-4 shrink-0" />
+                    <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
                   )}
                   <span>{contentFeedback.text}</span>
                 </div>
@@ -1120,16 +1120,16 @@ export default function TeacherPanel() {
                 {/* Columna Izquierda: Crear Módulo + Árbol Curricular */}
                 <div className="lg:col-span-6 space-y-6">
                   {/* Crear Módulo */}
-                  <div className="p-6 rounded-3xl glass border border-border/70 bg-card/90 space-y-4">
-                    <div className="flex items-center gap-2.5 pb-2 border-b border-border/50">
-                      <div className="w-8 h-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+                  <div className="p-6 rounded-3xl bg-white border border-[#E5EDF5] shadow-xs space-y-4">
+                    <div className="flex items-center gap-2.5 pb-2 border-b border-[#E5EDF5]">
+                      <div className="w-8 h-8 rounded-xl bg-[#176FC1]/10 text-[#176FC1] flex items-center justify-center">
                         <Layers className="w-4 h-4" />
                       </div>
                       <div>
-                        <h3 className="font-display font-bold text-sm text-foreground">
+                        <h3 className="font-display font-bold text-sm text-[#142D49]">
                           1. Agregar Módulo Curricular
                         </h3>
-                        <p className="text-[11px] text-muted-foreground">
+                        <p className="text-[11px] text-[#536B83]">
                           Agrupa las lecciones por unidad temática o competencia.
                         </p>
                       </div>
@@ -1137,7 +1137,7 @@ export default function TeacherPanel() {
 
                     <form onSubmit={handleCreateModule} className="space-y-3">
                       <div>
-                        <label className="block text-xs font-medium text-foreground mb-1">
+                        <label className="block text-xs font-semibold text-[#142D49] mb-1">
                           Título del Módulo
                         </label>
                         <input
@@ -1146,11 +1146,11 @@ export default function TeacherPanel() {
                           placeholder="Ej. Módulo 3: Casos Situacionales de Aula"
                           value={newModuleTitle}
                           onChange={(e) => setNewModuleTitle(e.target.value)}
-                          className="w-full px-3.5 py-2 rounded-xl bg-muted/60 border border-border/80 text-xs text-foreground outline-none"
+                          className="w-full px-3.5 py-2 rounded-xl bg-[#F3F8FD] border border-[#E5EDF5] text-xs text-[#142D49] outline-none"
                         />
                       </div>
                       <div>
-                        <label className="block text-xs font-medium text-foreground mb-1">
+                        <label className="block text-xs font-semibold text-[#142D49] mb-1">
                           Descripción breve (opcional)
                         </label>
                         <input
@@ -1158,13 +1158,13 @@ export default function TeacherPanel() {
                           placeholder="Objetivos de aprendizaje del módulo..."
                           value={newModuleDesc}
                           onChange={(e) => setNewModuleDesc(e.target.value)}
-                          className="w-full px-3.5 py-2 rounded-xl bg-muted/60 border border-border/80 text-xs text-foreground outline-none"
+                          className="w-full px-3.5 py-2 rounded-xl bg-[#F3F8FD] border border-[#E5EDF5] text-xs text-[#142D49] outline-none"
                         />
                       </div>
                       <button
                         type="submit"
                         disabled={creatingModule || !newModuleTitle.trim()}
-                        className="w-full py-2.5 rounded-xl bg-primary text-primary-foreground text-xs font-bold hover:opacity-90 disabled:opacity-50 transition-all flex items-center justify-center gap-2"
+                        className="w-full py-2.5 rounded-xl bg-[#176FC1] hover:bg-[#142D49] text-white text-xs font-bold disabled:opacity-50 transition-all flex items-center justify-center gap-2 shadow-xs"
                       >
                         {creatingModule ? (
                           <Loader2 className="w-4 h-4 animate-spin" />
@@ -1177,24 +1177,24 @@ export default function TeacherPanel() {
                   </div>
 
                   {/* Estructura Actual de Módulos y Lecciones */}
-                  <div className="p-6 rounded-3xl glass border border-border/70 bg-card/90 space-y-4">
-                    <div className="flex items-center justify-between pb-2 border-b border-border/50">
-                      <h3 className="font-display font-bold text-sm text-foreground">
+                  <div className="p-6 rounded-3xl bg-white border border-[#E5EDF5] shadow-xs space-y-4">
+                    <div className="flex items-center justify-between pb-2 border-b border-[#E5EDF5]">
+                      <h3 className="font-display font-bold text-sm text-[#142D49]">
                         Estructura Actual del Curso
                       </h3>
-                      <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-primary/10 text-primary">
+                      <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-[#176FC1]/10 text-[#176FC1] border border-[#176FC1]/20">
                         {courseModules.length} módulos • {courseLessons.length} clases
                       </span>
                     </div>
 
                     {loadingContent ? (
-                      <div className="p-6 text-center text-xs text-muted-foreground flex items-center justify-center gap-2">
-                        <Loader2 className="w-4 h-4 animate-spin text-primary" />
+                      <div className="p-6 text-center text-xs text-[#536B83] flex items-center justify-center gap-2">
+                        <Loader2 className="w-4 h-4 animate-spin text-[#176FC1]" />
                         Cargando estructura...
                       </div>
                     ) : courseModules.length === 0 ? (
-                      <div className="p-8 rounded-2xl border border-dashed border-border/70 text-center">
-                        <p className="text-xs text-muted-foreground">
+                      <div className="p-8 rounded-2xl border border-dashed border-[#E5EDF5] text-center bg-[#F3F8FD]">
+                        <p className="text-xs text-[#536B83]">
                           Este curso aún no tiene módulos. Crea el primero arriba.
                         </p>
                       </div>
@@ -1205,13 +1205,13 @@ export default function TeacherPanel() {
                           return (
                             <div
                               key={mod.id}
-                              className="p-4 rounded-2xl glass border border-border/60 space-y-2.5"
+                              className="p-4 rounded-2xl bg-[#F3F8FD] border border-[#E5EDF5] space-y-2.5"
                             >
                               <div className="flex items-center justify-between gap-2">
                                 <div>
-                                  <h4 className="text-xs font-bold text-foreground">{mod.title}</h4>
+                                  <h4 className="text-xs font-bold text-[#142D49]">{mod.title}</h4>
                                   {mod.description && (
-                                    <p className="text-[11px] text-muted-foreground">
+                                    <p className="text-[11px] text-[#536B83]">
                                       {mod.description}
                                     </p>
                                   )}
@@ -1219,7 +1219,7 @@ export default function TeacherPanel() {
                                 <button
                                   type="button"
                                   onClick={() => handleDeleteModule(mod.id, mod.title)}
-                                  className="p-1.5 rounded-lg text-muted-foreground hover:text-rose-400 hover:bg-rose-500/10 transition-colors"
+                                  className="p-1.5 rounded-lg text-[#536B83] hover:text-rose-600 hover:bg-rose-50 transition-colors"
                                   title="Eliminar módulo"
                                 >
                                   <Trash2 className="w-3.5 h-3.5" />
@@ -1227,7 +1227,7 @@ export default function TeacherPanel() {
                               </div>
 
                               {modLessons.length === 0 ? (
-                                <p className="text-[11px] text-muted-foreground italic pl-2">
+                                <p className="text-[11px] text-[#536B83] italic pl-2">
                                   Sin lecciones todavía.
                                 </p>
                               ) : (
@@ -1235,15 +1235,15 @@ export default function TeacherPanel() {
                                   {modLessons.map((les) => (
                                     <div
                                       key={les.id}
-                                      className="flex items-center justify-between gap-2 p-2.5 rounded-xl bg-muted/50 border border-border/40 text-xs"
+                                      className="flex items-center justify-between gap-2 p-2.5 rounded-xl bg-white border border-[#E5EDF5] text-xs shadow-xs"
                                     >
                                       <div className="flex items-center gap-2 min-w-0">
-                                        <Play className="w-3.5 h-3.5 text-primary shrink-0" />
+                                        <Play className="w-3.5 h-3.5 text-[#176FC1] shrink-0" />
                                         <div className="min-w-0">
-                                          <p className="font-medium text-foreground truncate text-xs">
+                                          <p className="font-semibold text-[#142D49] truncate text-xs">
                                             {les.title}
                                           </p>
-                                          <p className="text-[10px] text-muted-foreground">
+                                          <p className="text-[10px] text-[#536B83]">
                                             {Math.round((les.duration_seconds || 600) / 60)} min •{' '}
                                             {les.video_provider === 'supabase'
                                               ? 'Video en Supabase'
@@ -1258,7 +1258,7 @@ export default function TeacherPanel() {
                                       <button
                                         type="button"
                                         onClick={() => handleDeleteLesson(les.id, les.title)}
-                                        className="p-1 rounded-lg text-muted-foreground hover:text-rose-400"
+                                        className="p-1 rounded-lg text-[#536B83] hover:text-rose-600"
                                         title="Eliminar lección"
                                       >
                                         <Trash2 className="w-3.5 h-3.5" />
@@ -1276,16 +1276,16 @@ export default function TeacherPanel() {
                 </div>
 
                 {/* Columna Derecha: Crear Lección + Subir Video a Supabase */}
-                <div className="lg:col-span-6 p-6 rounded-3xl glass border border-border/70 bg-card/90 space-y-4">
-                  <div className="flex items-center gap-2.5 pb-2 border-b border-border/50">
-                    <div className="w-8 h-8 rounded-xl bg-violet-500/10 text-violet-400 flex items-center justify-center">
+                <div className="lg:col-span-6 p-6 rounded-3xl bg-white border border-[#E5EDF5] shadow-xs space-y-4">
+                  <div className="flex items-center gap-2.5 pb-2 border-b border-[#E5EDF5]">
+                    <div className="w-8 h-8 rounded-xl bg-[#176FC1]/10 text-[#176FC1] flex items-center justify-center">
                       <Video className="w-4 h-4" />
                     </div>
                     <div>
-                      <h3 className="font-display font-bold text-sm text-foreground">
+                      <h3 className="font-display font-bold text-sm text-[#142D49]">
                         2. Agregar Clase y Guardar Video en Supabase
                       </h3>
-                      <p className="text-[11px] text-muted-foreground">
+                      <p className="text-[11px] text-[#536B83]">
                         Sube archivos de video (.mp4, .webm) o vincula clases de YouTube.
                       </p>
                     </div>
@@ -1293,13 +1293,13 @@ export default function TeacherPanel() {
 
                   <form onSubmit={handleCreateLesson} className="space-y-4">
                     <div>
-                      <label className="block text-xs font-medium text-foreground mb-1">
+                      <label className="block text-xs font-semibold text-[#142D49] mb-1">
                         Módulo Destino
                       </label>
                       <select
                         value={selectedModuleIdForLesson}
                         onChange={(e) => setSelectedModuleIdForLesson(e.target.value)}
-                        className="w-full px-3 py-2 rounded-xl bg-muted/60 border border-border/80 text-xs text-foreground outline-none"
+                        className="w-full px-3 py-2 rounded-xl bg-[#F3F8FD] border border-[#E5EDF5] text-xs text-[#142D49] outline-none"
                       >
                         {courseModules.length === 0 ? (
                           <option value="">⚡ Se creará Módulo 1 automáticamente</option>
@@ -1314,7 +1314,7 @@ export default function TeacherPanel() {
                     </div>
 
                     <div>
-                      <label className="block text-xs font-medium text-foreground mb-1">
+                      <label className="block text-xs font-semibold text-[#142D49] mb-1">
                         Título de la Clase / Lección
                       </label>
                       <input
@@ -1323,13 +1323,13 @@ export default function TeacherPanel() {
                         placeholder="Ej. Clase 1: Análisis de Casos Pedagógicos Decreto 1278"
                         value={newLessonTitle}
                         onChange={(e) => setNewLessonTitle(e.target.value)}
-                        className="w-full px-3.5 py-2 rounded-xl bg-muted/60 border border-border/80 text-xs text-foreground outline-none"
+                        className="w-full px-3.5 py-2 rounded-xl bg-[#F3F8FD] border border-[#E5EDF5] text-xs text-[#142D49] outline-none"
                       />
                     </div>
 
                     <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <label className="block text-xs font-medium text-foreground mb-1">
+                        <label className="block text-xs font-semibold text-[#142D49] mb-1">
                           Duración (minutos)
                         </label>
                         <input
@@ -1337,16 +1337,16 @@ export default function TeacherPanel() {
                           min="1"
                           value={newLessonDurationMin}
                           onChange={(e) => setNewLessonDurationMin(e.target.value)}
-                          className="w-full px-3.5 py-2 rounded-xl bg-muted/60 border border-border/80 text-xs text-foreground outline-none"
+                          className="w-full px-3.5 py-2 rounded-xl bg-[#F3F8FD] border border-[#E5EDF5] text-xs text-[#142D49] outline-none"
                         />
                       </div>
                       <div className="flex items-end pb-2">
-                        <label className="flex items-center gap-2 text-xs text-foreground cursor-pointer">
+                        <label className="flex items-center gap-2 text-xs text-[#142D49] cursor-pointer font-medium">
                           <input
                             type="checkbox"
                             checked={newLessonIsPreview}
                             onChange={(e) => setNewLessonIsPreview(e.target.checked)}
-                            className="w-4 h-4 rounded text-primary"
+                            className="w-4 h-4 rounded text-[#176FC1] accent-[#176FC1]"
                           />
                           <span>Habilitar vista previa</span>
                         </label>
@@ -1354,7 +1354,7 @@ export default function TeacherPanel() {
                     </div>
 
                     <div>
-                      <label className="block text-xs font-medium text-foreground mb-1">
+                      <label className="block text-xs font-semibold text-[#142D49] mb-1">
                         Resumen o Notas de la Clase
                       </label>
                       <textarea
@@ -1362,23 +1362,23 @@ export default function TeacherPanel() {
                         placeholder="Descripción de los temas explicados en el video..."
                         value={newLessonDesc}
                         onChange={(e) => setNewLessonDesc(e.target.value)}
-                        className="w-full p-3 rounded-xl bg-muted/60 border border-border/80 text-xs text-foreground outline-none resize-none"
+                        className="w-full p-3 rounded-xl bg-[#F3F8FD] border border-[#E5EDF5] text-xs text-[#142D49] outline-none resize-none placeholder-[#536B83]"
                       />
                     </div>
 
                     {/* Selector de Fuente de Video */}
                     <div className="space-y-2">
-                      <label className="block text-xs font-medium text-foreground">
+                      <label className="block text-xs font-semibold text-[#142D49]">
                         Fuente del Video de la Clase
                       </label>
-                      <div className="grid grid-cols-3 gap-2 p-1 rounded-xl bg-muted border border-border/60">
+                      <div className="grid grid-cols-3 gap-2 p-1 rounded-xl bg-[#F3F8FD] border border-[#E5EDF5]">
                         <button
                           type="button"
                           onClick={() => setVideoInputMode('upload')}
                           className={`py-1.5 px-2 rounded-lg text-[11px] font-semibold transition-all ${
                             videoInputMode === 'upload'
-                              ? 'bg-background text-primary shadow-sm'
-                              : 'text-muted-foreground hover:text-foreground'
+                              ? 'bg-white text-[#176FC1] shadow-xs'
+                              : 'text-[#536B83] hover:text-[#142D49]'
                           }`}
                         >
                           Subir Video MP4
@@ -1388,8 +1388,8 @@ export default function TeacherPanel() {
                           onClick={() => setVideoInputMode('youtube')}
                           className={`py-1.5 px-2 rounded-lg text-[11px] font-semibold transition-all ${
                             videoInputMode === 'youtube'
-                              ? 'bg-background text-primary shadow-sm'
-                              : 'text-muted-foreground hover:text-foreground'
+                              ? 'bg-white text-[#176FC1] shadow-xs'
+                              : 'text-[#536B83] hover:text-[#142D49]'
                           }`}
                         >
                           YouTube URL/ID
@@ -1399,8 +1399,8 @@ export default function TeacherPanel() {
                           onClick={() => setVideoInputMode('url')}
                           className={`py-1.5 px-2 rounded-lg text-[11px] font-semibold transition-all ${
                             videoInputMode === 'url'
-                              ? 'bg-background text-primary shadow-sm'
-                              : 'text-muted-foreground hover:text-foreground'
+                              ? 'bg-white text-[#176FC1] shadow-xs'
+                              : 'text-[#536B83] hover:text-[#142D49]'
                           }`}
                         >
                           URL Directa MP4
@@ -1428,7 +1428,7 @@ export default function TeacherPanel() {
                           }
                           value={videoUrlOrId}
                           onChange={(e) => setVideoUrlOrId(e.target.value)}
-                          className="w-full px-3.5 py-2.5 rounded-xl bg-muted/60 border border-border/80 text-xs text-foreground outline-none"
+                          className="w-full px-3.5 py-2.5 rounded-xl bg-[#F3F8FD] border border-[#E5EDF5] text-xs text-[#142D49] outline-none"
                         />
                       )}
                     </div>
@@ -1436,7 +1436,7 @@ export default function TeacherPanel() {
                     <button
                       type="submit"
                       disabled={creatingLesson || !newLessonTitle.trim()}
-                      className="w-full py-3 rounded-xl bg-gradient-to-r from-blue-600 to-violet-600 text-white text-xs font-bold shadow-lg shadow-blue-600/25 disabled:opacity-50 transition-all flex items-center justify-center gap-2"
+                      className="w-full py-3 rounded-xl bg-[#176FC1] hover:bg-[#142D49] text-white text-xs font-bold shadow-md shadow-[#176FC1]/20 disabled:opacity-50 transition-all flex items-center justify-center gap-2"
                     >
                       {creatingLesson ? (
                         <>
@@ -1460,17 +1460,17 @@ export default function TeacherPanel() {
           {activeTab === 'materials' && (
             <div className="space-y-6">
               {courses.length === 0 ? (
-                <div className="p-12 rounded-3xl glass border border-border/60 text-center max-w-lg mx-auto">
-                  <BookOpen className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
-                  <h3 className="font-semibold text-foreground text-sm mb-1">
+                <div className="p-12 rounded-3xl bg-white border border-[#E5EDF5] shadow-xs text-center max-w-lg mx-auto">
+                  <BookOpen className="w-10 h-10 text-[#536B83] mx-auto mb-3" />
+                  <h3 className="font-bold text-[#142D49] text-sm mb-1">
                     Primero crea un curso
                   </h3>
-                  <p className="text-xs text-muted-foreground mb-4">
+                  <p className="text-xs text-[#536B83] mb-4">
                     Para subir documentos y material de clase necesitas al menos un curso registrado.
                   </p>
                   <button
                     onClick={() => setActiveTab('create-course')}
-                    className="px-4 py-2 rounded-xl bg-primary text-primary-foreground text-xs font-semibold"
+                    className="px-4 py-2 rounded-xl bg-[#176FC1] hover:bg-[#142D49] text-white text-xs font-semibold shadow-xs transition-colors"
                   >
                     Crear mi primer curso
                   </button>
@@ -1478,19 +1478,19 @@ export default function TeacherPanel() {
               ) : (
                 <div className="space-y-6">
                   {/* Selector de curso actual */}
-                  <div className="p-5 rounded-2xl glass border border-border/60 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div className="p-5 rounded-2xl bg-white border border-[#E5EDF5] shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div>
-                      <label className="block text-xs font-medium text-foreground mb-1">
+                      <label className="block text-xs font-bold text-[#142D49] mb-1">
                         Curso Seleccionado
                       </label>
-                      <p className="text-[11px] text-muted-foreground">
+                      <p className="text-[11px] text-[#536B83]">
                         Los materiales subidos estarán disponibles inmediatamente para los estudiantes matriculados.
                       </p>
                     </div>
                     <select
                       value={selectedCourseIdForMaterials}
                       onChange={(e) => setSelectedCourseIdForMaterials(e.target.value)}
-                      className="px-4 py-2 rounded-xl bg-muted/70 border border-border text-xs text-foreground font-semibold outline-none cursor-pointer max-w-md w-full"
+                      className="px-4 py-2 rounded-xl bg-[#F3F8FD] border border-[#E5EDF5] text-xs text-[#142D49] font-semibold outline-none cursor-pointer max-w-md w-full"
                     >
                       {courses.map((c) => (
                         <option key={c.id} value={c.id}>
@@ -1502,16 +1502,16 @@ export default function TeacherPanel() {
 
                   <div className="grid lg:grid-cols-12 gap-6 items-start">
                     {/* Formulario de subida de archivos */}
-                    <div className="lg:col-span-6 p-6 rounded-3xl glass border border-border/70 bg-card/90 space-y-4">
-                      <div className="flex items-center gap-2.5 pb-2 border-b border-border/50">
-                        <div className="w-8 h-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+                    <div className="lg:col-span-6 p-6 rounded-3xl bg-white border border-[#E5EDF5] shadow-xs space-y-4">
+                      <div className="flex items-center gap-2.5 pb-2 border-b border-[#E5EDF5]">
+                        <div className="w-8 h-8 rounded-xl bg-[#176FC1]/10 text-[#176FC1] flex items-center justify-center">
                           <Upload className="w-4 h-4" />
                         </div>
                         <div>
-                          <h3 className="font-display font-bold text-sm text-foreground">
+                          <h3 className="font-display font-bold text-sm text-[#142D49]">
                             Subir Documento, Guía PDF o Recurso
                           </h3>
-                          <p className="text-[11px] text-muted-foreground">
+                          <p className="text-[11px] text-[#536B83]">
                             Almacenamiento sincronizado con Supabase Storage y aula virtual.
                           </p>
                         </div>
@@ -1521,14 +1521,14 @@ export default function TeacherPanel() {
                         <div
                           className={`p-3 rounded-xl text-xs flex items-center gap-2 ${
                             uploadFeedback.type === 'success'
-                              ? 'bg-emerald-500/10 border border-emerald-500/20 text-emerald-400'
-                              : 'bg-rose-500/10 border border-rose-500/20 text-rose-400'
+                              ? 'bg-emerald-50 border border-emerald-200 text-emerald-800'
+                              : 'bg-rose-50 border border-rose-200 text-rose-800'
                           }`}
                         >
                           {uploadFeedback.type === 'success' ? (
-                            <CheckCircle2 className="w-4 h-4 shrink-0" />
+                            <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-600" />
                           ) : (
-                            <AlertCircle className="w-4 h-4 shrink-0" />
+                            <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
                           )}
                           <span>{uploadFeedback.text}</span>
                         </div>
@@ -1536,13 +1536,13 @@ export default function TeacherPanel() {
 
                       <form onSubmit={handleUploadSubmit} className="space-y-4">
                         <div>
-                          <label className="block text-xs font-medium text-foreground mb-1">
+                          <label className="block text-xs font-semibold text-[#142D49] mb-1">
                             Lección / Contenedor Destino
                           </label>
                           <select
                             value={selectedLessonIdForMaterials}
                             onChange={(e) => setSelectedLessonIdForMaterials(e.target.value)}
-                            className="w-full px-3 py-2 rounded-xl bg-muted/60 border border-border/80 text-xs text-foreground outline-none cursor-pointer"
+                            className="w-full px-3 py-2 rounded-xl bg-[#F3F8FD] border border-[#E5EDF5] text-xs text-[#142D49] outline-none cursor-pointer"
                           >
                             <option value="auto">
                               ⚡ Contenedor automático (Primera clase del curso)
@@ -1556,7 +1556,7 @@ export default function TeacherPanel() {
                         </div>
 
                         <div>
-                          <label className="block text-xs font-medium text-foreground mb-1">
+                          <label className="block text-xs font-semibold text-[#142D49] mb-1">
                             Nombre descriptivo del material (opcional)
                           </label>
                           <input
@@ -1564,12 +1564,12 @@ export default function TeacherPanel() {
                             placeholder="Ej. Cartilla Oficial Decreto 1278 - Estatuto Docente"
                             value={uploadTitle}
                             onChange={(e) => setUploadTitle(e.target.value)}
-                            className="w-full px-3.5 py-2 rounded-xl bg-muted/60 border border-border/80 text-xs text-foreground outline-none"
+                            className="w-full px-3.5 py-2 rounded-xl bg-[#F3F8FD] border border-[#E5EDF5] text-xs text-[#142D49] outline-none placeholder-[#536B83]"
                           />
                         </div>
 
                         <div>
-                          <label className="block text-xs font-medium text-foreground mb-1.5">
+                          <label className="block text-xs font-semibold text-[#142D49] mb-1.5">
                             Archivo a Cargar
                           </label>
                           <FileUploader
@@ -1584,7 +1584,7 @@ export default function TeacherPanel() {
                         <button
                           type="submit"
                           disabled={!selectedUploadFile || isUploadingMaterial}
-                          className="w-full py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-violet-600 text-white text-xs font-bold shadow-lg shadow-blue-600/25 hover:shadow-blue-600/40 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
+                          className="w-full py-2.5 rounded-xl bg-[#176FC1] hover:bg-[#142D49] text-white text-xs font-bold shadow-md shadow-[#176FC1]/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
                         >
                           {isUploadingMaterial ? (
                             <>
@@ -1602,32 +1602,32 @@ export default function TeacherPanel() {
                     </div>
 
                     {/* Lista de materiales existentes */}
-                    <div className="lg:col-span-6 p-6 rounded-3xl glass border border-border/70 bg-card/90 space-y-4">
-                      <div className="flex items-center justify-between pb-2 border-b border-border/50">
+                    <div className="lg:col-span-6 p-6 rounded-3xl bg-white border border-[#E5EDF5] shadow-xs space-y-4">
+                      <div className="flex items-center justify-between pb-2 border-b border-[#E5EDF5]">
                         <div className="flex items-center gap-2">
-                          <FolderDown className="w-4 h-4 text-primary" />
-                          <h3 className="font-display font-bold text-sm text-foreground">
+                          <FolderDown className="w-4 h-4 text-[#176FC1]" />
+                          <h3 className="font-display font-bold text-sm text-[#142D49]">
                             Materiales Registrados en este Curso
                           </h3>
                         </div>
-                        <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-primary/10 text-primary">
+                        <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-[#176FC1]/10 text-[#176FC1] border border-[#176FC1]/20">
                           {courseMaterials.length}{' '}
                           {courseMaterials.length === 1 ? 'archivo' : 'archivos'}
                         </span>
                       </div>
 
                       {loadingMaterials ? (
-                        <div className="p-8 text-center text-xs text-muted-foreground flex items-center justify-center gap-2">
-                          <Loader2 className="w-4 h-4 animate-spin text-primary" />
+                        <div className="p-8 text-center text-xs text-[#536B83] flex items-center justify-center gap-2">
+                          <Loader2 className="w-4 h-4 animate-spin text-[#176FC1]" />
                           Consultando materiales del curso...
                         </div>
                       ) : courseMaterials.length === 0 ? (
-                        <div className="p-10 rounded-2xl border border-dashed border-border/70 text-center">
-                          <FileText className="w-8 h-8 text-muted-foreground mx-auto mb-2 opacity-50" />
-                          <p className="text-xs font-medium text-foreground mb-1">
+                        <div className="p-10 rounded-2xl border border-dashed border-[#E5EDF5] text-center bg-[#F3F8FD]">
+                          <FileText className="w-8 h-8 text-[#536B83] mx-auto mb-2 opacity-50" />
+                          <p className="text-xs font-semibold text-[#142D49] mb-1">
                             Aún no hay materiales en este curso
                           </p>
-                          <p className="text-[11px] text-muted-foreground">
+                          <p className="text-[11px] text-[#536B83]">
                             Arrastra y suelta tus guías, PDFs o presentaciones en el panel de la izquierda para publicarlos.
                           </p>
                         </div>
@@ -1636,18 +1636,18 @@ export default function TeacherPanel() {
                           {courseMaterials.map((mat) => (
                             <div
                               key={mat.id}
-                              className="p-3.5 rounded-2xl glass border border-border/50 hover:border-border transition-all flex items-center justify-between gap-3"
+                              className="p-3.5 rounded-2xl bg-[#F3F8FD] border border-[#E5EDF5] hover:border-[#176FC1]/40 transition-all flex items-center justify-between gap-3"
                             >
                               <div className="flex items-center gap-3 min-w-0">
-                                <div className="w-9 h-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                                <div className="w-9 h-9 rounded-xl bg-[#176FC1]/10 text-[#176FC1] flex items-center justify-center shrink-0">
                                   <FileText className="w-4 h-4" />
                                 </div>
                                 <div className="min-w-0">
-                                  <h4 className="text-xs font-semibold text-foreground truncate">
+                                  <h4 className="text-xs font-semibold text-[#142D49] truncate">
                                     {mat.title}
                                   </h4>
-                                  <div className="flex items-center gap-2 mt-0.5 text-[10px] text-muted-foreground">
-                                    <span className="uppercase font-mono font-bold px-1.5 py-0.2 rounded bg-muted">
+                                  <div className="flex items-center gap-2 mt-0.5 text-[10px] text-[#536B83]">
+                                    <span className="uppercase font-mono font-bold px-1.5 py-0.2 rounded bg-white border border-[#E5EDF5]">
                                       {mat.file_type || 'PDF'}
                                     </span>
                                     <span>•</span>
@@ -1661,7 +1661,7 @@ export default function TeacherPanel() {
                                   type="button"
                                   onClick={() => handleDownloadMaterial(mat)}
                                   disabled={openingMaterialId === mat.id}
-                                  className="p-2 rounded-xl glass border border-border/60 hover:bg-primary/10 hover:text-primary text-muted-foreground transition-colors"
+                                  className="p-2 rounded-xl bg-white border border-[#E5EDF5] hover:border-[#176FC1] hover:text-[#176FC1] text-[#536B83] transition-colors"
                                   title="Descargar o abrir archivo"
                                 >
                                   {openingMaterialId === mat.id ? (
@@ -1674,11 +1674,11 @@ export default function TeacherPanel() {
                                   type="button"
                                   onClick={() => handleDeleteMaterial(mat)}
                                   disabled={deletingMaterialId === mat.id}
-                                  className="p-2 rounded-xl glass border border-border/60 hover:bg-rose-500/10 hover:text-rose-400 text-muted-foreground transition-colors"
+                                  className="p-2 rounded-xl bg-white border border-[#E5EDF5] hover:bg-rose-50 hover:border-rose-200 hover:text-rose-600 text-[#536B83] transition-colors"
                                   title="Eliminar material"
                                 >
                                   {deletingMaterialId === mat.id ? (
-                                    <Loader2 className="w-3.5 h-3.5 animate-spin text-rose-400" />
+                                    <Loader2 className="w-3.5 h-3.5 animate-spin text-rose-600" />
                                   ) : (
                                     <Trash2 className="w-3.5 h-3.5" />
                                   )}
@@ -1699,16 +1699,16 @@ export default function TeacherPanel() {
           {activeTab === 'exams' && (
             <div className="grid lg:grid-cols-12 gap-6 items-start">
               {/* Formulario para nueva pregunta */}
-              <div className="lg:col-span-6 p-6 rounded-3xl glass border border-border/70 bg-card/90 space-y-4">
-                <div className="flex items-center gap-2.5 pb-2 border-b border-border/50">
-                  <div className="w-8 h-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+              <div className="lg:col-span-6 p-6 rounded-3xl bg-white border border-[#E5EDF5] shadow-xs space-y-4">
+                <div className="flex items-center gap-2.5 pb-2 border-b border-[#E5EDF5]">
+                  <div className="w-8 h-8 rounded-xl bg-[#176FC1]/10 text-[#176FC1] flex items-center justify-center">
                     <Target className="w-4 h-4" />
                   </div>
                   <div>
-                    <h3 className="font-display font-bold text-sm text-foreground">
+                    <h3 className="font-display font-bold text-sm text-[#142D49]">
                       Agregar Pregunta Tipo CNSC / ICFES
                     </h3>
-                    <p className="text-[11px] text-muted-foreground">
+                    <p className="text-[11px] text-[#536B83]">
                       Se publica en el Simulacro de Examen de los estudiantes.
                     </p>
                   </div>
@@ -1718,14 +1718,14 @@ export default function TeacherPanel() {
                   <div
                     className={`p-3 rounded-xl text-xs flex items-center gap-2 ${
                       examFeedback.type === 'success'
-                        ? 'bg-emerald-500/10 border border-emerald-500/20 text-emerald-400'
-                        : 'bg-rose-500/10 border border-rose-500/20 text-rose-400'
+                        ? 'bg-emerald-50 border border-emerald-200 text-emerald-800'
+                        : 'bg-rose-50 border border-rose-200 text-rose-800'
                     }`}
                   >
                     {examFeedback.type === 'success' ? (
-                      <CheckCircle2 className="w-4 h-4 shrink-0" />
+                      <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-600" />
                     ) : (
-                      <AlertCircle className="w-4 h-4 shrink-0" />
+                      <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
                     )}
                     <span>{examFeedback.text}</span>
                   </div>
@@ -1734,13 +1734,13 @@ export default function TeacherPanel() {
                 <form onSubmit={handleCreateExamQuestion} className="space-y-3.5">
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-xs font-medium text-foreground mb-1">
+                      <label className="block text-xs font-semibold text-[#142D49] mb-1">
                         Competencia Evaluada
                       </label>
                       <select
                         value={qCompetency}
                         onChange={(e) => setQCompetency(e.target.value)}
-                        className="w-full px-3 py-2 rounded-xl bg-muted/60 border border-border/80 text-xs text-foreground outline-none"
+                        className="w-full px-3 py-2 rounded-xl bg-[#F3F8FD] border border-[#E5EDF5] text-xs text-[#142D49] outline-none"
                       >
                         <option value="Competencia Pedagógica">Competencia Pedagógica</option>
                         <option value="Legislación Educativa">Legislación Educativa</option>
@@ -1752,7 +1752,7 @@ export default function TeacherPanel() {
                       </select>
                     </div>
                     <div>
-                      <label className="block text-xs font-medium text-foreground mb-1">
+                      <label className="block text-xs font-semibold text-[#142D49] mb-1">
                         Nivel de Dificultad
                       </label>
                       <select
@@ -1760,7 +1760,7 @@ export default function TeacherPanel() {
                         onChange={(e) =>
                           setQDifficulty(e.target.value as 'Básico' | 'Intermedio' | 'Avanzado')
                         }
-                        className="w-full px-3 py-2 rounded-xl bg-muted/60 border border-border/80 text-xs text-foreground outline-none"
+                        className="w-full px-3 py-2 rounded-xl bg-[#F3F8FD] border border-[#E5EDF5] text-xs text-[#142D49] outline-none"
                       >
                         <option value="Básico">Básico</option>
                         <option value="Intermedio">Intermedio</option>
@@ -1770,13 +1770,13 @@ export default function TeacherPanel() {
                   </div>
 
                   <div>
-                    <label className="block text-xs font-medium text-foreground mb-1">
+                    <label className="block text-xs font-semibold text-[#142D49] mb-1">
                       Curso Asociado (opcional)
                     </label>
                     <select
                       value={qCourseId}
                       onChange={(e) => setQCourseId(e.target.value)}
-                      className="w-full px-3 py-2 rounded-xl bg-muted/60 border border-border/80 text-xs text-foreground outline-none"
+                      className="w-full px-3 py-2 rounded-xl bg-[#F3F8FD] border border-[#E5EDF5] text-xs text-[#142D49] outline-none"
                     >
                       <option value="">🌐 Todos los cursos (Banco General CNSC)</option>
                       {courses.map((c) => (
@@ -1788,7 +1788,7 @@ export default function TeacherPanel() {
                   </div>
 
                   <div>
-                    <label className="block text-xs font-medium text-foreground mb-1">
+                    <label className="block text-xs font-semibold text-[#142D49] mb-1">
                       Caso Situacional / Enunciado de la Pregunta
                     </label>
                     <textarea
@@ -1797,12 +1797,12 @@ export default function TeacherPanel() {
                       placeholder="En una institución educativa oficial, el docente observa que..."
                       value={qText}
                       onChange={(e) => setQText(e.target.value)}
-                      className="w-full p-3 rounded-xl bg-muted/60 border border-border/80 text-xs text-foreground outline-none resize-none"
+                      className="w-full p-3 rounded-xl bg-[#F3F8FD] border border-[#E5EDF5] text-xs text-[#142D49] outline-none resize-none placeholder-[#536B83]"
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <label className="block text-xs font-medium text-foreground">
+                    <label className="block text-xs font-semibold text-[#142D49]">
                       Opciones de Respuesta
                     </label>
                     {[
@@ -1812,7 +1812,7 @@ export default function TeacherPanel() {
                       { id: 'D', val: qOptD, setter: setQOptD },
                     ].map((opt) => (
                       <div key={opt.id} className="flex items-center gap-2">
-                        <span className="w-6 h-6 rounded-lg bg-primary/10 text-primary font-bold text-xs flex items-center justify-center shrink-0">
+                        <span className="w-6 h-6 rounded-lg bg-[#176FC1]/10 text-[#176FC1] font-bold text-xs flex items-center justify-center shrink-0">
                           {opt.id}
                         </span>
                         <input
@@ -1821,7 +1821,7 @@ export default function TeacherPanel() {
                           placeholder={`Opción ${opt.id}...`}
                           value={opt.val}
                           onChange={(e) => opt.setter(e.target.value)}
-                          className="flex-1 px-3 py-1.5 rounded-xl bg-muted/60 border border-border/80 text-xs text-foreground outline-none"
+                          className="flex-1 px-3 py-1.5 rounded-xl bg-[#F3F8FD] border border-[#E5EDF5] text-xs text-[#142D49] outline-none"
                         />
                       </div>
                     ))}
@@ -1829,13 +1829,13 @@ export default function TeacherPanel() {
 
                   <div className="grid grid-cols-3 gap-3 items-center">
                     <div>
-                      <label className="block text-xs font-medium text-foreground mb-1">
+                      <label className="block text-xs font-semibold text-[#142D49] mb-1">
                         Respuesta Correcta
                       </label>
                       <select
                         value={qCorrect}
                         onChange={(e) => setQCorrect(e.target.value)}
-                        className="w-full px-3 py-2 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-xs font-bold text-emerald-400 outline-none"
+                        className="w-full px-3 py-2 rounded-xl bg-emerald-50 border border-emerald-200 text-xs font-bold text-emerald-700 outline-none"
                       >
                         <option value="A">Opción A</option>
                         <option value="B">Opción B</option>
@@ -1844,7 +1844,7 @@ export default function TeacherPanel() {
                       </select>
                     </div>
                     <div className="col-span-2">
-                      <label className="block text-xs font-medium text-foreground mb-1">
+                      <label className="block text-xs font-semibold text-[#142D49] mb-1">
                         Justificación Pedagógica / Normativa
                       </label>
                       <input
@@ -1852,7 +1852,7 @@ export default function TeacherPanel() {
                         placeholder="Por qué es la respuesta correcta según el MEN..."
                         value={qExplanation}
                         onChange={(e) => setQExplanation(e.target.value)}
-                        className="w-full px-3 py-2 rounded-xl bg-muted/60 border border-border/80 text-xs text-foreground outline-none"
+                        className="w-full px-3 py-2 rounded-xl bg-[#F3F8FD] border border-[#E5EDF5] text-xs text-[#142D49] outline-none"
                       />
                     </div>
                   </div>
@@ -1860,7 +1860,7 @@ export default function TeacherPanel() {
                   <button
                     type="submit"
                     disabled={creatingQuestion}
-                    className="w-full py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-violet-600 text-white text-xs font-bold shadow-lg shadow-blue-600/25 disabled:opacity-50 transition-all flex items-center justify-center gap-2"
+                    className="w-full py-2.5 rounded-xl bg-[#176FC1] hover:bg-[#142D49] text-white text-xs font-bold shadow-md shadow-[#176FC1]/20 disabled:opacity-50 transition-all flex items-center justify-center gap-2"
                   >
                     {creatingQuestion ? (
                       <Loader2 className="w-4 h-4 animate-spin" />
@@ -1873,18 +1873,18 @@ export default function TeacherPanel() {
               </div>
 
               {/* Banco de Preguntas Activas */}
-              <div className="lg:col-span-6 p-6 rounded-3xl glass border border-border/70 bg-card/90 space-y-4">
-                <div className="flex items-center justify-between pb-2 border-b border-border/50">
-                  <h3 className="font-display font-bold text-sm text-foreground">
+              <div className="lg:col-span-6 p-6 rounded-3xl bg-white border border-[#E5EDF5] shadow-xs space-y-4">
+                <div className="flex items-center justify-between pb-2 border-b border-[#E5EDF5]">
+                  <h3 className="font-display font-bold text-sm text-[#142D49]">
                     Banco de Preguntas del Simulacro ({examQuestions.length})
                   </h3>
-                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-500">
+                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
                     Activo en Simulacro
                   </span>
                 </div>
 
                 {loadingExams ? (
-                  <div className="p-8 text-center text-xs text-muted-foreground">
+                  <div className="p-8 text-center text-xs text-[#536B83]">
                     Cargando banco de preguntas...
                   </div>
                 ) : (
@@ -1892,28 +1892,28 @@ export default function TeacherPanel() {
                     {examQuestions.map((q, idx) => (
                       <div
                         key={q.id}
-                        className="p-4 rounded-2xl glass border border-border/60 space-y-2"
+                        className="p-4 rounded-2xl bg-[#F3F8FD] border border-[#E5EDF5] space-y-2"
                       >
                         <div className="flex items-center justify-between gap-2">
                           <div className="flex items-center gap-2">
-                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-primary/10 text-primary">
+                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-[#176FC1]/10 text-[#176FC1] border border-[#176FC1]/20">
                               #{idx + 1} • {q.competency}
                             </span>
-                            <span className="text-[10px] text-muted-foreground">
+                            <span className="text-[10px] text-[#536B83]">
                               {q.difficulty}
                             </span>
                           </div>
                           <button
                             type="button"
                             onClick={() => handleDeleteQuestion(q.id)}
-                            className="p-1 rounded-lg text-muted-foreground hover:text-rose-400"
+                            className="p-1 rounded-lg text-[#536B83] hover:text-rose-600"
                             title="Eliminar pregunta"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
                           </button>
                         </div>
-                        <p className="text-xs text-foreground leading-relaxed">{q.text}</p>
-                        <div className="text-[11px] text-emerald-400 font-medium">
+                        <p className="text-xs text-[#142D49] leading-relaxed font-medium">{q.text}</p>
+                        <div className="text-[11px] text-emerald-700 font-semibold">
                           Respuesta correcta: {q.correctAnswer}
                         </div>
                       </div>
@@ -1928,16 +1928,16 @@ export default function TeacherPanel() {
           {activeTab === 'students' && (
             <div className="space-y-6">
               {/* Formulario para matricular estudiante a un curso */}
-              <div className="p-6 rounded-3xl glass border border-border/70 bg-card/90 space-y-4">
-                <div className="flex items-center gap-2.5 pb-2 border-b border-border/50">
-                  <div className="w-8 h-8 rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center">
+              <div className="p-6 rounded-3xl bg-white border border-[#E5EDF5] shadow-xs space-y-4">
+                <div className="flex items-center gap-2.5 pb-2 border-b border-[#E5EDF5]">
+                  <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center justify-center">
                     <UserPlus className="w-4 h-4" />
                   </div>
                   <div>
-                    <h3 className="font-display font-bold text-sm text-foreground">
+                    <h3 className="font-display font-bold text-sm text-[#142D49]">
                       Matricular Estudiante en un Curso
                     </h3>
-                    <p className="text-[11px] text-muted-foreground">
+                    <p className="text-[11px] text-[#536B83]">
                       Habilita acceso inmediato a todas las videoclases y guías descargables del curso.
                     </p>
                   </div>
@@ -1947,14 +1947,14 @@ export default function TeacherPanel() {
                   <div
                     className={`p-3 rounded-xl text-xs flex items-center gap-2 ${
                       studentFeedback.type === 'success'
-                        ? 'bg-emerald-500/10 border border-emerald-500/20 text-emerald-400'
-                        : 'bg-rose-500/10 border border-rose-500/20 text-rose-400'
+                        ? 'bg-emerald-50 border border-emerald-200 text-emerald-800'
+                        : 'bg-rose-50 border border-rose-200 text-rose-800'
                     }`}
                   >
                     {studentFeedback.type === 'success' ? (
-                      <CheckCircle2 className="w-4 h-4 shrink-0" />
+                      <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-600" />
                     ) : (
-                      <AlertCircle className="w-4 h-4 shrink-0" />
+                      <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
                     )}
                     <span>{studentFeedback.text}</span>
                   </div>
@@ -1965,13 +1965,13 @@ export default function TeacherPanel() {
                   className="grid sm:grid-cols-3 gap-4 items-end"
                 >
                   <div>
-                    <label className="block text-xs font-medium text-foreground mb-1">
+                    <label className="block text-xs font-semibold text-[#142D49] mb-1">
                       Seleccionar Estudiante
                     </label>
                     <select
                       value={enrollStudentId}
                       onChange={(e) => setEnrollStudentId(e.target.value)}
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-muted/60 border border-border/80 text-xs text-foreground outline-none"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-[#F3F8FD] border border-[#E5EDF5] text-xs text-[#142D49] outline-none"
                     >
                       {platformStudents.map((st) => (
                         <option key={st.id} value={st.id}>
@@ -1982,13 +1982,13 @@ export default function TeacherPanel() {
                   </div>
 
                   <div>
-                    <label className="block text-xs font-medium text-foreground mb-1">
+                    <label className="block text-xs font-semibold text-[#142D49] mb-1">
                       Curso a Matricular
                     </label>
                     <select
                       value={enrollCourseId}
                       onChange={(e) => setEnrollCourseId(e.target.value)}
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-muted/60 border border-border/80 text-xs text-foreground outline-none"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-[#F3F8FD] border border-[#E5EDF5] text-xs text-[#142D49] outline-none"
                     >
                       {courses.map((c) => (
                         <option key={c.id} value={c.id}>
@@ -2001,7 +2001,7 @@ export default function TeacherPanel() {
                   <button
                     type="submit"
                     disabled={submittingEnroll}
-                    className="py-2.5 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 text-white text-xs font-bold shadow-lg shadow-emerald-600/20 hover:opacity-95 disabled:opacity-50 transition-all flex items-center justify-center gap-2"
+                    className="py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-xs disabled:opacity-50 transition-all flex items-center justify-center gap-2"
                   >
                     {submittingEnroll ? (
                       <Loader2 className="w-4 h-4 animate-spin" />
@@ -2014,22 +2014,22 @@ export default function TeacherPanel() {
               </div>
 
               {/* Lista de Matrículas Activas */}
-              <div className="p-6 rounded-3xl glass border border-border/70 bg-card/90 space-y-4">
-                <div className="flex items-center justify-between pb-2 border-b border-border/50">
-                  <h3 className="font-display font-bold text-sm text-foreground">
+              <div className="p-6 rounded-3xl bg-white border border-[#E5EDF5] shadow-xs space-y-4">
+                <div className="flex items-center justify-between pb-2 border-b border-[#E5EDF5]">
+                  <h3 className="font-display font-bold text-sm text-[#142D49]">
                     Estudiantes con Matrícula Activa ({enrollments.length})
                   </h3>
-                  <span className="text-[10px] font-semibold px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-500">
+                  <span className="text-[10px] font-semibold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
                     Sincronizado con Aula Virtual
                   </span>
                 </div>
 
                 {loadingStudents ? (
-                  <div className="p-8 text-center text-xs text-muted-foreground">
+                  <div className="p-8 text-center text-xs text-[#536B83]">
                     Consultando matrículas...
                   </div>
                 ) : enrollments.length === 0 ? (
-                  <div className="p-8 text-center text-xs text-muted-foreground">
+                  <div className="p-8 text-center text-xs text-[#536B83]">
                     No hay matrículas registradas todavía.
                   </div>
                 ) : (
@@ -2037,21 +2037,21 @@ export default function TeacherPanel() {
                     {enrollments.map((enr) => (
                       <div
                         key={enr.id}
-                        className="p-4 rounded-2xl glass border border-border/60 flex items-center justify-between gap-3"
+                        className="p-4 rounded-2xl bg-[#F3F8FD] border border-[#E5EDF5] flex items-center justify-between gap-3 shadow-xs"
                       >
                         <div className="min-w-0">
                           <div className="flex items-center gap-2">
-                            <span className="text-xs font-bold text-foreground truncate">
+                            <span className="text-xs font-bold text-[#142D49] truncate">
                               {enr.student_name}
                             </span>
-                            <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-500 font-semibold">
+                            <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 font-semibold">
                               Activo
                             </span>
                           </div>
-                          <p className="text-[11px] text-muted-foreground truncate">
+                          <p className="text-[11px] text-[#536B83] truncate">
                             {enr.student_email}
                           </p>
-                          <p className="text-[11px] text-primary font-medium mt-1 truncate">
+                          <p className="text-[11px] text-[#176FC1] font-semibold mt-1 truncate">
                             📚 {enr.course?.title || 'Curso Oficial MaestroTech'}
                           </p>
                         </div>

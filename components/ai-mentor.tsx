@@ -33,51 +33,51 @@ const MOOD_DATA: Record<
 > = {
   greeting: {
     badgeText: 'Mentor Pedagógico IA',
-    badgeBg: 'bg-blue-500/10 border-blue-500/25',
-    badgeColor: 'text-blue-400',
+    badgeBg: 'bg-[#176FC1]/10 border-[#176FC1]/20',
+    badgeColor: 'text-[#176FC1]',
     defaultMessage: '¡Hola, colega docente! Estoy aquí para acompañarte paso a paso hacia tu nombramiento o ascenso.',
     eyeAnimation: 'scaleY(1)',
-    avatarGlow: 'from-blue-500/20 to-violet-500/20',
+    avatarGlow: 'from-[#176FC1]/20 to-[#39BDEB]/20',
   },
   happy: {
     badgeText: '¡Gran Trabajo!',
-    badgeBg: 'bg-emerald-500/10 border-emerald-500/25',
-    badgeColor: 'text-emerald-400',
+    badgeBg: 'bg-[#176FC1]/10 border-[#176FC1]/25',
+    badgeColor: 'text-[#176FC1]',
     defaultMessage: '¡Excelente razonamiento! Has aplicado el enfoque de competencias tal como lo evalúa el MEN.',
     eyeAnimation: 'scaleY(0.9)',
-    avatarGlow: 'from-emerald-500/20 to-teal-500/20',
+    avatarGlow: 'from-[#176FC1]/20 to-[#39BDEB]/20',
   },
   celebrating: {
     badgeText: '¡Acierto Magistral! 🎉',
-    badgeBg: 'bg-amber-500/15 border-amber-500/30',
-    badgeColor: 'text-amber-400',
+    badgeBg: 'bg-[#E9A83A]/15 border-[#E9A83A]/30',
+    badgeColor: 'text-[#142D49]',
     defaultMessage: '¡Brillante! Tu respuesta demuestra alta madurez pedagógica. ¡Vamos sumando confianza para la prueba real!',
     eyeAnimation: 'scaleY(0.7)',
-    avatarGlow: 'from-amber-500/30 to-violet-500/30',
+    avatarGlow: 'from-[#E9A83A]/30 to-[#176FC1]/30',
   },
   empathic: {
-    badgeText: 'Aprendizaje en Progreso 💜',
-    badgeBg: 'bg-violet-500/15 border-violet-500/30',
-    badgeColor: 'text-violet-300',
+    badgeText: 'Aprendizaje en Progreso 💡',
+    badgeBg: 'bg-[#39BDEB]/15 border-[#39BDEB]/30',
+    badgeColor: 'text-[#142D49]',
     defaultMessage: '¡Tranquilo profe, no pasa nada! Cada equivocación en la práctica es un acierto asegurado el día del examen. ¿Analizamos la pista juntos?',
     eyeAnimation: 'scaleY(0.95)',
-    avatarGlow: 'from-violet-500/20 to-rose-500/20',
+    avatarGlow: 'from-[#39BDEB]/20 to-[#176FC1]/20',
   },
   thinking: {
     badgeText: 'Analizando Caso...',
-    badgeBg: 'bg-cyan-500/10 border-cyan-500/25',
-    badgeColor: 'text-cyan-400',
+    badgeBg: 'bg-[#F3F8FD] border-[#E5EDF5]',
+    badgeColor: 'text-[#176FC1]',
     defaultMessage: 'Observa bien las opciones. En el concurso docente, siempre priorizamos la mediación dialógica sobre la sanción.',
     eyeAnimation: 'scaleY(1.05)',
-    avatarGlow: 'from-cyan-500/20 to-blue-500/20',
+    avatarGlow: 'from-[#39BDEB]/20 to-[#176FC1]/20',
   },
   encouraging: {
     badgeText: '¡Tú Puedes!',
-    badgeBg: 'bg-primary/10 border-primary/25',
-    badgeColor: 'text-primary',
+    badgeBg: 'bg-[#176FC1]/10 border-[#176FC1]/25',
+    badgeColor: 'text-[#176FC1]',
     defaultMessage: 'Tu vocación y persistencia son tu mayor fortaleza. ¡Sigue adelante, cada intento te acerca a tu meta!',
     eyeAnimation: 'scaleY(1)',
-    avatarGlow: 'from-primary/20 to-cyan-500/20',
+    avatarGlow: 'from-[#176FC1]/20 to-[#39BDEB]/20',
   },
 }
 
@@ -113,17 +113,17 @@ export default function AIMentor({
           repeat: Infinity,
           ease: 'easeInOut',
         }}
-        className={`w-full h-full rounded-2xl bg-gradient-to-br from-blue-600 via-indigo-600 to-violet-600 p-0.5 shadow-lg shadow-indigo-600/30 flex items-center justify-center`}
+        className={`w-full h-full rounded-2xl bg-gradient-to-br from-[#176FC1] via-[#39BDEB] to-[#142D49] p-0.5 shadow-lg shadow-[#176FC1]/20 flex items-center justify-center`}
       >
-        <div className="w-full h-full bg-slate-950/90 rounded-[14px] flex flex-col items-center justify-center p-1 relative overflow-hidden">
+        <div className="w-full h-full bg-[#142D49] rounded-[14px] flex flex-col items-center justify-center p-1 relative overflow-hidden">
           {/* Subtle glow inside head */}
-          <div className="absolute inset-0 bg-gradient-to-t from-blue-500/20 to-transparent pointer-events-none" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#176FC1]/30 to-transparent pointer-events-none" />
 
           {/* Teacher glasses / Academic accessory */}
           <div className="flex items-center gap-1.5 mb-1 z-10">
-            <div className="w-2.5 h-2 rounded-full border border-cyan-400/80 bg-cyan-400/20" />
-            <div className="w-1.5 h-0.5 bg-cyan-400/70" />
-            <div className="w-2.5 h-2 rounded-full border border-cyan-400/80 bg-cyan-400/20" />
+            <div className="w-2.5 h-2 rounded-full border border-[#39BDEB] bg-[#39BDEB]/20" />
+            <div className="w-1.5 h-0.5 bg-[#39BDEB]" />
+            <div className="w-2.5 h-2 rounded-full border border-[#39BDEB] bg-[#39BDEB]/20" />
           </div>
 
           {/* Eyes with emotion */}
@@ -135,10 +135,10 @@ export default function AIMentor({
               transition={{ duration: 3, repeat: Infinity, repeatDelay: 2 }}
               className={`w-1.5 h-2 rounded-full ${
                 mood === 'celebrating'
-                  ? 'bg-amber-300'
+                  ? 'bg-[#E9A83A]'
                   : mood === 'empathic'
-                  ? 'bg-violet-300'
-                  : 'bg-cyan-300'
+                  ? 'bg-[#39BDEB]'
+                  : 'bg-white'
               }`}
             />
             <motion.div
@@ -148,10 +148,10 @@ export default function AIMentor({
               transition={{ duration: 3, repeat: Infinity, repeatDelay: 2 }}
               className={`w-1.5 h-2 rounded-full ${
                 mood === 'celebrating'
-                  ? 'bg-amber-300'
+                  ? 'bg-[#E9A83A]'
                   : mood === 'empathic'
-                  ? 'bg-violet-300'
-                  : 'bg-cyan-300'
+                  ? 'bg-[#39BDEB]'
+                  : 'bg-white'
               }`}
             />
           </div>
@@ -159,9 +159,9 @@ export default function AIMentor({
           {/* Smile / Mouth expression */}
           <div className="mt-1 z-10">
             {mood === 'celebrating' ? (
-              <div className="w-3 h-1.5 rounded-b-full bg-amber-400" />
+              <div className="w-3 h-1.5 rounded-b-full bg-[#E9A83A]" />
             ) : mood === 'happy' ? (
-              <div className="w-2.5 h-1 rounded-b-full border-b-2 border-emerald-400" />
+              <div className="w-2.5 h-1 rounded-b-full border-b-2 border-[#39BDEB]" />
             ) : mood === 'empathic' ? (
               <div className="w-2 h-1 rounded-b-full border-b border-violet-400" />
             ) : (
@@ -193,11 +193,11 @@ export default function AIMentor({
               initial={{ opacity: 0, scale: 0.9, y: 10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 10 }}
-              className="mb-3 max-w-sm w-80 p-4 rounded-2xl glass border border-primary/30 shadow-2xl backdrop-blur-xl relative"
+              className="mb-3 max-w-sm w-80 p-4 rounded-2xl bg-white border border-[#E5EDF5] shadow-2xl relative text-[#142D49]"
             >
               <button
                 onClick={() => setMinimized(true)}
-                className="absolute top-2.5 right-2.5 text-muted-foreground hover:text-foreground p-1 rounded-lg"
+                className="absolute top-2.5 right-2.5 text-[#536B83] hover:text-[#142D49] p-1 rounded-lg"
               >
                 <X className="w-3.5 h-3.5" />
               </button>
@@ -205,15 +205,15 @@ export default function AIMentor({
                 {renderAvatarGraphic()}
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-1.5 mb-1">
-                    <span className="text-[11px] font-bold text-foreground">Maestro Leo</span>
+                    <span className="text-[11px] font-bold text-[#142D49]">Mentor Pedagógico</span>
                     <span className={`text-[9px] px-1.5 py-0.2 rounded-full border ${currentMood.badgeBg} ${currentMood.badgeColor}`}>
                       {currentMood.badgeText}
                     </span>
                   </div>
-                  <p className="text-xs text-foreground/90 leading-relaxed">{displayText}</p>
+                  <p className="text-xs text-[#142D49] leading-relaxed">{displayText}</p>
                   {activeHint && (
-                    <div className="mt-2 p-2 rounded-xl bg-primary/10 border border-primary/20 text-[11px] text-primary flex items-start gap-1.5">
-                      <Lightbulb className="w-3.5 h-3.5 shrink-0 mt-0.5" />
+                    <div className="mt-2 p-2 rounded-xl bg-[#F3F8FD] border border-[#E5EDF5] text-[11px] text-[#176FC1] flex items-start gap-1.5">
+                      <Lightbulb className="w-3.5 h-3.5 shrink-0 mt-0.5 text-[#E9A83A]" />
                       <span>{activeHint}</span>
                     </div>
                   )}
@@ -225,10 +225,10 @@ export default function AIMentor({
 
         <button
           onClick={() => setMinimized(!minimized)}
-          className="flex items-center gap-2.5 px-4 py-2.5 rounded-full bg-gradient-to-r from-blue-600 to-violet-600 text-white shadow-xl shadow-blue-600/30 hover:scale-105 transition-all"
+          className="flex items-center gap-2.5 px-4 py-2.5 rounded-full bg-[#176FC1] hover:bg-[#142D49] text-white shadow-xl hover:scale-105 transition-all"
         >
           {renderAvatarGraphic()}
-          <span className="text-xs font-bold">Maestro Leo</span>
+          <span className="text-xs font-bold">Mentor IA</span>
         </button>
       </div>
     )
@@ -242,18 +242,18 @@ export default function AIMentor({
       transition={{ duration: 0.3 }}
       className={`relative overflow-hidden rounded-2xl border ${
         mood === 'celebrating'
-          ? 'border-amber-500/40 bg-gradient-to-br from-amber-500/10 via-card/90 to-card/90'
+          ? 'border-[#E9A83A]/40 bg-gradient-to-br from-[#E9A83A]/8 via-white to-white'
           : mood === 'empathic'
-          ? 'border-violet-500/40 bg-gradient-to-br from-violet-500/10 via-card/90 to-card/90'
+          ? 'border-[#39BDEB]/40 bg-gradient-to-br from-[#39BDEB]/8 via-white to-white'
           : mood === 'happy'
-          ? 'border-emerald-500/40 bg-gradient-to-br from-emerald-500/10 via-card/90 to-card/90'
-          : 'border-border/70 bg-card/80'
-      } p-4 sm:p-5 shadow-lg backdrop-blur-md`}
+          ? 'border-[#176FC1]/30 bg-gradient-to-br from-[#176FC1]/5 via-white to-white'
+          : 'border-[#E5EDF5] bg-white'
+      } p-4 sm:p-5 shadow-xs text-[#142D49]`}
     >
       {onClose && (
         <button
           onClick={onClose}
-          className="absolute top-3 right-3 text-muted-foreground hover:text-foreground p-1 rounded-lg transition-colors"
+          className="absolute top-3 right-3 text-[#536B83] hover:text-[#142D49] p-1 rounded-lg transition-colors"
           aria-label="Cerrar"
         >
           <X className="w-4 h-4" />
@@ -283,12 +283,12 @@ export default function AIMentor({
             <motion.div
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
-              className="mt-3 p-3 rounded-xl bg-violet-500/10 border border-violet-500/25 flex items-start gap-2 text-xs text-violet-300"
+              className="mt-3 p-3 rounded-xl bg-[#F3F8FD] border border-[#E5EDF5] flex items-start gap-2 text-xs text-[#142D49]"
             >
-              <Lightbulb className="w-4 h-4 text-violet-400 shrink-0 mt-0.5" />
+              <Lightbulb className="w-4 h-4 text-[#E9A83A] shrink-0 mt-0.5" />
               <div>
-                <span className="font-semibold text-violet-200">Pista Pedagógica: </span>
-                <span>{activeHint}</span>
+                <span className="font-bold text-[#176FC1]">Pista Pedagógica: </span>
+                <span className="text-[#536B83]">{activeHint}</span>
               </div>
             </motion.div>
           )}

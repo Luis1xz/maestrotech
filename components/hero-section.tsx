@@ -7,16 +7,16 @@ import Link from 'next/link'
 import { UserRole, canAccessAdmin, canAccessTeacher } from '@/types/database'
 
 const STATS = [
-  { value: '48,000+', label: 'Docentes preparados' },
-  { value: '94%', label: 'Tasa de aprobación' },
-  { value: '32', label: 'Departamentos' },
-  { value: '4.9★', label: 'Valoración promedio' },
+  { value: '48,000+', label: 'Docentes preparados', color: 'text-[#176FC1]' },
+  { value: '94%', label: 'Tasa de aprobación', color: 'text-[#176FC1]' },
+  { value: '32', label: 'Departamentos', color: 'text-[#142D49]' },
+  { value: '4.9★', label: 'Valoración promedio', color: 'text-[#E9A83A]' },
 ]
 
 const BADGES = [
-  { icon: Zap, label: 'IA Adaptativa', color: 'from-blue-600 to-violet-600' },
-  { icon: Shield, label: 'Aval MEN', color: 'from-emerald-600 to-cyan-600' },
-  { icon: TrendingUp, label: 'Resultados probados', color: 'from-orange-500 to-rose-500' },
+  { icon: Zap, label: 'IA Adaptativa', bg: 'bg-[#176FC1]', text: 'text-white' },
+  { icon: Shield, label: 'Normativa MEN', bg: 'bg-[#142D49]', text: 'text-white' },
+  { icon: TrendingUp, label: 'Resultados probados', bg: 'bg-[#E9A83A]', text: 'text-white' },
 ]
 
 interface HeroProps {
@@ -49,24 +49,23 @@ export default function HeroSection({ onNavigate, isAuthenticated, role, userNam
   return (
     <section
       ref={ref}
-      className="relative min-h-screen flex items-center justify-center overflow-hidden aurora-bg"
+      className="relative min-h-screen flex items-center justify-center overflow-hidden bg-[#F3F8FD] pt-20 pb-16"
     >
       {/* Ambient orbs */}
       <motion.div
         animate={{ x: mousePos.x * 0.5, y: mousePos.y * 0.5 }}
         transition={{ type: 'spring', damping: 30, stiffness: 80 }}
-        className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full bg-gradient-to-br from-blue-600/20 to-violet-600/10 blur-3xl pointer-events-none animate-morph-blob"
+        className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full bg-[#176FC1]/10 blur-3xl pointer-events-none"
       />
       <motion.div
         animate={{ x: mousePos.x * -0.3, y: mousePos.y * -0.3 }}
         transition={{ type: 'spring', damping: 30, stiffness: 60 }}
-        className="absolute bottom-1/4 right-1/4 w-80 h-80 rounded-full bg-gradient-to-br from-emerald-500/15 to-cyan-500/10 blur-3xl pointer-events-none animate-morph-blob"
-        style={{ animationDelay: '3s' }}
+        className="absolute bottom-1/4 right-1/4 w-80 h-80 rounded-full bg-[#39BDEB]/15 blur-3xl pointer-events-none"
       />
       <motion.div
         animate={{ x: mousePos.x * 0.2, y: mousePos.y * 0.4 }}
         transition={{ type: 'spring', damping: 40, stiffness: 70 }}
-        className="absolute top-1/2 right-1/3 w-64 h-64 rounded-full bg-gradient-to-br from-orange-500/10 to-rose-500/8 blur-3xl pointer-events-none"
+        className="absolute top-1/2 right-1/3 w-64 h-64 rounded-full bg-[#E9A83A]/8 blur-3xl pointer-events-none"
       />
 
       {/* Main content */}
@@ -79,9 +78,9 @@ export default function HeroSection({ onNavigate, isAuthenticated, role, userNam
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass border border-border/60 text-sm font-medium text-muted-foreground mb-8"
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-[#E5EDF5] text-xs sm:text-sm font-semibold text-[#536B83] shadow-xs mb-8"
         >
-          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+          <span className="w-2 h-2 rounded-full bg-[#176FC1] animate-pulse" />
           {isAuthenticated
             ? `Sesión Activa · ${
                 role === 'admin'
@@ -90,8 +89,8 @@ export default function HeroSection({ onNavigate, isAuthenticated, role, userNam
                   ? 'Docente Formador'
                   : 'Estudiante'
               }`
-            : 'Nueva era del aprendizaje docente en Colombia'}
-          <span className="text-muted-foreground/50">→</span>
+            : 'Plataforma oficial para la preparación docente en Colombia'}
+          <span className="text-[#39BDEB]">→</span>
         </motion.div>
 
         {/* Headline */}
@@ -99,21 +98,21 @@ export default function HeroSection({ onNavigate, isAuthenticated, role, userNam
           initial={{ opacity: 0, y: 32 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
-          className="font-display font-bold text-5xl sm:text-6xl md:text-7xl lg:text-8xl leading-[0.95] tracking-tight text-balance mb-6"
+          className="font-display font-bold text-5xl sm:text-6xl md:text-7xl lg:text-8xl leading-[0.98] tracking-tight text-balance mb-6"
         >
           {isAuthenticated ? (
             <>
-              <span className="text-foreground">Bienvenido de nuevo,</span>
+              <span className="text-[#142D49]">Bienvenido de nuevo,</span>
               <br />
               <span className="gradient-text">{userName || 'Docente'}</span>
             </>
           ) : (
             <>
-              <span className="text-foreground">El futuro del</span>
+              <span className="text-[#142D49]">El futuro del</span>
               <br />
               <span className="gradient-text">desarrollo docente</span>
               <br />
-              <span className="text-foreground">empieza aquí.</span>
+              <span className="text-[#142D49]">empieza aquí.</span>
             </>
           )}
         </motion.h1>
@@ -123,11 +122,11 @@ export default function HeroSection({ onNavigate, isAuthenticated, role, userNam
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.25, ease: [0.22, 1, 0.36, 1] }}
-          className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed text-balance mb-10"
+          className="text-lg md:text-xl text-[#536B83] max-w-2xl mx-auto leading-relaxed text-balance mb-10"
         >
           {isAuthenticated
             ? 'Tu centro integral de formación pedagógica. Gestiona tus cursos, practica con simulacros de concurso docente y continúa con tu progreso profesional.'
-            : 'La plataforma más avanzada para prepararte en concursos de méritos, ascensos salariales y traslados. Tecnología de IA que aprende contigo.'}
+            : 'La plataforma más avanzada para prepararte en concursos de méritos, ascensos salariales y traslados. Formación pedagógica guiada con acompañamiento inteligente.'}
         </motion.p>
 
         {/* Action buttons */}
@@ -141,7 +140,7 @@ export default function HeroSection({ onNavigate, isAuthenticated, role, userNam
             <>
               <button
                 onClick={() => onNavigate('dashboard')}
-                className="group relative px-6 py-3.5 rounded-2xl bg-gradient-to-r from-blue-600 to-violet-600 text-white text-sm font-semibold shadow-xl shadow-blue-600/20 hover:shadow-blue-600/40 transition-all duration-300 btn-magnetic overflow-hidden flex items-center gap-2"
+                className="group relative px-6 py-3.5 rounded-2xl bg-[#176FC1] hover:bg-[#142D49] text-white text-sm font-semibold shadow-md hover:shadow-lg transition-all duration-300 btn-magnetic flex items-center gap-2"
               >
                 <LayoutDashboard className="w-4 h-4" />
                 <span>Ir a mi Dashboard</span>
@@ -151,7 +150,7 @@ export default function HeroSection({ onNavigate, isAuthenticated, role, userNam
               {canAccessTeacher(role) && (
                 <Link
                   href="/teacher"
-                  className="px-5 py-3.5 rounded-2xl glass border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/10 text-sm font-semibold transition-all duration-300 flex items-center gap-2"
+                  className="px-5 py-3.5 rounded-2xl bg-white border border-[#E5EDF5] hover:border-[#176FC1] text-[#176FC1] text-sm font-semibold transition-all duration-300 flex items-center gap-2 shadow-xs"
                 >
                   <BookOpen className="w-4 h-4" />
                   <span>Panel Docente</span>
@@ -161,18 +160,18 @@ export default function HeroSection({ onNavigate, isAuthenticated, role, userNam
               {canAccessAdmin(role) && (
                 <Link
                   href="/admin"
-                  className="px-5 py-3.5 rounded-2xl glass border border-violet-500/30 text-violet-400 hover:bg-violet-500/10 text-sm font-semibold transition-all duration-300 flex items-center gap-2"
+                  className="px-5 py-3.5 rounded-2xl bg-white border border-[#E5EDF5] hover:border-[#142D49] text-[#142D49] text-sm font-semibold transition-all duration-300 flex items-center gap-2 shadow-xs"
                 >
-                  <Shield className="w-4 h-4" />
+                  <Shield className="w-4 h-4 text-[#176FC1]" />
                   <span>Panel Superusuario</span>
                 </Link>
               )}
 
               <button
                 onClick={() => onNavigate('courses')}
-                className="px-5 py-3.5 rounded-2xl glass border border-border hover:border-primary/30 text-foreground text-sm font-semibold transition-all duration-300 flex items-center gap-2"
+                className="px-5 py-3.5 rounded-2xl bg-white border border-[#E5EDF5] hover:border-[#176FC1]/50 text-[#142D49] text-sm font-semibold transition-all duration-300 flex items-center gap-2 shadow-xs"
               >
-                <Sparkles className="w-4 h-4 text-primary" />
+                <Sparkles className="w-4 h-4 text-[#39BDEB]" />
                 <span>Explorar Cursos</span>
               </button>
             </>
@@ -180,20 +179,19 @@ export default function HeroSection({ onNavigate, isAuthenticated, role, userNam
             <>
               <button
                 onClick={() => onNavigate('dashboard')}
-                className="group relative px-8 py-4 rounded-2xl bg-gradient-to-r from-blue-600 to-violet-600 text-white text-base font-semibold shadow-xl shadow-blue-600/20 hover:shadow-blue-600/40 transition-all duration-300 btn-magnetic overflow-hidden"
+                className="group relative px-8 py-4 rounded-2xl bg-[#176FC1] hover:bg-[#142D49] text-white text-base font-semibold shadow-md hover:shadow-xl hover:shadow-[#176FC1]/20 transition-all duration-300 btn-magnetic"
               >
                 <span className="relative z-10 flex items-center gap-2">
                   Comenzar ahora — gratis
                   <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
                 </span>
-                <span className="absolute inset-0 bg-gradient-to-r from-blue-500 to-violet-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               </button>
               <button
                 onClick={() => onNavigate('exam')}
-                className="group flex items-center gap-3 px-8 py-4 rounded-2xl glass border border-border hover:border-primary/30 text-foreground text-base font-semibold transition-all duration-300 btn-magnetic"
+                className="group flex items-center gap-3 px-8 py-4 rounded-2xl bg-white border border-[#E5EDF5] hover:border-[#176FC1] text-[#142D49] text-base font-semibold transition-all duration-300 btn-magnetic shadow-xs hover:shadow-md"
               >
-                <span className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-600/20 to-violet-600/20 flex items-center justify-center group-hover:from-blue-600/30 group-hover:to-violet-600/30 transition-all duration-300">
-                  <Play className="w-4 h-4 text-primary" fill="currentColor" />
+                <span className="w-9 h-9 rounded-xl bg-[#F3F8FD] border border-[#E5EDF5] flex items-center justify-center group-hover:bg-[#176FC1]/10 transition-all duration-300">
+                  <Play className="w-4 h-4 text-[#176FC1]" fill="currentColor" />
                 </span>
                 Ver simulador de examen
               </button>
@@ -208,13 +206,13 @@ export default function HeroSection({ onNavigate, isAuthenticated, role, userNam
           transition={{ duration: 0.6, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
           className="flex flex-wrap items-center justify-center gap-3 mb-20"
         >
-          {BADGES.map(({ icon: Icon, label, color }) => (
+          {BADGES.map(({ icon: Icon, label, bg, text }) => (
             <div
               key={label}
-              className="flex items-center gap-2 px-3.5 py-2 rounded-xl glass border border-border/60 text-sm font-medium text-foreground"
+              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white border border-[#E5EDF5] text-xs sm:text-sm font-medium text-[#142D49] shadow-xs"
             >
-              <div className={`w-5 h-5 rounded-lg bg-gradient-to-br ${color} flex items-center justify-center`}>
-                <Icon className="w-3 h-3 text-white" strokeWidth={2.5} />
+              <div className={`w-5 h-5 rounded-lg ${bg} flex items-center justify-center`}>
+                <Icon className={`w-3 h-3 ${text}`} strokeWidth={2.5} />
               </div>
               {label}
             </div>
@@ -228,16 +226,16 @@ export default function HeroSection({ onNavigate, isAuthenticated, role, userNam
           transition={{ duration: 0.6, delay: 0.6, ease: [0.22, 1, 0.36, 1] }}
           className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-3xl mx-auto"
         >
-          {STATS.map(({ value, label }, i) => (
+          {STATS.map(({ value, label, color }, i) => (
             <motion.div
               key={label}
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.65 + i * 0.08, ease: [0.22, 1, 0.36, 1] }}
-              className="glass rounded-2xl p-4 border border-border/60 hover:border-primary/20 transition-colors duration-300"
+              className="bg-white rounded-2xl p-5 border border-[#E5EDF5] hover:border-[#176FC1]/30 transition-all duration-300 shadow-xs hover:shadow-md"
             >
-              <div className="text-2xl font-bold font-display gradient-text">{value}</div>
-              <div className="text-xs text-muted-foreground mt-0.5">{label}</div>
+              <div className={`text-2xl sm:text-3xl font-bold font-display ${color}`}>{value}</div>
+              <div className="text-xs text-[#536B83] mt-1 font-medium">{label}</div>
             </motion.div>
           ))}
         </motion.div>

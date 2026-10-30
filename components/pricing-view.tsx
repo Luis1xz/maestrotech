@@ -19,7 +19,7 @@ const PLANS = [
       'Resultados básicos',
     ],
     cta: 'Comenzar gratis',
-    gradient: 'from-slate-500 to-slate-700',
+    iconBg: 'bg-[#F3F8FD] text-[#536B83]',
     popular: false,
     badge: null,
   },
@@ -38,7 +38,7 @@ const PLANS = [
       'Soporte prioritario',
     ],
     cta: 'Pagar',
-    gradient: 'from-blue-600 to-violet-600',
+    iconBg: 'bg-[#176FC1] text-white',
     popular: true,
     badge: 'Más popular',
   },
@@ -57,9 +57,9 @@ const PLANS = [
       'SLA garantizado',
     ],
     cta: 'Hablar con ventas',
-    gradient: 'from-emerald-600 to-cyan-600',
+    iconBg: 'bg-[#142D49] text-white',
     popular: false,
-    badge: 'Empresas',
+    badge: 'Colegios',
   },
 ]
 
@@ -92,7 +92,7 @@ export default function PricingView({ onNavigate }: PricingProps) {
   }
 
   return (
-    <div className="min-h-screen bg-background aurora-bg py-24 px-6">
+    <div className="min-h-screen bg-[#F3F8FD] py-24 px-6">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <motion.div
@@ -100,33 +100,39 @@ export default function PricingView({ onNavigate }: PricingProps) {
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-16"
         >
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/8 text-primary text-sm font-medium mb-6">
-            <Sparkles className="w-4 h-4" />
-            Planes y precios
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-[#E5EDF5] text-[#176FC1] text-xs sm:text-sm font-semibold mb-6 shadow-2xs">
+            <Sparkles className="w-4 h-4 text-[#39BDEB]" />
+            Inversión en tu futuro profesional
           </div>
-          <h1 className="font-display font-bold text-5xl md:text-6xl text-foreground mb-4">
-            Invierte en tu
+          <h1 className="font-display font-bold text-5xl md:text-6xl text-[#142D49] mb-4">
+            Impulsa tu
             <br />
             <span className="gradient-text">carrera docente</span>
           </h1>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-8">
-            Sin compromisos. Cancela cuando quieras. Garantía de 30 días.
+          <p className="text-base sm:text-lg text-[#536B83] max-w-2xl mx-auto mb-8">
+            Prepárate con rigor metodológico, simulacros ilimitados y acompañamiento pedagógico permanente.
           </p>
 
           {/* Toggle */}
-          <div className="inline-flex items-center gap-3 p-1 rounded-xl bg-muted border border-border/60">
+          <div className="inline-flex items-center gap-2 p-1.5 rounded-2xl bg-white border border-[#E5EDF5] shadow-xs">
             <button
               onClick={() => setAnnual(false)}
-              className={`px-5 py-2.5 rounded-lg text-sm font-semibold transition-all ${!annual ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground'}`}
+              className={`px-5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all ${
+                !annual ? 'bg-[#176FC1] text-white shadow-xs' : 'text-[#536B83] hover:text-[#142D49]'
+              }`}
             >
               Mensual
             </button>
             <button
               onClick={() => setAnnual(true)}
-              className={`px-5 py-2.5 rounded-lg text-sm font-semibold transition-all flex items-center gap-2 ${annual ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground'}`}
+              className={`px-5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center gap-2 ${
+                annual ? 'bg-[#176FC1] text-white shadow-xs' : 'text-[#536B83] hover:text-[#142D49]'
+              }`}
             >
               Anual
-              <span className="text-xs font-bold text-emerald-600 bg-emerald-100 dark:bg-emerald-900/30 dark:text-emerald-400 px-1.5 py-0.5 rounded-full">
+              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                annual ? 'bg-white/20 text-white' : 'bg-[#E9A83A]/15 text-[#E9A83A]'
+              }`}>
                 -20%
               </span>
             </button>
@@ -135,69 +141,71 @@ export default function PricingView({ onNavigate }: PricingProps) {
 
         {/* Plans */}
         <div className="grid md:grid-cols-3 gap-6">
-          {PLANS.map(({ name, price, description, features, cta, gradient, popular, badge }, i) => (
+          {PLANS.map(({ name, price, description, features, cta, iconBg, popular, badge }, i) => (
             <motion.div
               key={name}
               initial={{ opacity: 0, y: 24 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.1 }}
-              className={`relative flex flex-col p-8 rounded-3xl border transition-all duration-300 card-lift ${
+              className={`relative flex flex-col p-8 rounded-3xl bg-white border transition-all duration-300 card-lift ${
                 popular
-                  ? 'border-primary/40 glass shadow-2xl shadow-primary/10'
-                  : 'glass border-border/60'
+                  ? 'border-2 border-[#176FC1] shadow-xl'
+                  : 'border-[#E5EDF5] shadow-xs'
               }`}
             >
               {/* Popular badge */}
               {badge && (
-                <div className={`absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1.5 rounded-full bg-gradient-to-r ${gradient} text-white text-xs font-bold shadow-lg`}>
+                <div className={`absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full text-white text-xs font-bold shadow-xs ${
+                  popular ? 'bg-[#E9A83A]' : 'bg-[#142D49]'
+                }`}>
                   {badge}
                 </div>
               )}
 
-              {/* Gradient stripe */}
-              <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${gradient} flex items-center justify-center mb-5 shadow-lg`}>
-                {i === 0 ? <Zap className="w-6 h-6 text-white" /> :
-                 i === 1 ? <Star className="w-6 h-6 text-white" fill="white" /> :
-                 <Shield className="w-6 h-6 text-white" />}
+              {/* Icon */}
+              <div className={`w-12 h-12 rounded-2xl ${iconBg} flex items-center justify-center mb-5 shadow-xs`}>
+                {i === 0 ? <Zap className="w-6 h-6" /> :
+                 i === 1 ? <Star className="w-6 h-6" fill="currentColor" /> :
+                 <Shield className="w-6 h-6" />}
               </div>
 
-              <h3 className="font-display font-bold text-xl text-foreground mb-1">{name}</h3>
-              <p className="text-sm text-muted-foreground mb-5">{description}</p>
+              <h3 className="font-display font-bold text-xl text-[#142D49] mb-1">{name}</h3>
+              <p className="text-sm text-[#536B83] mb-5">{description}</p>
 
               <div className="mb-6">
                 <div className="flex items-end gap-1">
-                  <span className="font-display font-bold text-4xl text-foreground">
+                  <span className="font-display font-bold text-4xl text-[#142D49]">
                     {format(annual ? price.annual : price.monthly)}
                   </span>
                   {price.monthly !== null && price.monthly > 0 && (
-                    <span className="text-muted-foreground text-sm mb-1">/mes</span>
+                    <span className="text-[#536B83] text-sm mb-1">/mes</span>
                   )}
                 </div>
                 {annual && price.monthly !== null && price.monthly > 0 && (
-                  <p className="text-xs text-muted-foreground mt-1">
+                  <p className="text-xs text-[#536B83] mt-1 font-medium">
                     Facturado anualmente · Ahorra ${((price.monthly - price.annual!) * 12 / 1000).toFixed(0)}K COP
                   </p>
                 )}
               </div>
 
-              <ul className="space-y-3 flex-1 mb-8">
+              <ul className="space-y-3 flex-1 mb-8 pt-4 border-t border-[#E5EDF5]">
                 {features.map((f) => (
-                  <li key={f} className="flex items-start gap-2.5 text-sm text-foreground">
-                    <CheckCircle2 className={`w-4 h-4 shrink-0 mt-0.5 ${popular ? 'text-blue-500' : 'text-emerald-500'}`} strokeWidth={2.5} />
-                    {f}
+                  <li key={f} className="flex items-start gap-2.5 text-sm text-[#142D49]">
+                    <CheckCircle2 className={`w-4 h-4 shrink-0 mt-0.5 ${popular ? 'text-[#176FC1]' : 'text-[#39BDEB]'}`} strokeWidth={2.5} />
+                    <span>{f}</span>
                   </li>
                 ))}
               </ul>
 
               <button
                 onClick={() => handlePlanClick(name)}
-                className={`group w-full py-3.5 rounded-2xl font-semibold text-sm transition-all duration-300 btn-magnetic flex items-center justify-center gap-2 ${
+                className={`group w-full py-3.5 rounded-2xl font-bold text-sm transition-all duration-300 btn-magnetic flex items-center justify-center gap-2 ${
                   popular
-                    ? `bg-gradient-to-r ${gradient} text-white shadow-xl shadow-primary/20 hover:shadow-primary/40`
-                    : 'glass border border-border/60 hover:border-primary/30 text-foreground'
+                    ? 'bg-[#176FC1] hover:bg-[#142D49] text-white shadow-md hover:shadow-lg'
+                    : 'bg-[#F3F8FD] hover:bg-[#E5EDF5] border border-[#E5EDF5] text-[#142D49]'
                 }`}
               >
-                {cta}
+                <span>{cta}</span>
                 <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
               </button>
             </motion.div>
@@ -211,12 +219,12 @@ export default function PricingView({ onNavigate }: PricingProps) {
           transition={{ delay: 0.5 }}
           className="mt-16 text-center"
         >
-          <p className="text-sm text-muted-foreground mb-6">
-            Usado por docentes de todas las secretarías del país
+          <p className="text-sm font-semibold text-[#536B83] mb-6">
+            Elegido por docentes y directivos de secretarías de educación en todo el país
           </p>
-          <div className="flex flex-wrap items-center justify-center gap-4">
-            {['Bogotá', 'Medellín', 'Cali', 'Barranquilla', 'Bucaramanga', 'Manizales', 'Pereira'].map((city) => (
-              <span key={city} className="px-4 py-2 rounded-xl glass border border-border/60 text-sm text-muted-foreground">
+          <div className="flex flex-wrap items-center justify-center gap-3">
+            {['Bogotá D.C.', 'Medellín', 'Cali', 'Barranquilla', 'Bucaramanga', 'Manizales', 'Pereira', 'Cartagena', 'Cúcuta'].map((city) => (
+              <span key={city} className="px-4 py-2 rounded-xl bg-white border border-[#E5EDF5] text-xs font-semibold text-[#142D49] shadow-2xs">
                 {city}
               </span>
             ))}

@@ -21,7 +21,7 @@ export default function CoursesView({ onSelectCourse, onNavigate }: CoursesViewP
   })
 
   return (
-    <div className="min-h-screen bg-background aurora-bg py-24 px-6">
+    <div className="min-h-screen bg-[#F3F8FD] py-24 px-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <motion.div
@@ -29,22 +29,22 @@ export default function CoursesView({ onSelectCourse, onNavigate }: CoursesViewP
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-12"
         >
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-4">
-            <Sparkles className="w-4 h-4" />
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#176FC1]/10 border border-[#176FC1]/20 text-[#176FC1] text-sm font-semibold mb-4">
+            <Sparkles className="w-4 h-4 text-[#39BDEB]" />
             Catálogo de Formación Docente
           </div>
-          <h1 className="font-display font-bold text-4xl sm:text-5xl md:text-6xl text-foreground mb-4">
+          <h1 className="font-display font-bold text-4xl sm:text-5xl md:text-6xl text-[#142D49] mb-4">
             Cursos diseñados para <br />
-            <span className="gradient-text">transformar tu carrera</span>
+            <span className="bg-gradient-to-r from-[#176FC1] via-[#39BDEB] to-[#176FC1] bg-clip-text text-transparent">transformar tu carrera</span>
           </h1>
-          <p className="text-muted-foreground text-base sm:text-lg max-w-2xl mx-auto">
+          <p className="text-[#536B83] text-base sm:text-lg max-w-2xl mx-auto">
             Alineados con el marco del Ministerio de Educación Nacional, el Decreto 1278 y las pruebas de ascenso y méritos.
           </p>
 
           {isDemo && (
-            <div className="mt-4 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-500 text-xs">
+            <div className="mt-4 inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#E9A83A]/10 border border-[#E9A83A]/30 text-[#E9A83A] text-xs font-medium">
               <span>Modo Demostración</span>
-              <span className="text-amber-500/60">— Conecta Supabase en .env.local para ver datos reales</span>
+              <span className="text-[#536B83]">— Conecta Supabase en .env.local para ver datos reales</span>
             </div>
           )}
         </motion.div>
@@ -55,10 +55,10 @@ export default function CoursesView({ onSelectCourse, onNavigate }: CoursesViewP
             <button
               key={cat}
               onClick={() => setSelectedCategory(cat)}
-              className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all ${
+              className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all ${
                 selectedCategory === cat
-                  ? 'bg-primary text-primary-foreground shadow-md'
-                  : 'glass border border-border/60 text-muted-foreground hover:text-foreground hover:bg-muted/50'
+                  ? 'bg-[#176FC1] text-white shadow-sm'
+                  : 'bg-white border border-[#E5EDF5] text-[#536B83] hover:text-[#142D49] hover:bg-[#F3F8FD] hover:border-[#176FC1]/30'
               }`}
             >
               {cat}
@@ -72,12 +72,12 @@ export default function CoursesView({ onSelectCourse, onNavigate }: CoursesViewP
             {[1, 2, 3].map((n) => (
               <div
                 key={n}
-                className="h-80 rounded-3xl glass border border-border/50 animate-pulse p-6 flex flex-col justify-between"
+                className="h-80 rounded-3xl bg-white border border-[#E5EDF5] shadow-xs animate-pulse p-6 flex flex-col justify-between"
               >
-                <div className="w-full h-40 bg-muted/60 rounded-2xl mb-4" />
+                <div className="w-full h-40 bg-[#F3F8FD] rounded-2xl mb-4" />
                 <div className="space-y-2">
-                  <div className="h-4 bg-muted/60 rounded w-3/4" />
-                  <div className="h-3 bg-muted/40 rounded w-1/2" />
+                  <div className="h-4 bg-[#F3F8FD] rounded w-3/4" />
+                  <div className="h-3 bg-[#F3F8FD] rounded w-1/2" />
                 </div>
               </div>
             ))}
@@ -86,19 +86,19 @@ export default function CoursesView({ onSelectCourse, onNavigate }: CoursesViewP
 
         {/* Error state */}
         {!loading && error && (
-          <div className="max-w-md mx-auto text-center p-8 rounded-3xl glass border border-rose-500/30 bg-rose-500/5">
-            <div className="w-12 h-12 rounded-2xl bg-rose-500/10 text-rose-500 flex items-center justify-center mx-auto mb-4">
+          <div className="max-w-md mx-auto text-center p-8 rounded-3xl bg-white border border-rose-200 shadow-sm">
+            <div className="w-12 h-12 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center mx-auto mb-4">
               <AlertCircle className="w-6 h-6" />
             </div>
-            <h3 className="font-display font-semibold text-foreground mb-2">
+            <h3 className="font-display font-semibold text-[#142D49] mb-2">
               No pudimos cargar los cursos
             </h3>
-            <p className="text-xs text-muted-foreground mb-6 leading-relaxed">
+            <p className="text-xs text-[#536B83] mb-6 leading-relaxed">
               {error}
             </p>
             <button
               onClick={() => refetch()}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-primary-foreground text-xs font-semibold shadow-md hover:shadow-lg transition-all"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#176FC1] hover:bg-[#142D49] text-white text-xs font-semibold shadow-xs transition-colors"
             >
               <RefreshCw className="w-3.5 h-3.5" />
               Reintentar
@@ -108,19 +108,19 @@ export default function CoursesView({ onSelectCourse, onNavigate }: CoursesViewP
 
         {/* Empty state */}
         {!loading && !error && courses.length === 0 && (
-          <div className="max-w-md mx-auto text-center p-12 rounded-3xl glass border border-border/60">
-            <div className="w-14 h-14 rounded-2xl bg-muted flex items-center justify-center mx-auto mb-4 text-muted-foreground">
+          <div className="max-w-md mx-auto text-center p-12 rounded-3xl bg-white border border-[#E5EDF5] shadow-sm">
+            <div className="w-14 h-14 rounded-2xl bg-[#F3F8FD] flex items-center justify-center mx-auto mb-4 text-[#176FC1]">
               <BookOpen className="w-7 h-7" />
             </div>
-            <h3 className="font-display font-semibold text-lg text-foreground mb-2">
+            <h3 className="font-display font-semibold text-lg text-[#142D49] mb-2">
               No hay cursos disponibles todavía
             </h3>
-            <p className="text-xs text-muted-foreground mb-6 leading-relaxed">
+            <p className="text-xs text-[#536B83] mb-6 leading-relaxed">
               Actualmente no se han publicado cursos en esta categoría. Puedes consultar los simulacros o volver más tarde.
             </p>
             <button
               onClick={() => onNavigate('exam')}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-primary-foreground text-xs font-semibold shadow-md"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#176FC1] hover:bg-[#142D49] text-white text-xs font-semibold shadow-xs transition-colors"
             >
               Ir al Simulador de Examen
             </button>
@@ -137,11 +137,11 @@ export default function CoursesView({ onSelectCourse, onNavigate }: CoursesViewP
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, delay: i * 0.08 }}
                 onClick={() => onSelectCourse(course.slug)}
-                className="group p-6 rounded-3xl glass border border-border/60 hover:border-primary/30 transition-all duration-300 card-lift cursor-pointer flex flex-col justify-between"
+                className="group p-6 rounded-3xl bg-white border border-[#E5EDF5] hover:border-[#176FC1]/50 shadow-xs hover:shadow-md transition-all duration-300 cursor-pointer flex flex-col justify-between"
               >
                 <div>
                   {/* Thumbnail / Header */}
-                  <div className="relative aspect-video rounded-2xl overflow-hidden mb-5 bg-gradient-to-br from-blue-900/30 to-violet-900/30 border border-border/40 flex items-center justify-center">
+                  <div className="relative aspect-video rounded-2xl overflow-hidden mb-5 bg-[#F3F8FD] border border-[#E5EDF5] flex items-center justify-center">
                     <img
                       src={getThumbnailUrl(course.thumbnail_url)}
                       alt={course.title}
@@ -153,12 +153,12 @@ export default function CoursesView({ onSelectCourse, onNavigate }: CoursesViewP
                     />
                     <div className="absolute top-3 left-3 flex gap-2">
                       {course.category && (
-                        <span className="text-[10px] uppercase font-bold tracking-wider px-2.5 py-1 rounded-lg bg-black/60 backdrop-blur-md text-white border border-white/10">
+                        <span className="text-[10px] uppercase font-bold tracking-wider px-2.5 py-1 rounded-lg bg-[#142D49]/90 backdrop-blur-md text-white border border-[#142D49]">
                           {course.category}
                         </span>
                       )}
                       {course.level && (
-                        <span className="text-[10px] font-semibold px-2 py-1 rounded-lg bg-blue-500/20 backdrop-blur-md text-blue-300 border border-blue-500/30">
+                        <span className="text-[10px] font-semibold px-2 py-1 rounded-lg bg-[#39BDEB]/15 backdrop-blur-md text-[#176FC1] border border-[#39BDEB]/30">
                           {course.level}
                         </span>
                       )}
@@ -166,37 +166,37 @@ export default function CoursesView({ onSelectCourse, onNavigate }: CoursesViewP
                   </div>
 
                   {/* Title & Description */}
-                  <h3 className="font-display font-bold text-lg text-foreground mb-2 group-hover:text-primary transition-colors line-clamp-2">
+                  <h3 className="font-display font-bold text-lg text-[#142D49] mb-2 group-hover:text-[#176FC1] transition-colors line-clamp-2">
                     {course.title}
                   </h3>
-                  <p className="text-xs text-muted-foreground leading-relaxed mb-4 line-clamp-2">
+                  <p className="text-xs text-[#536B83] leading-relaxed mb-4 line-clamp-2">
                     {course.short_description || course.description}
                   </p>
                 </div>
 
                 {/* Footer details */}
-                <div className="pt-4 border-t border-border/50">
-                  <div className="flex items-center justify-between text-xs text-muted-foreground mb-4">
+                <div className="pt-4 border-t border-[#E5EDF5]">
+                  <div className="flex items-center justify-between text-xs text-[#536B83] mb-4">
                     {course.instructor_name && (
-                      <span className="truncate max-w-[150px] font-medium text-foreground">
+                      <span className="truncate max-w-[150px] font-medium text-[#142D49]">
                         {course.instructor_name}
                       </span>
                     )}
                     {course.duration_hours ? (
                       <span className="flex items-center gap-1">
-                        <Clock className="w-3.5 h-3.5" />
+                        <Clock className="w-3.5 h-3.5 text-[#39BDEB]" />
                         {course.duration_hours}h estimadas
                       </span>
                     ) : null}
                   </div>
 
                   <div className="flex items-center justify-between">
-                    <span className="font-display font-bold text-base text-foreground">
+                    <span className="font-display font-bold text-base text-[#142D49]">
                       {course.price === 0
                         ? 'Gratis'
                         : `$${Number(course.price).toLocaleString('es-CO')} COP`}
                     </span>
-                    <span className="inline-flex items-center gap-1 text-xs font-semibold text-primary group-hover:translate-x-1 transition-transform">
+                    <span className="inline-flex items-center gap-1 text-xs font-bold text-[#176FC1] group-hover:text-[#142D49] group-hover:translate-x-1 transition-all">
                       Ver contenido <ArrowRight className="w-3.5 h-3.5" />
                     </span>
                   </div>

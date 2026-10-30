@@ -211,7 +211,7 @@ export default function Dashboard({ onNavigate, onOpenAuth, onSelectCourse }: Da
   })
 
   return (
-    <div className="flex h-screen bg-background overflow-hidden">
+    <div className="flex h-screen bg-[#F3F8FD] text-[#142D49] overflow-hidden">
       {/* Sidebar */}
       <motion.aside
         initial={false}
@@ -221,28 +221,28 @@ export default function Dashboard({ onNavigate, onOpenAuth, onSelectCourse }: Da
               ? 0
               : -280,
         }}
-        className={`fixed lg:relative z-40 flex flex-col w-72 h-full bg-card border-r border-border/60 transition-transform duration-300 lg:translate-x-0 ${
+        className={`fixed lg:relative z-40 flex flex-col w-72 h-full bg-white border-r border-[#E5EDF5] transition-transform duration-300 lg:translate-x-0 ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         }`}
       >
         {/* Logo */}
-        <div className="flex items-center justify-between px-6 py-5 border-b border-border/60">
+        <div className="flex items-center justify-between px-6 py-5 border-b border-[#E5EDF5]">
           <button onClick={() => onNavigate('home')} className="flex items-center gap-2.5 group">
-            <div className="w-8 h-8 rounded-xl overflow-hidden ring-1 ring-border/60 shadow-md group-hover:scale-105 transition-all duration-300 shrink-0 bg-black">
-              <img src="/logo.png" alt="Maestro Logo" className="w-full h-full object-cover" />
+            <div className="w-8 h-8 rounded-xl overflow-hidden ring-1 ring-[#E5EDF5] shadow-2xs group-hover:scale-105 transition-all duration-300 shrink-0 bg-white p-0.5">
+              <img src="/logo.png" alt="Maestro Logo" className="w-full h-full object-contain" />
             </div>
-            <span className="font-bold font-display text-foreground">MaestroTech</span>
+            <span className="font-bold font-display text-[#142D49]">MaestroTech</span>
           </button>
           <button
             onClick={() => setSidebarOpen(false)}
-            className="lg:hidden p-1.5 rounded-lg hover:bg-muted transition-colors"
+            className="lg:hidden p-1.5 rounded-lg hover:bg-[#F3F8FD] text-[#536B83] transition-colors"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
 
         {/* User Card */}
-        <div className="px-6 py-5 border-b border-border/60">
+        <div className="px-6 py-5 border-b border-[#E5EDF5]">
           {isAuthenticated || isDemo ? (
             <>
               <div className="flex items-center gap-3">
@@ -250,37 +250,39 @@ export default function Dashboard({ onNavigate, onOpenAuth, onSelectCourse }: Da
                   <img
                     src={userAvatar}
                     alt={displayName}
-                    className="w-10 h-10 rounded-2xl object-cover border border-border"
+                    className="w-10 h-10 rounded-2xl object-cover border border-[#E5EDF5]"
                   />
                 ) : (
-                  <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-blue-600 to-violet-600 flex items-center justify-center text-white text-xs font-bold shrink-0">
+                  <div className="w-10 h-10 rounded-2xl bg-[#176FC1] text-white flex items-center justify-center text-xs font-bold shrink-0">
                     {userInitials}
                   </div>
                 )}
                 <div className="min-w-0">
-                  <p className="text-sm font-semibold text-foreground truncate">{displayName}</p>
-                  <p className="text-[11px] text-emerald-500 font-medium truncate">
-                    {role === 'admin'
-                      ? 'Superusuario Admin'
-                      : role === 'instructor'
-                        ? 'Docente Formador'
-                        : 'Estudiante Matriculado'}
+                  <p className="text-sm font-bold text-[#142D49] truncate">{displayName}</p>
+                  <p className="text-[11px] font-semibold truncate">
+                    {role === 'admin' ? (
+                      <span className="text-[#142D49]">Superusuario Admin</span>
+                    ) : role === 'instructor' ? (
+                      <span className="text-[#176FC1]">Docente Formador</span>
+                    ) : (
+                      <span className="text-[#176FC1]">Estudiante Matriculado</span>
+                    )}
                   </p>
                 </div>
               </div>
-              <div className="mt-4 flex items-center justify-between text-xs">
-                <span className="text-muted-foreground">Cursos matriculados</span>
-                <span className="font-bold text-primary">{enrollments.length} activos</span>
+              <div className="mt-4 flex items-center justify-between text-xs pt-3 border-t border-[#E5EDF5]">
+                <span className="text-[#536B83]">Cursos matriculados</span>
+                <span className="font-bold text-[#176FC1]">{enrollments.length} activos</span>
               </div>
             </>
           ) : (
             <div className="text-center py-2">
-              <p className="text-xs text-muted-foreground mb-3">
+              <p className="text-xs text-[#536B83] mb-3">
                 Inicia sesión para ver tus cursos matriculados
               </p>
               <button
                 onClick={onOpenAuth}
-                className="w-full py-2 rounded-xl bg-primary text-primary-foreground text-xs font-semibold shadow"
+                className="w-full py-2 rounded-xl bg-[#176FC1] text-white text-xs font-semibold shadow-xs"
               >
                 Iniciar sesión
               </button>
@@ -296,23 +298,23 @@ export default function Dashboard({ onNavigate, onOpenAuth, onSelectCourse }: Da
               onClick={() => navigate(view)}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${
                 activeView === view
-                  ? 'bg-primary/10 text-primary'
-                  : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                  ? 'bg-[#F3F8FD] text-[#176FC1] font-bold border-r-2 border-[#176FC1]'
+                  : 'text-[#536B83] hover:bg-[#F3F8FD] hover:text-[#142D49]'
               }`}
             >
-              <Icon className="w-4.5 h-4.5 shrink-0" strokeWidth={1.8} />
+              <Icon className="w-4.5 h-4.5 shrink-0" strokeWidth={activeView === view ? 2.2 : 1.8} />
               {label}
             </button>
           ))}
 
           {(role === 'instructor' || role === 'admin') && (
-            <div className="pt-4 mt-4 border-t border-border/50 space-y-1.5">
-              <p className="px-4 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+            <div className="pt-4 mt-4 border-t border-[#E5EDF5] space-y-1.5">
+              <p className="px-4 text-[10px] font-bold uppercase tracking-wider text-[#536B83]">
                 Gestión Académica
               </p>
               <Link
                 href="/teacher"
-                className="w-full flex items-center justify-between px-4 py-2.5 rounded-xl bg-emerald-500/10 text-emerald-400 text-xs font-semibold hover:bg-emerald-500/20 transition-colors"
+                className="w-full flex items-center justify-between px-4 py-2.5 rounded-xl bg-[#176FC1]/10 text-[#176FC1] text-xs font-semibold hover:bg-[#176FC1]/15 transition-colors"
               >
                 <span className="flex items-center gap-2">
                   <BookOpen className="w-4 h-4" /> Panel Docente
@@ -322,10 +324,10 @@ export default function Dashboard({ onNavigate, onOpenAuth, onSelectCourse }: Da
               {role === 'admin' && (
                 <Link
                   href="/admin"
-                  className="w-full flex items-center justify-between px-4 py-2.5 rounded-xl bg-violet-500/10 text-violet-400 text-xs font-semibold hover:bg-violet-500/20 transition-colors"
+                  className="w-full flex items-center justify-between px-4 py-2.5 rounded-xl bg-[#142D49]/10 text-[#142D49] text-xs font-semibold hover:bg-[#142D49]/15 transition-colors"
                 >
                   <span className="flex items-center gap-2">
-                    <Shield className="w-4 h-4" /> Panel Superusuario
+                    <Shield className="w-4 h-4 text-[#176FC1]" /> Panel Superusuario
                   </span>
                   <ChevronRight className="w-3.5 h-3.5" />
                 </Link>
@@ -335,14 +337,14 @@ export default function Dashboard({ onNavigate, onOpenAuth, onSelectCourse }: Da
         </nav>
 
         {/* Bottom items */}
-        <div className="px-3 py-4 border-t border-border/60 space-y-1">
+        <div className="px-3 py-4 border-t border-[#E5EDF5] space-y-1">
           {isAuthenticated && (
             <button
               onClick={async () => {
                 await signOut()
                 onNavigate('home')
               }}
-              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-rose-500 hover:bg-rose-500/10 transition-colors"
+              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-rose-600 hover:bg-rose-50 transition-colors"
             >
               <LogOut className="w-4.5 h-4.5" strokeWidth={1.8} />
               Cerrar sesión
@@ -362,39 +364,39 @@ export default function Dashboard({ onNavigate, onOpenAuth, onSelectCourse }: Da
       {/* Main Container */}
       <main className="flex-1 flex flex-col h-full overflow-hidden">
         {/* Topbar */}
-        <header className="flex items-center justify-between px-6 py-4 border-b border-border/60 bg-card/60 backdrop-blur-sm shrink-0">
+        <header className="flex items-center justify-between px-6 py-4 border-b border-[#E5EDF5] bg-white/90 backdrop-blur-md shrink-0">
           <div className="flex items-center gap-4">
             <button
               onClick={() => setSidebarOpen(true)}
-              className="lg:hidden p-2 rounded-lg hover:bg-muted transition-colors"
+              className="lg:hidden p-2 rounded-lg hover:bg-[#F3F8FD] text-[#142D49] transition-colors"
             >
               <Menu className="w-5 h-5" />
             </button>
             <div className="relative hidden md:block">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#536B83]" />
               <input
                 type="text"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="Filtrar mis cursos matriculados..."
-                className="pl-9 pr-4 py-2 rounded-xl bg-muted border border-transparent focus:border-primary/30 focus:outline-none text-xs text-foreground placeholder-muted-foreground w-72 transition-all"
+                className="pl-9 pr-4 py-2 rounded-xl bg-[#F3F8FD] border border-[#E5EDF5] focus:border-[#176FC1] focus:bg-white focus:outline-none text-xs text-[#142D49] placeholder-[#536B83] w-72 transition-all"
               />
             </div>
           </div>
           <div className="flex items-center gap-3">
             {isAuthenticated ? (
               <div className="flex items-center gap-3">
-                <span className="text-xs font-medium text-muted-foreground hidden sm:inline">
+                <span className="text-xs font-semibold text-[#142D49] hidden sm:inline">
                   {displayName}
                 </span>
-                <div className="w-9 h-9 rounded-2xl bg-gradient-to-br from-blue-600 to-violet-600 flex items-center justify-center text-white text-xs font-bold">
+                <div className="w-9 h-9 rounded-2xl bg-[#176FC1] text-white flex items-center justify-center text-xs font-bold shadow-2xs">
                   {userInitials}
                 </div>
               </div>
             ) : (
               <button
                 onClick={onOpenAuth}
-                className="px-4 py-2 rounded-xl bg-primary text-primary-foreground text-xs font-semibold shadow"
+                className="px-4 py-2 rounded-xl bg-[#176FC1] text-white text-xs font-semibold shadow-xs"
               >
                 Iniciar sesión
               </button>
@@ -413,16 +415,16 @@ export default function Dashboard({ onNavigate, onOpenAuth, onSelectCourse }: Da
               className="flex items-start justify-between"
             >
               <div>
-                <h1 className="font-display font-bold text-2xl md:text-3xl text-foreground">
+                <h1 className="font-display font-bold text-2xl md:text-3xl text-[#142D49]">
                   Bienvenido(a), {displayName} 👋
                 </h1>
-                <p className="text-muted-foreground mt-1 text-xs sm:text-sm">
-                  Tienes {enrollments.length} cursos activos con acceso completo a videoclases y guías PDF descargables.
+                <p className="text-[#536B83] mt-1 text-xs sm:text-sm font-medium">
+                  Tienes {enrollments.length} cursos activos con acceso completo a videoclases y guías pedagógicas descargables.
                 </p>
               </div>
               <button
                 onClick={() => onNavigate('exam')}
-                className="hidden md:flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-violet-600 text-white text-sm font-semibold shadow-lg shadow-blue-600/20 hover:shadow-blue-600/40 transition-all btn-magnetic"
+                className="hidden md:flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#176FC1] hover:bg-[#142D49] text-white text-sm font-semibold shadow-md transition-all btn-magnetic"
               >
                 <Play className="w-4 h-4" fill="currentColor" />
                 Simulacro CNSC
@@ -460,28 +462,28 @@ export default function Dashboard({ onNavigate, onOpenAuth, onSelectCourse }: Da
                   label: 'Cursos matriculados',
                   value: `${enrollments.length} cursos`,
                   sub: enrollments.length > 0 ? 'Con acceso completo' : 'Sin cursos aún',
-                  color: 'text-blue-500 bg-blue-500/10',
+                  color: 'text-[#176FC1] bg-[#176FC1]/10',
                 },
                 {
                   icon: CheckCircle2,
                   label: 'Clases completadas',
                   value: `${stats?.completedLessonsCount || 0}`,
                   sub: 'Avance verificado',
-                  color: 'text-emerald-500 bg-emerald-500/10',
+                  color: 'text-[#39BDEB] bg-[#39BDEB]/15',
                 },
                 {
                   icon: Clock,
                   label: 'Horas de estudio',
                   value: `${stats?.totalStudyHours || 1.5}h`,
                   sub: 'Tiempo registrado',
-                  color: 'text-violet-500 bg-violet-500/10',
+                  color: 'text-[#142D49] bg-[#142D49]/10',
                 },
                 {
                   icon: Award,
                   label: 'Certificados emitidos',
                   value: `${certificates.length}`,
                   sub: 'Verificables con código',
-                  color: 'text-amber-500 bg-amber-500/10',
+                  color: 'text-[#E9A83A] bg-[#E9A83A]/15',
                 },
               ].map(({ icon: Icon, label, value, sub, color }, i) => (
                 <motion.div
@@ -489,16 +491,16 @@ export default function Dashboard({ onNavigate, onOpenAuth, onSelectCourse }: Da
                   initial={{ opacity: 0, y: 16 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: i * 0.07 }}
-                  className="p-5 rounded-2xl glass border border-border/60 hover:border-primary/20 transition-colors card-lift"
+                  className="p-5 rounded-2xl bg-white border border-[#E5EDF5] hover:border-[#176FC1]/30 transition-all card-lift shadow-xs hover:shadow-md"
                 >
                   <div
                     className={`w-9 h-9 rounded-xl ${color} flex items-center justify-center mb-3`}
                   >
                     <Icon className="w-4.5 h-4.5" strokeWidth={2} />
                   </div>
-                  <p className="text-xs text-muted-foreground mb-1">{label}</p>
-                  <p className="font-display font-bold text-xl text-foreground">{value}</p>
-                  <p className="text-xs mt-1 text-muted-foreground">{sub}</p>
+                  <p className="text-xs text-[#536B83] mb-1 font-medium">{label}</p>
+                  <p className="font-display font-bold text-xl text-[#142D49]">{value}</p>
+                  <p className="text-xs mt-1 text-[#536B83]">{sub}</p>
                 </motion.div>
               ))}
             </div>
@@ -510,40 +512,40 @@ export default function Dashboard({ onNavigate, onOpenAuth, onSelectCourse }: Da
                 initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.15 }}
-                className="p-6 rounded-2xl glass border border-violet-500/30 bg-violet-500/5 space-y-4 flex flex-col justify-between"
+                className="p-6 rounded-2xl bg-white border border-[#E5EDF5] shadow-xs space-y-4 flex flex-col justify-between"
               >
                 <div>
                   <div className="flex items-center justify-between mb-3">
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-violet-400">
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-[#176FC1]">
                       Ruta de Maestría Pedagógica
                     </span>
-                    <span className="flex items-center gap-1 text-xs font-bold text-orange-400 bg-orange-500/10 px-2.5 py-0.5 rounded-full border border-orange-500/20">
-                      <Flame className="w-3.5 h-3.5 fill-orange-400" /> {gamification.streakDays} días
+                    <span className="flex items-center gap-1 text-xs font-bold text-[#E9A83A] bg-[#E9A83A]/10 px-2.5 py-0.5 rounded-full border border-[#E9A83A]/25">
+                      <Flame className="w-3.5 h-3.5 fill-[#E9A83A]" /> {gamification.streakDays} días
                     </span>
                   </div>
 
                   <div className="flex items-center gap-3 mb-4">
-                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-violet-600 to-blue-600 flex items-center justify-center text-white shadow-lg shadow-violet-600/30">
+                    <div className="w-12 h-12 rounded-2xl bg-[#176FC1] flex items-center justify-center text-white shadow-xs">
                       <Zap className="w-6 h-6" />
                     </div>
                     <div>
-                      <h3 className="font-display font-bold text-lg text-foreground">
+                      <h3 className="font-display font-bold text-lg text-[#142D49]">
                         Nivel {gamification.level}: {gamification.levelTitle}
                       </h3>
-                      <p className="text-xs text-muted-foreground">
+                      <p className="text-xs text-[#536B83] font-medium">
                         {gamification.xp} XP acumulados
                       </p>
                     </div>
                   </div>
 
                   <div className="space-y-1.5 mb-4">
-                    <div className="flex justify-between text-[11px] text-muted-foreground font-medium">
+                    <div className="flex justify-between text-[11px] text-[#536B83] font-semibold">
                       <span>Progreso hacia Nivel {Math.min(5, gamification.level + 1)}</span>
                       <span>{gamification.xp} / {gamification.nextLevelXp} XP</span>
                     </div>
-                    <div className="h-2.5 bg-muted rounded-full overflow-hidden">
+                    <div className="h-2.5 bg-[#F3F8FD] border border-[#E5EDF5] rounded-full overflow-hidden">
                       <div
-                        className="h-full bg-gradient-to-r from-blue-500 to-violet-500 rounded-full transition-all duration-1000"
+                        className="h-full bg-gradient-to-r from-[#176FC1] to-[#39BDEB] rounded-full transition-all duration-1000"
                         style={{
                           width: `${Math.min(100, Math.round((gamification.xp / gamification.nextLevelXp) * 100))}%`,
                         }}
@@ -553,14 +555,14 @@ export default function Dashboard({ onNavigate, onOpenAuth, onSelectCourse }: Da
                 </div>
 
                 <div>
-                  <p className="text-xs font-semibold text-foreground mb-2 flex items-center gap-1.5">
-                    <Award className="w-3.5 h-3.5 text-amber-500" /> Insignias Obtenidas ({gamification.unlockedBadges.length})
+                  <p className="text-xs font-bold text-[#142D49] mb-2 flex items-center gap-1.5">
+                    <Award className="w-3.5 h-3.5 text-[#E9A83A]" /> Insignias Obtenidas ({gamification.unlockedBadges.length})
                   </p>
                   <div className="flex flex-wrap gap-2">
                     {gamification.unlockedBadges.map((badge: Badge) => (
                       <span
                         key={badge.id}
-                        className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-card border border-border/80 text-xs font-medium text-foreground shadow-sm"
+                        className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-[#F3F8FD] border border-[#E5EDF5] text-xs font-medium text-[#142D49]"
                         title={badge.description}
                       >
                         <span>{badge.icon}</span>
@@ -576,21 +578,21 @@ export default function Dashboard({ onNavigate, onOpenAuth, onSelectCourse }: Da
                 initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.18 }}
-                className="lg:col-span-2 p-6 rounded-2xl glass border border-border/60 flex flex-col justify-between"
+                className="lg:col-span-2 p-6 rounded-2xl bg-white border border-[#E5EDF5] shadow-xs flex flex-col justify-between"
               >
                 <div>
                   <div className="flex items-center justify-between mb-4">
                     <div>
-                      <h3 className="font-display font-semibold text-foreground">
+                      <h3 className="font-display font-bold text-[#142D49]">
                         Seguimiento y Recomendaciones Pedagógicas
                       </h3>
-                      <p className="text-xs text-muted-foreground">
+                      <p className="text-xs text-[#536B83]">
                         Análisis cognitivo de tus respuestas en simulacros y lecciones
                       </p>
                     </div>
                     <button
                       onClick={() => onNavigate('exam')}
-                      className="text-xs text-primary font-bold hover:underline"
+                      className="text-xs text-[#176FC1] font-bold hover:underline"
                     >
                       Nuevo Simulacro →
                     </button>
@@ -599,39 +601,39 @@ export default function Dashboard({ onNavigate, onOpenAuth, onSelectCourse }: Da
                   <div className="grid sm:grid-cols-2 gap-4">
                     {/* Fortalezas */}
                     <div className="space-y-2">
-                      <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-1.5">
+                      <span className="text-[11px] font-bold uppercase tracking-wider text-[#176FC1] flex items-center gap-1.5">
                         <CheckCircle2 className="w-3.5 h-3.5" /> Tus Mayores Fortalezas
                       </span>
                       {gamification.strengths.map((str: TopicPerformance) => (
-                        <div key={str.topic} className="p-3 rounded-xl bg-emerald-500/5 border border-emerald-500/20">
-                          <p className="text-xs font-bold text-foreground">{str.topic}</p>
-                          <p className="text-[11px] text-muted-foreground mt-0.5">{str.suggestion}</p>
+                        <div key={str.topic} className="p-3 rounded-xl bg-[#F3F8FD] border border-[#E5EDF5]">
+                          <p className="text-xs font-bold text-[#142D49]">{str.topic}</p>
+                          <p className="text-[11px] text-[#536B83] mt-0.5">{str.suggestion}</p>
                         </div>
                       ))}
                     </div>
 
                     {/* Ejes por Reforzar */}
                     <div className="space-y-2">
-                      <span className="text-[11px] font-bold uppercase tracking-wider text-amber-400 flex items-center gap-1.5">
+                      <span className="text-[11px] font-bold uppercase tracking-wider text-[#E9A83A] flex items-center gap-1.5">
                         <Lightbulb className="w-3.5 h-3.5" /> Ejes Clave por Reforzar
                       </span>
                       {gamification.improvementAreas.map((imp: TopicPerformance) => (
-                        <div key={imp.topic} className="p-3 rounded-xl bg-amber-500/5 border border-amber-500/20">
-                          <p className="text-xs font-bold text-foreground">{imp.topic}</p>
-                          <p className="text-[11px] text-muted-foreground mt-0.5">{imp.suggestion}</p>
+                        <div key={imp.topic} className="p-3 rounded-xl bg-[#E9A83A]/8 border border-[#E9A83A]/25">
+                          <p className="text-xs font-bold text-[#142D49]">{imp.topic}</p>
+                          <p className="text-[11px] text-[#536B83] mt-0.5">{imp.suggestion}</p>
                         </div>
                       ))}
                     </div>
                   </div>
                 </div>
 
-                <div className="pt-4 mt-2 border-t border-border/50 flex flex-col sm:flex-row items-center justify-between gap-3">
-                  <span className="text-xs text-muted-foreground">
+                <div className="pt-4 mt-3 border-t border-[#E5EDF5] flex flex-col sm:flex-row items-center justify-between gap-3">
+                  <span className="text-xs text-[#536B83] font-medium">
                     💡 Recomendación activa: Módulo Decreto 1278 y Evaluación Formativa Decreto 1290
                   </span>
                   <button
                     onClick={() => onNavigate('courses')}
-                    className="px-4 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-violet-600 text-white text-xs font-bold shadow-md hover:shadow-lg transition-all"
+                    className="px-4 py-2 rounded-xl bg-[#176FC1] hover:bg-[#142D49] text-white text-xs font-bold shadow-xs transition-all"
                   >
                     Estudiar temas recomendados
                   </button>
@@ -646,42 +648,42 @@ export default function Dashboard({ onNavigate, onOpenAuth, onSelectCourse }: Da
                 initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
-                className="p-6 rounded-2xl glass border border-border/60 flex flex-col justify-between"
+                className="p-6 rounded-2xl bg-white border border-[#E5EDF5] shadow-xs flex flex-col justify-between"
               >
                 <div>
                   <div className="flex items-center justify-between mb-5">
                     <div>
-                      <h3 className="font-display font-semibold text-foreground">
+                      <h3 className="font-display font-bold text-[#142D49]">
                         Mis Cursos Matriculados
                       </h3>
-                      <p className="text-xs text-muted-foreground">
+                      <p className="text-xs text-[#536B83]">
                         Haz clic en cualquier curso para ver sus videoclases y descargar todo el material PDF
                       </p>
                     </div>
                     <button
                       onClick={() => onNavigate('courses')}
-                      className="text-xs text-primary font-semibold hover:underline shrink-0"
+                      className="text-xs text-[#176FC1] font-bold hover:underline shrink-0"
                     >
                       Catálogo →
                     </button>
                   </div>
 
                   {loading ? (
-                    <div className="py-8 text-center text-xs text-muted-foreground">
+                    <div className="py-8 text-center text-xs text-[#536B83]">
                       Cargando tus cursos...
                     </div>
                   ) : filteredEnrollments.length === 0 ? (
-                    <div className="text-center py-8 px-4 rounded-xl bg-muted/20 border border-dashed border-border space-y-2">
-                      <BookOpen className="w-8 h-8 text-amber-500 mx-auto mb-1" />
-                      <p className="text-xs font-semibold text-foreground">
+                    <div className="text-center py-8 px-4 rounded-xl bg-[#F3F8FD] border border-dashed border-[#E5EDF5] space-y-2">
+                      <BookOpen className="w-8 h-8 text-[#E9A83A] mx-auto mb-1" />
+                      <p className="text-xs font-bold text-[#142D49]">
                         Aún no tienes cursos matriculados
                       </p>
-                      <p className="text-[11px] text-muted-foreground max-w-md mx-auto leading-relaxed">
-                        La inscripción a los programas de MaestroTech es activada únicamente de forma manual por un Administrador. Solicita al Administrador que matricule tu cuenta (<span className="text-foreground font-mono">{user?.email}</span>).
+                      <p className="text-[11px] text-[#536B83] max-w-md mx-auto leading-relaxed">
+                        La inscripción a los programas de MaestroTech es activada por pasarela de pago o manualmente por un Administrador (<span className="text-[#142D49] font-mono">{user?.email}</span>).
                       </p>
                       <button
                         onClick={() => onNavigate('courses')}
-                        className="mt-2 px-4 py-2 rounded-xl glass border border-border/70 hover:border-primary/40 text-foreground text-xs font-semibold"
+                        className="mt-2 px-4 py-2 rounded-xl bg-white border border-[#E5EDF5] hover:border-[#176FC1] text-[#142D49] text-xs font-bold shadow-xs"
                       >
                         Ver catálogo informativo
                       </button>
@@ -698,30 +700,30 @@ export default function Dashboard({ onNavigate, onOpenAuth, onSelectCourse }: Da
                               if (onSelectCourse) onSelectCourse(c.slug)
                               else onNavigate('learning')
                             }}
-                            className="group flex items-center gap-4 p-4 rounded-2xl hover:bg-primary/5 border border-border/60 hover:border-primary/40 transition-all cursor-pointer"
+                            className="group flex items-center gap-4 p-4 rounded-2xl bg-white hover:bg-[#F3F8FD] border border-[#E5EDF5] hover:border-[#176FC1]/50 transition-all cursor-pointer shadow-2xs"
                           >
-                            <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-blue-600 to-violet-600 flex items-center justify-center shrink-0 shadow-md">
+                            <div className="w-11 h-11 rounded-xl bg-[#176FC1] text-white flex items-center justify-center shrink-0 shadow-xs">
                               <BookOpen className="w-5 h-5 text-white" strokeWidth={1.8} />
                             </div>
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-2">
-                                <span className="text-[10px] font-bold uppercase text-primary">
+                                <span className="text-[10px] font-bold uppercase text-[#176FC1]">
                                   {c.category || 'Pedagogía'}
                                 </span>
-                                <span className="text-[10px] px-1.5 py-0.2 rounded bg-emerald-500/10 text-emerald-500 font-semibold">
+                                <span className="text-[10px] px-2 py-0.5 rounded-md bg-[#39BDEB]/15 text-[#142D49] font-bold border border-[#39BDEB]/30">
                                   Matriculado
                                 </span>
                               </div>
-                              <p className="text-sm font-bold text-foreground truncate mt-0.5">
+                              <p className="text-sm font-bold text-[#142D49] truncate mt-0.5">
                                 {c.title}
                               </p>
-                              <p className="text-[11px] text-muted-foreground mt-0.5">
+                              <p className="text-[11px] text-[#536B83] mt-0.5">
                                 {c.duration_hours || 48} horas · Videos + Guías PDF descargables
                               </p>
                             </div>
                             <div className="flex items-center gap-1.5 shrink-0">
-                              <span className="text-xs font-bold text-primary">Entrar al Aula</span>
-                              <ChevronRight className="w-4 h-4 text-primary group-hover:translate-x-0.5 transition-transform" />
+                              <span className="text-xs font-bold text-[#176FC1]">Entrar al Aula</span>
+                              <ChevronRight className="w-4 h-4 text-[#176FC1] group-hover:translate-x-0.5 transition-transform" />
                             </div>
                           </div>
                         )
@@ -736,20 +738,20 @@ export default function Dashboard({ onNavigate, onOpenAuth, onSelectCourse }: Da
                 initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.25 }}
-                className="flex flex-col p-6 rounded-2xl glass border border-border/60"
+                className="flex flex-col p-6 rounded-2xl bg-white border border-[#E5EDF5] shadow-xs"
               >
                 <div className="flex items-center gap-3 mb-5">
-                  <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-violet-600 to-blue-600 flex items-center justify-center shadow-lg">
-                    <Brain className="w-5 h-5 text-white" strokeWidth={1.8} />
+                  <div className="w-9 h-9 rounded-xl bg-[#142D49] text-white flex items-center justify-center shadow-xs">
+                    <Brain className="w-5 h-5" strokeWidth={1.8} />
                   </div>
                   <div>
-                    <h3 className="font-display font-semibold text-foreground">
+                    <h3 className="font-display font-bold text-[#142D49]">
                       Asistente Pedagógico IA
                     </h3>
                     <div className="flex items-center gap-1.5 mt-0.5">
-                      <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                      <span className="text-xs text-emerald-500 font-medium">
-                        Conectado al Estatuto Docente 1278
+                      <span className="w-2 h-2 rounded-full bg-[#176FC1] animate-pulse" />
+                      <span className="text-xs text-[#176FC1] font-semibold">
+                        Alineado al Estatuto Docente 1278
                       </span>
                     </div>
                   </div>
@@ -764,8 +766,8 @@ export default function Dashboard({ onNavigate, onOpenAuth, onSelectCourse }: Da
                       <div
                         className={`max-w-[85%] px-4 py-2.5 rounded-2xl text-xs leading-relaxed ${
                           msg.role === 'user'
-                            ? 'bg-primary text-primary-foreground rounded-br-sm'
-                            : 'bg-muted text-foreground rounded-bl-sm'
+                            ? 'bg-[#176FC1] text-white rounded-br-sm'
+                            : 'bg-[#F3F8FD] text-[#142D49] border border-[#E5EDF5] rounded-bl-sm font-medium'
                         }`}
                       >
                         {msg.text}
@@ -782,11 +784,11 @@ export default function Dashboard({ onNavigate, onOpenAuth, onSelectCourse }: Da
                       if (e.key === 'Enter') sendMessage()
                     }}
                     placeholder="Pregunta sobre Piaget, Vygotsky, Decreto 1278 o 1290..."
-                    className="flex-1 px-4 py-2 rounded-xl bg-muted border border-transparent focus:border-primary/30 focus:outline-none text-xs text-foreground placeholder-muted-foreground transition-all"
+                    className="flex-1 px-4 py-2 rounded-xl bg-[#F3F8FD] border border-[#E5EDF5] focus:border-[#176FC1] focus:bg-white focus:outline-none text-xs text-[#142D49] placeholder-[#536B83] transition-all"
                   />
                   <button
                     onClick={sendMessage}
-                    className="p-2.5 rounded-xl bg-gradient-to-br from-blue-600 to-violet-600 text-white"
+                    className="p-2.5 rounded-xl bg-[#176FC1] hover:bg-[#142D49] text-white shadow-xs"
                   >
                     <Zap className="w-4 h-4" />
                   </button>
@@ -801,19 +803,19 @@ export default function Dashboard({ onNavigate, onOpenAuth, onSelectCourse }: Da
                 initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
-                className="lg:col-span-2 p-6 rounded-2xl glass border border-border/60"
+                className="lg:col-span-2 p-6 rounded-2xl bg-white border border-[#E5EDF5] shadow-xs"
               >
                 <div className="flex items-center justify-between mb-5">
                   <div>
-                    <h3 className="font-display font-semibold text-foreground">
+                    <h3 className="font-display font-bold text-[#142D49]">
                       Evolución de rendimiento
                     </h3>
-                    <p className="text-xs text-muted-foreground mt-0.5">
+                    <p className="text-xs text-[#536B83] mt-0.5 font-medium">
                       Puntuaciones de estudio y práctica CNSC
                     </p>
                   </div>
-                  <div className="flex items-center gap-1.5 text-xs text-emerald-500 font-semibold">
-                    <TrendingUp className="w-4 h-4" />
+                  <div className="flex items-center gap-1.5 text-xs text-[#176FC1] font-bold bg-[#176FC1]/10 px-2.5 py-1 rounded-full border border-[#176FC1]/20">
+                    <TrendingUp className="w-4 h-4 text-[#176FC1]" />
                     +27 pts
                   </div>
                 </div>
@@ -825,30 +827,32 @@ export default function Dashboard({ onNavigate, onOpenAuth, onSelectCourse }: Da
                     >
                       <defs>
                         <linearGradient id="scoreGrad" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="#1a56db" stopOpacity={0.3} />
-                          <stop offset="95%" stopColor="#1a56db" stopOpacity={0} />
+                          <stop offset="5%" stopColor="#176FC1" stopOpacity={0.25} />
+                          <stop offset="95%" stopColor="#39BDEB" stopOpacity={0.02} />
                         </linearGradient>
                       </defs>
                       <XAxis
                         dataKey="day"
-                        tick={{ fontSize: 12, fill: 'var(--muted-foreground)' }}
+                        tick={{ fontSize: 12, fill: '#536B83' }}
                         axisLine={false}
                         tickLine={false}
                       />
                       <Tooltip
                         contentStyle={{
-                          background: 'var(--card)',
-                          border: '1px solid var(--border)',
+                          background: '#FFFFFF',
+                          border: '1px solid #E5EDF5',
                           borderRadius: '12px',
                           fontSize: 12,
+                          color: '#142D49',
+                          boxShadow: '0 4px 12px rgba(20,45,73,0.08)',
                         }}
-                        labelStyle={{ color: 'var(--foreground)' }}
-                        itemStyle={{ color: '#1a56db' }}
+                        labelStyle={{ color: '#142D49', fontWeight: 600 }}
+                        itemStyle={{ color: '#176FC1' }}
                       />
                       <Area
                         type="monotone"
                         dataKey="score"
-                        stroke="#1a56db"
+                        stroke="#176FC1"
                         strokeWidth={2.5}
                         fill="url(#scoreGrad)"
                         dot={false}
@@ -863,25 +867,25 @@ export default function Dashboard({ onNavigate, onOpenAuth, onSelectCourse }: Da
                 initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.35 }}
-                className="p-6 rounded-2xl glass border border-border/60"
+                className="p-6 rounded-2xl bg-white border border-[#E5EDF5] shadow-xs"
               >
-                <h3 className="font-display font-semibold text-foreground mb-1">
+                <h3 className="font-display font-bold text-[#142D49] mb-1">
                   Radar de competencias
                 </h3>
-                <p className="text-xs text-muted-foreground mb-4">Alineación con el Decreto 1278</p>
+                <p className="text-xs text-[#536B83] mb-4 font-medium">Alineación con el Decreto 1278</p>
                 <div className="h-48">
                   <ResponsiveContainer width="100%" height="100%">
                     <RadarChart data={RADAR_DATA}>
-                      <PolarGrid stroke="var(--border)" />
+                      <PolarGrid stroke="#E5EDF5" />
                       <PolarAngleAxis
                         dataKey="subject"
-                        tick={{ fontSize: 10, fill: 'var(--muted-foreground)' }}
+                        tick={{ fontSize: 10, fill: '#536B83' }}
                       />
                       <Radar
                         dataKey="A"
-                        stroke="#1a56db"
-                        fill="#1a56db"
-                        fillOpacity={0.15}
+                        stroke="#176FC1"
+                        fill="#176FC1"
+                        fillOpacity={0.2}
                         strokeWidth={2}
                       />
                     </RadarChart>
@@ -895,10 +899,10 @@ export default function Dashboard({ onNavigate, onOpenAuth, onSelectCourse }: Da
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
-              className="p-6 rounded-2xl glass border border-border/60 space-y-4"
+              className="p-6 rounded-2xl bg-white border border-[#E5EDF5] shadow-xs space-y-4"
             >
               <div className="flex items-center justify-between">
-                <h3 className="font-display font-semibold text-foreground">
+                <h3 className="font-display font-bold text-[#142D49]">
                   Certificados Oficiales y Logros Académicos
                 </h3>
               </div>
@@ -908,14 +912,14 @@ export default function Dashboard({ onNavigate, onOpenAuth, onSelectCourse }: Da
                   {certificates.map((cert) => (
                     <div
                       key={cert.id}
-                      className="p-4 rounded-2xl bg-amber-500/5 border border-amber-500/25 flex items-center justify-between gap-3"
+                      className="p-4 rounded-2xl bg-[#F3F8FD] border border-[#E5EDF5] hover:border-[#E9A83A]/50 flex items-center justify-between gap-3 transition-colors"
                     >
                       <div className="flex items-center gap-3 min-w-0">
-                        <div className="w-10 h-10 rounded-xl bg-amber-500/15 text-amber-500 flex items-center justify-center shrink-0">
+                        <div className="w-10 h-10 rounded-xl bg-[#E9A83A]/15 text-[#E9A83A] flex items-center justify-center shrink-0">
                           <Award className="w-5 h-5" />
                         </div>
                         <div className="min-w-0">
-                          <p className="text-xs font-bold text-foreground truncate">
+                          <p className="text-xs font-bold text-[#142D49] truncate">
                             {cert.course?.title || 'Certificación Docente MaestroTech'}
                           </p>
                           <p className="text-[10px] font-mono text-amber-500">

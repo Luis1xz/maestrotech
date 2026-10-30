@@ -96,30 +96,30 @@ export default function FileUploader({
           onClick={() => !disabled && !uploading && inputRef.current?.click()}
           className={`border-2 border-dashed rounded-2xl p-6 text-center cursor-pointer transition-all ${
             isDragging
-              ? 'border-primary bg-primary/10'
-              : 'border-border/70 hover:border-primary/50 hover:bg-muted/40'
+              ? 'border-[#176FC1] bg-[#176FC1]/5'
+              : 'border-[#E5EDF5] bg-[#F3F8FD] hover:border-[#176FC1]/50 hover:bg-white'
           } ${disabled || uploading ? 'opacity-50 pointer-events-none' : ''}`}
         >
-          <div className="w-12 h-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mx-auto mb-3">
-            <Upload className="w-6 h-6" />
+          <div className="w-12 h-12 rounded-2xl bg-[#176FC1]/10 text-[#176FC1] flex items-center justify-center mx-auto mb-3">
+            <Upload className="w-6 h-6 text-[#176FC1]" />
           </div>
-          <p className="text-xs font-semibold text-foreground mb-1">
+          <p className="text-xs font-semibold text-[#142D49] mb-1">
             Haz clic para seleccionar o arrastra tu archivo aquí
           </p>
-          <p className="text-[11px] text-muted-foreground">
+          <p className="text-[11px] text-[#536B83]">
             {helperText ||
               `PDF, Word, PowerPoint, Excel, ZIP o Video MP4/WebM (hasta ${maxSizeMB} MB)`}
           </p>
         </div>
       ) : (
-        <div className="p-4 rounded-2xl glass border border-border/70 flex items-center justify-between gap-3">
+        <div className="p-4 rounded-2xl bg-white border border-[#E5EDF5] shadow-xs flex items-center justify-between gap-3">
           <div className="flex items-center gap-3 min-w-0">
-            <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
+            <div className="w-10 h-10 rounded-xl bg-[#176FC1]/10 text-[#176FC1] flex items-center justify-center shrink-0">
               {isVideoFile ? <Video className="w-5 h-5" /> : <FileText className="w-5 h-5" />}
             </div>
             <div className="min-w-0">
-              <p className="text-xs font-semibold text-foreground truncate">{selectedFile.name}</p>
-              <p className="text-[10px] text-muted-foreground">
+              <p className="text-xs font-semibold text-[#142D49] truncate">{selectedFile.name}</p>
+              <p className="text-[10px] text-[#536B83]">
                 {formatFileSize(selectedFile.size)}
               </p>
             </div>
@@ -127,7 +127,7 @@ export default function FileUploader({
 
           <div className="flex items-center gap-2">
             {uploading ? (
-              <div className="flex items-center gap-2 text-xs text-primary font-medium">
+              <div className="flex items-center gap-2 text-xs text-[#176FC1] font-medium">
                 <Loader2 className="w-4 h-4 animate-spin" />
                 <span className="hidden sm:inline">{progressText || 'Subiendo...'}</span>
               </div>
@@ -139,7 +139,7 @@ export default function FileUploader({
                   if (inputRef.current) inputRef.current.value = ''
                   onClear?.()
                 }}
-                className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                className="p-1.5 rounded-lg text-[#536B83] hover:text-[#142D49] hover:bg-[#F3F8FD] transition-colors"
                 title="Quitar archivo"
               >
                 <X className="w-4 h-4" />

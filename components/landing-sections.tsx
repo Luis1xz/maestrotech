@@ -16,43 +16,37 @@ const FEATURES = [
     icon: Brain,
     title: 'IA Adaptativa',
     description: 'Tu asistente personal estudia tus patrones de aprendizaje y crea rutas personalizadas que se ajustan a tu ritmo.',
-    color: 'from-blue-600 to-violet-600',
-    glow: 'glow-blue',
+    iconBg: 'bg-[#176FC1]/10 text-[#176FC1]',
   },
   {
     icon: Target,
-    title: 'Simulador Premium',
-    description: 'Simulacros idénticos a las pruebas reales del MEN. Banco de 12,000+ preguntas actualizadas por expertos.',
-    color: 'from-emerald-600 to-cyan-600',
-    glow: 'glow-emerald',
+    title: 'Simulador Situacional',
+    description: 'Simulacros idénticos a las pruebas reales del MEN y CNSC. Banco de 12,000+ preguntas actualizadas por expertos.',
+    iconBg: 'bg-[#39BDEB]/15 text-[#176FC1]',
   },
   {
     icon: BarChart3,
     title: 'Analítica Profunda',
     description: 'Mapas de conocimiento, radares de competencias y heatmaps de rendimiento que revelan exactamente qué mejorar.',
-    color: 'from-orange-500 to-rose-500',
-    glow: 'glow-orange',
+    iconBg: 'bg-[#142D49]/10 text-[#142D49]',
   },
   {
     icon: Users,
     title: 'Comunidad Activa',
-    description: 'Conecta con 48,000 docentes. Grupos de estudio, mentoría entre pares y sesiones en vivo con expertos.',
-    color: 'from-violet-600 to-fuchsia-600',
-    glow: 'glow-blue',
+    description: 'Conecta con más de 48,000 docentes en Colombia. Foros pedagógicos, mentoría y sesiones en vivo con formadores.',
+    iconBg: 'bg-[#176FC1]/10 text-[#176FC1]',
   },
   {
     icon: Award,
     title: 'Logros Profesionales',
-    description: 'Sistema de reconocimiento que celebra tu progreso con certificaciones, insignias y hitos de carrera.',
-    color: 'from-amber-500 to-orange-600',
-    glow: 'glow-orange',
+    description: 'Sistema de reconocimiento que celebra tu progreso con certificaciones verificables, insignias y hitos de carrera.',
+    iconBg: 'bg-[#E9A83A]/15 text-[#E9A83A]',
   },
   {
     icon: Layers,
     title: 'Contenido Estructurado',
-    description: 'Cursos modulares alineados con el Decreto 1278, rutas de ascenso y materiales actualizados constantemente.',
-    color: 'from-cyan-500 to-blue-600',
-    glow: 'glow-blue',
+    description: 'Cursos modulares alineados con el Decreto 1278, rutas de ascenso y materiales pedagógicos descargables.',
+    iconBg: 'bg-[#39BDEB]/15 text-[#142D49]',
   },
 ]
 
@@ -74,35 +68,32 @@ function FadeIn({ children, delay = 0, className = '' }: { children: React.React
 
 export function FeaturesSection() {
   return (
-    <section className="relative py-32 px-6 overflow-hidden">
+    <section className="relative py-28 px-6 overflow-hidden bg-[#F3F8FD]">
       <div className="max-w-7xl mx-auto">
         <FadeIn className="text-center mb-20">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/8 text-primary text-sm font-medium mb-6">
-            <Lightbulb className="w-4 h-4" />
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-[#E5EDF5] text-[#176FC1] text-xs sm:text-sm font-semibold mb-6 shadow-2xs">
+            <Lightbulb className="w-4 h-4 text-[#E9A83A]" />
             Diseñado para el docente colombiano
           </div>
-          <h2 className="font-display font-bold text-4xl md:text-6xl text-foreground text-balance mb-6">
-            Una plataforma que
+          <h2 className="font-display font-bold text-4xl md:text-6xl text-[#142D49] text-balance mb-6">
+            Una plataforma pedagógica
             <br />
-            <span className="gradient-text">realmente funciona</span>
+            <span className="gradient-text">diseñada para tu ascenso</span>
           </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-            No es otro LMS genérico. Es un ecosistema digital construido desde cero para el sistema educativo colombiano.
+          <p className="text-base sm:text-lg text-[#536B83] max-w-2xl mx-auto leading-relaxed">
+            No es otro software genérico. Es un ecosistema EdTech premium construido específicamente para el sistema educativo de Colombia.
           </p>
         </FadeIn>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {FEATURES.map(({ icon: Icon, title, description, color }, i) => (
+          {FEATURES.map(({ icon: Icon, title, description, iconBg }, i) => (
             <FadeIn key={title} delay={i * 0.08}>
-              <div className="group relative h-full p-8 rounded-3xl glass border border-border/60 hover:border-primary/20 transition-all duration-500 card-lift overflow-hidden">
-                {/* Hover glow */}
-                <div className={`absolute inset-0 bg-gradient-to-br ${color} opacity-0 group-hover:opacity-[0.04] transition-opacity duration-500 rounded-3xl`} />
-
-                <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${color} flex items-center justify-center mb-5 shadow-lg`}>
-                  <Icon className="w-6 h-6 text-white" strokeWidth={1.8} />
+              <div className="group relative h-full p-8 rounded-3xl bg-white border border-[#E5EDF5] hover:border-[#176FC1]/40 transition-all duration-300 shadow-xs hover:shadow-lg card-lift overflow-hidden">
+                <div className={`w-12 h-12 rounded-2xl ${iconBg} flex items-center justify-center mb-5`}>
+                  <Icon className="w-6 h-6" strokeWidth={2} />
                 </div>
-                <h3 className="font-display font-bold text-lg text-foreground mb-3">{title}</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">{description}</p>
+                <h3 className="font-display font-bold text-lg text-[#142D49] mb-3">{title}</h3>
+                <p className="text-sm text-[#536B83] leading-relaxed">{description}</p>
               </div>
             </FadeIn>
           ))}
@@ -116,10 +107,10 @@ export function FeaturesSection() {
    EXAM PREVIEW
    ===================== */
 const EXAM_QUESTIONS = [
-  { competency: 'Pedagogía', progress: 82, color: 'bg-blue-500' },
-  { competency: 'Legislación Educativa', progress: 67, color: 'bg-violet-500' },
-  { competency: 'Psicología del Aprendizaje', progress: 74, color: 'bg-emerald-500' },
-  { competency: 'Currículo y Evaluación', progress: 58, color: 'bg-orange-500' },
+  { competency: 'Pedagogía y Constructivismo', progress: 85, color: 'bg-[#176FC1]' },
+  { competency: 'Legislación Educativa (Decreto 1290/1278)', progress: 72, color: 'bg-[#142D49]' },
+  { competency: 'Juicio Situacional en Aula', progress: 80, color: 'bg-[#39BDEB]' },
+  { competency: 'Evaluación Formativa y Continua', progress: 68, color: 'bg-[#E9A83A]' },
 ]
 
 export function ExamPreviewSection({ onNavigate }: { onNavigate: (v: string) => void }) {
@@ -127,42 +118,39 @@ export function ExamPreviewSection({ onNavigate }: { onNavigate: (v: string) => 
   const inView = useInView(ref, { once: true, margin: '-100px' })
 
   return (
-    <section ref={ref} className="relative py-32 px-6 overflow-hidden">
-      {/* Glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-gradient-to-r from-blue-600/8 to-violet-600/8 blur-3xl rounded-full pointer-events-none" />
-
+    <section ref={ref} className="relative py-28 px-6 overflow-hidden bg-white">
       <div className="max-w-7xl mx-auto">
         <div className="grid lg:grid-cols-2 gap-16 items-center">
           {/* Text */}
           <FadeIn>
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/8 text-primary text-sm font-medium mb-6">
-              <Target className="w-4 h-4" />
-              Simulador de Exámenes
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#F3F8FD] border border-[#E5EDF5] text-[#176FC1] text-xs sm:text-sm font-semibold mb-6 shadow-2xs">
+              <Target className="w-4 h-4 text-[#176FC1]" />
+              Simulador de Exámenes CNSC
             </div>
-            <h2 className="font-display font-bold text-4xl md:text-5xl text-foreground text-balance mb-6">
-              Entrena como si fuera
+            <h2 className="font-display font-bold text-4xl md:text-5xl text-[#142D49] text-balance mb-6">
+              Entrena con casos reales
               <br />
-              <span className="gradient-text">el día de la prueba.</span>
+              <span className="gradient-text">idénticos al día de la prueba.</span>
             </h2>
-            <p className="text-lg text-muted-foreground leading-relaxed mb-8">
-              Más de 12,000 preguntas organizadas por competencias. Temporizador real, análisis instantáneo de errores y recomendaciones de la IA para mejorar.
+            <p className="text-base sm:text-lg text-[#536B83] leading-relaxed mb-8">
+              Preguntas de juicio situacional con temporizador oficial, retroalimentación formativa inmediata y orientación pedagógica guiada.
             </p>
             <ul className="space-y-3 mb-10">
               {[
-                'Modalidad examen real (60 min, cronometrado)',
-                'Análisis de errores con explicación detallada',
-                'Radar de competencias en tiempo real',
-                'Historial de simulacros y evolución',
+                'Modalidad examen cronometrado con temporizador',
+                'Retroalimentación con justificación pedagógica y Decreto 1290',
+                'Radar de competencias y puntos de refuerzo',
+                'Historial de evolución y reconocimiento formativo',
               ].map((item) => (
-                <li key={item} className="flex items-start gap-3 text-sm text-foreground">
-                  <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" strokeWidth={2} />
-                  {item}
+                <li key={item} className="flex items-start gap-3 text-sm text-[#142D49]">
+                  <CheckCircle2 className="w-5 h-5 text-[#176FC1] shrink-0 mt-0.5" strokeWidth={2.2} />
+                  <span>{item}</span>
                 </li>
               ))}
             </ul>
             <button
               onClick={() => onNavigate('exam')}
-              className="group inline-flex items-center gap-2 px-6 py-3.5 rounded-2xl bg-gradient-to-r from-blue-600 to-violet-600 text-white font-semibold shadow-xl shadow-blue-600/20 hover:shadow-blue-600/40 transition-all duration-300 btn-magnetic"
+              className="group inline-flex items-center gap-2 px-6 py-3.5 rounded-2xl bg-[#176FC1] hover:bg-[#142D49] text-white font-semibold shadow-md hover:shadow-lg transition-all duration-300 btn-magnetic"
             >
               Iniciar simulacro ahora
               <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
@@ -176,63 +164,63 @@ export function ExamPreviewSection({ onNavigate }: { onNavigate: (v: string) => 
             transition={{ duration: 0.8, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
             className="float"
           >
-            <div className="relative p-8 rounded-3xl glass border border-border/60 shadow-2xl">
+            <div className="relative p-8 rounded-3xl bg-white border border-[#E5EDF5] shadow-xl">
               {/* Header */}
               <div className="flex items-center justify-between mb-6">
                 <div>
-                  <p className="text-xs text-muted-foreground uppercase tracking-widest mb-1">Simulacro en progreso</p>
-                  <p className="font-display font-bold text-foreground">Concurso Méritos 2025</p>
+                  <p className="text-xs text-[#536B83] uppercase tracking-widest font-semibold mb-1">Simulacro en progreso</p>
+                  <p className="font-display font-bold text-[#142D49]">Concurso Méritos Docente 2026</p>
                 </div>
-                <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-rose-500/10 border border-rose-500/20">
-                  <Clock className="w-4 h-4 text-rose-500" />
-                  <span className="text-sm font-mono font-bold text-rose-500">42:15</span>
+                <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[#F3F8FD] border border-[#E5EDF5]">
+                  <Clock className="w-4 h-4 text-[#176FC1]" />
+                  <span className="text-sm font-mono font-bold text-[#142D49]">42:15</span>
                 </div>
               </div>
 
               {/* Question */}
-              <div className="p-5 rounded-2xl bg-background/60 border border-border/60 mb-6">
-                <p className="text-xs text-muted-foreground uppercase tracking-wide mb-3">Pregunta 18 / 60</p>
-                <p className="text-sm font-medium text-foreground leading-relaxed">
-                  Según la Ley 115, ¿cuál es el principio que orienta la evaluación del aprendizaje en la educación básica?
+              <div className="p-5 rounded-2xl bg-[#F3F8FD] border border-[#E5EDF5] mb-6">
+                <p className="text-xs text-[#176FC1] font-bold uppercase tracking-wide mb-2">Pregunta 18 / 60</p>
+                <p className="text-sm font-semibold text-[#142D49] leading-relaxed">
+                  De acuerdo con el Decreto 1290 y el modelo constructivista, ¿cuál es el principio orientador de la evaluación en el aula?
                 </p>
               </div>
 
               {/* Options */}
-              <div className="space-y-2 mb-6">
+              <div className="space-y-2.5 mb-6">
                 {[
-                  { label: 'A', text: 'La evaluación debe ser sumativa y periódica', selected: false },
-                  { label: 'B', text: 'La evaluación es un proceso continuo e integral', selected: true },
-                  { label: 'C', text: 'Solo se evalúan conocimientos conceptuales', selected: false },
-                  { label: 'D', text: 'La evaluación la determina cada institución', selected: false },
+                  { label: 'A', text: 'La evaluación debe ser sumativa y primordialmente punitiva', selected: false },
+                  { label: 'B', text: 'La evaluación es un proceso continuo, formativo e integral', selected: true },
+                  { label: 'C', text: 'Solo se evalúan contenidos conceptuales memorísticos', selected: false },
+                  { label: 'D', text: 'La evaluación la determina cada institución sin planes de apoyo', selected: false },
                 ].map(({ label, text, selected }) => (
                   <div
                     key={label}
                     className={`flex items-center gap-3 p-3.5 rounded-xl border text-sm transition-all ${
                       selected
-                        ? 'border-blue-500/50 bg-blue-500/8 text-foreground'
-                        : 'border-border/50 text-muted-foreground hover:border-border'
+                        ? 'border-[#176FC1] bg-[#F3F8FD] text-[#142D49] font-semibold'
+                        : 'border-[#E5EDF5] bg-white text-[#536B83] hover:border-[#176FC1]/30'
                     }`}
                   >
                     <span className={`w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold shrink-0 ${
-                      selected ? 'bg-blue-600 text-white' : 'bg-muted text-muted-foreground'
+                      selected ? 'bg-[#176FC1] text-white' : 'bg-[#F3F8FD] text-[#536B83] border border-[#E5EDF5]'
                     }`}>
                       {label}
                     </span>
-                    {text}
+                    <span>{text}</span>
                   </div>
                 ))}
               </div>
 
               {/* Competencies */}
-              <div className="space-y-3">
-                <p className="text-xs text-muted-foreground uppercase tracking-widest">Dominio por competencia</p>
+              <div className="space-y-3 pt-2 border-t border-[#E5EDF5]">
+                <p className="text-xs text-[#536B83] font-bold uppercase tracking-wider">Dominio por competencia</p>
                 {EXAM_QUESTIONS.map(({ competency, progress, color }) => (
                   <div key={competency}>
                     <div className="flex justify-between items-center mb-1">
-                      <span className="text-xs text-muted-foreground">{competency}</span>
-                      <span className="text-xs font-mono font-semibold text-foreground">{progress}%</span>
+                      <span className="text-xs text-[#536B83] font-medium">{competency}</span>
+                      <span className="text-xs font-mono font-bold text-[#142D49]">{progress}%</span>
                     </div>
-                    <div className="h-1.5 bg-muted rounded-full overflow-hidden">
+                    <div className="h-1.5 bg-[#F3F8FD] border border-[#E5EDF5] rounded-full overflow-hidden">
                       <motion.div
                         initial={{ width: 0 }}
                         animate={inView ? { width: `${progress}%` } : {}}
@@ -258,67 +246,67 @@ const TESTIMONIALS = [
   {
     name: 'María Fernanda López',
     role: 'Docente de Matemáticas · Bogotá',
-    content: 'Pasé de 58 a 89 puntos en el simulacro. El simulador de Maestro es exactamente igual al examen real. Aprobé el concurso de méritos en el primer intento.',
+    content: 'Pasé de 58 a 89 puntos en el simulacro. El simulador de MaestroTech es idéntico a las preguntas del concurso. Aprobé el concurso de méritos con nombramiento en propiedad.',
     rating: 5,
     avatar: 'MF',
-    gradient: 'from-blue-600 to-violet-600',
+    avatarBg: 'bg-[#176FC1]',
   },
   {
     name: 'Carlos Eduardo Martínez',
-    role: 'Rector · Medellín',
-    content: 'Como directivo, el módulo de liderazgo educativo transformó mi visión de gestión. El contenido es de calidad universitaria pero con un formato increíblemente dinámico.',
+    role: 'Directivo Docente · Medellín',
+    content: 'El módulo de gestión y liderazgo transformó mi visión institucional. El rigor pedagógico y la calidad de las clases me permitieron ascender en el escalafón.',
     rating: 5,
     avatar: 'CE',
-    gradient: 'from-emerald-600 to-cyan-600',
+    avatarBg: 'bg-[#142D49]',
   },
   {
     name: 'Diana Patricia Rueda',
-    role: 'Docente de Lengua · Cali',
-    content: 'El asistente de IA me explicó mis errores de una forma que ningún libro pudo hacer. Siento que tengo un tutor personal disponible 24/7.',
+    role: 'Docente de Humanidades · Cali',
+    content: 'La retroalimentación formativa y las pistas del mentor me enseñaron a analizar cada caso situacional. La plataforma te motiva en todo momento a seguir superándote.',
     rating: 5,
     avatar: 'DP',
-    gradient: 'from-orange-500 to-rose-500',
+    avatarBg: 'bg-[#39BDEB]',
   },
 ]
 
 export function TestimonialsSection() {
   return (
-    <section className="relative py-32 px-6">
+    <section className="relative py-28 px-6 bg-[#F3F8FD]">
       <div className="max-w-7xl mx-auto">
         <FadeIn className="text-center mb-20">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/8 text-primary text-sm font-medium mb-6">
-            <Star className="w-4 h-4 fill-current" />
-            Testimonios reales
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-[#E5EDF5] text-[#176FC1] text-xs sm:text-sm font-semibold mb-6 shadow-2xs">
+            <Star className="w-4 h-4 text-[#E9A83A] fill-[#E9A83A]" />
+            Testimonios de docentes
           </div>
-          <h2 className="font-display font-bold text-4xl md:text-6xl text-foreground text-balance mb-6">
-            Docentes que
+          <h2 className="font-display font-bold text-4xl md:text-6xl text-[#142D49] text-balance mb-6">
+            Colegas que lograron
             <br />
-            <span className="gradient-text-emerald">transformaron su carrera</span>
+            <span className="gradient-text">su nombramiento y ascenso</span>
           </h2>
         </FadeIn>
 
         <div className="grid md:grid-cols-3 gap-6">
-          {TESTIMONIALS.map(({ name, role, content, rating, avatar, gradient }, i) => (
+          {TESTIMONIALS.map(({ name, role, content, rating, avatar, avatarBg }, i) => (
             <FadeIn key={name} delay={i * 0.1}>
-              <div className="group p-8 rounded-3xl glass border border-border/60 hover:border-primary/20 transition-all duration-500 card-lift h-full flex flex-col">
+              <div className="p-8 rounded-3xl bg-white border border-[#E5EDF5] hover:border-[#176FC1]/40 transition-all duration-300 shadow-xs hover:shadow-lg card-lift h-full flex flex-col">
                 {/* Stars */}
                 <div className="flex gap-1 mb-6">
                   {Array.from({ length: rating }).map((_, j) => (
-                    <Star key={j} className="w-4 h-4 text-amber-500 fill-amber-500" />
+                    <Star key={j} className="w-4 h-4 text-[#E9A83A] fill-[#E9A83A]" />
                   ))}
                 </div>
 
-                <p className="text-sm text-foreground leading-relaxed flex-1 mb-6">
+                <p className="text-sm text-[#142D49] leading-relaxed flex-1 mb-6 font-medium">
                   &ldquo;{content}&rdquo;
                 </p>
 
-                <div className="flex items-center gap-3">
-                  <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${gradient} flex items-center justify-center text-white text-xs font-bold shrink-0`}>
+                <div className="flex items-center gap-3 pt-4 border-t border-[#E5EDF5]">
+                  <div className={`w-10 h-10 rounded-xl ${avatarBg} text-white flex items-center justify-center text-xs font-bold shrink-0`}>
                     {avatar}
                   </div>
                   <div>
-                    <p className="text-sm font-semibold text-foreground">{name}</p>
-                    <p className="text-xs text-muted-foreground">{role}</p>
+                    <p className="text-sm font-bold text-[#142D49]">{name}</p>
+                    <p className="text-xs text-[#536B83]">{role}</p>
                   </div>
                 </div>
               </div>
@@ -336,82 +324,88 @@ export function TestimonialsSection() {
 const PATHS = [
   {
     icon: FileText,
-    title: 'Concurso de Méritos',
-    description: 'Prepárate para las pruebas de acceso al escalafón. Ruta de 8 semanas con simulacros semanales.',
-    tags: ['Decreto 1278', 'Pedagogía', 'Legislación'],
-    color: 'from-blue-600 to-violet-600',
+    title: 'Concurso de Méritos CNSC',
+    description: 'Prepárate para las pruebas de ingreso al escalafón 1278 con simulacros semanales y casos de juicio situacional.',
+    tags: ['Decreto 1278', 'Pedagogía', 'Juicio Situacional'],
+    stripeColor: 'bg-[#176FC1]',
+    iconColor: 'bg-[#176FC1]/10 text-[#176FC1]',
     students: '18,200+',
   },
   {
     icon: TrendingUp,
-    title: 'Ascenso Salarial',
-    description: 'Domina las competencias evaluadas en la prueba de valoración. Eleva tu nivel y tu ingreso.',
-    tags: ['Evaluación docente', 'Competencias', 'Desempeño'],
-    color: 'from-emerald-600 to-cyan-600',
+    title: 'Ascenso y Reubicación Salarial',
+    description: 'Domina las competencias evaluadas en la prueba de valoración de carácter diagnóstico formativa (SDF).',
+    tags: ['Evaluación MEN', 'Desempeño', 'Ascenso'],
+    stripeColor: 'bg-[#39BDEB]',
+    iconColor: 'bg-[#39BDEB]/15 text-[#176FC1]',
     students: '12,400+',
   },
   {
     icon: Globe,
     title: 'Traslados y Reubicaciones',
-    description: 'Conoce el proceso completo de traslados, normativa vigente y cómo preparar tu expediente.',
-    tags: ['Normativa', 'Proceso', 'Documentación'],
-    color: 'from-orange-500 to-rose-500',
+    description: 'Normativa vigente, criterios de ponderación y preparación documental para procesos de traslado ordinario y extraordinario.',
+    tags: ['Normativa', 'Procesos', 'Ponderación'],
+    stripeColor: 'bg-[#142D49]',
+    iconColor: 'bg-[#142D49]/10 text-[#142D49]',
     students: '7,600+',
   },
   {
     icon: Flame,
-    title: 'Desarrollo Continuo',
-    description: 'Actualización permanente: nuevas metodologías, tecnología educativa, bienestar y liderazgo.',
-    tags: ['Innovación', 'Bienestar', 'Liderazgo'],
-    color: 'from-violet-600 to-fuchsia-600',
+    title: 'Desarrollo Profesional Continuo',
+    description: 'Cursos actualizados en neuroeducación, inclusión educativa (Decreto 1421), TIC y evaluación formativa.',
+    tags: ['Decreto 1421', 'DUA', 'Inclusión'],
+    stripeColor: 'bg-[#E9A83A]',
+    iconColor: 'bg-[#E9A83A]/15 text-[#E9A83A]',
     students: '9,800+',
   },
 ]
 
 export function PathsSection({ onNavigate }: { onNavigate: (v: string) => void }) {
   return (
-    <section className="relative py-32 px-6 aurora-bg">
+    <section className="relative py-28 px-6 bg-white">
       <div className="max-w-7xl mx-auto">
         <FadeIn className="text-center mb-20">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/8 text-primary text-sm font-medium mb-6">
-            <BookOpen className="w-4 h-4" />
-            Rutas de aprendizaje
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#F3F8FD] border border-[#E5EDF5] text-[#176FC1] text-xs sm:text-sm font-semibold mb-6 shadow-2xs">
+            <BookOpen className="w-4 h-4 text-[#176FC1]" />
+            Rutas pedagógicas estructuradas
           </div>
-          <h2 className="font-display font-bold text-4xl md:text-6xl text-foreground text-balance mb-6">
-            Tu ruta,
+          <h2 className="font-display font-bold text-4xl md:text-6xl text-[#142D49] text-balance mb-6">
+            Tu meta docente,
             <br />
-            <span className="gradient-text">tu momento.</span>
+            <span className="gradient-text">tu ruta estructurada.</span>
           </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Elige la ruta que corresponde a tu etapa profesional y avanza con un plan estructurado.
+          <p className="text-base sm:text-lg text-[#536B83] max-w-2xl mx-auto">
+            Elige la ruta que corresponde a tu objetivo profesional y avanza con un plan pedagógico validado.
           </p>
         </FadeIn>
 
         <div className="grid md:grid-cols-2 gap-6">
-          {PATHS.map(({ icon: Icon, title, description, tags, color, students }, i) => (
+          {PATHS.map(({ icon: Icon, title, description, tags, stripeColor, iconColor, students }, i) => (
             <FadeIn key={title} delay={i * 0.08}>
               <div
                 onClick={() => onNavigate('courses')}
-                className="group relative p-8 rounded-3xl glass border border-border/60 hover:border-primary/20 transition-all duration-500 card-lift cursor-pointer overflow-hidden"
+                className="group relative p-8 rounded-3xl bg-white border border-[#E5EDF5] hover:border-[#176FC1]/40 transition-all duration-300 card-lift cursor-pointer overflow-hidden shadow-xs hover:shadow-lg"
               >
-                <div className={`absolute top-0 left-0 w-full h-1 bg-gradient-to-r ${color} opacity-60 group-hover:opacity-100 transition-opacity`} />
+                <div className={`absolute top-0 left-0 w-full h-1.5 ${stripeColor}`} />
                 <div className="flex items-start justify-between mb-5">
-                  <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${color} flex items-center justify-center shadow-lg`}>
-                    <Icon className="w-6 h-6 text-white" strokeWidth={1.8} />
+                  <div className={`w-12 h-12 rounded-2xl ${iconColor} flex items-center justify-center`}>
+                    <Icon className="w-6 h-6" strokeWidth={2} />
                   </div>
-                  <span className="text-xs text-muted-foreground">{students} docentes</span>
+                  <span className="text-xs text-[#536B83] font-semibold bg-[#F3F8FD] px-3 py-1 rounded-full border border-[#E5EDF5]">
+                    {students} docentes
+                  </span>
                 </div>
-                <h3 className="font-display font-bold text-xl text-foreground mb-3">{title}</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed mb-5">{description}</p>
+                <h3 className="font-display font-bold text-xl text-[#142D49] mb-3">{title}</h3>
+                <p className="text-sm text-[#536B83] leading-relaxed mb-5">{description}</p>
                 <div className="flex flex-wrap gap-2">
                   {tags.map((tag) => (
-                    <span key={tag} className="text-xs px-3 py-1.5 rounded-lg bg-muted text-muted-foreground font-medium">
+                    <span key={tag} className="text-xs px-3 py-1.5 rounded-lg bg-[#F3F8FD] text-[#536B83] border border-[#E5EDF5] font-medium">
                       {tag}
                     </span>
                   ))}
                 </div>
-                <div className="flex items-center gap-1.5 mt-5 text-primary text-sm font-semibold opacity-0 group-hover:opacity-100 transition-opacity">
-                  Ver ruta completa <ArrowRight className="w-4 h-4" />
+                <div className="flex items-center gap-1.5 mt-5 text-[#176FC1] text-sm font-semibold opacity-0 group-hover:opacity-100 transition-opacity">
+                  Explorar ruta completa <ArrowRight className="w-4 h-4" />
                 </div>
               </div>
             </FadeIn>
@@ -427,36 +421,32 @@ export function PathsSection({ onNavigate }: { onNavigate: (v: string) => void }
    ===================== */
 export function CTASection({ onNavigate }: { onNavigate: (v: string) => void }) {
   return (
-    <section className="relative py-32 px-6 overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-br from-blue-600/8 via-violet-600/6 to-emerald-600/6" />
-
+    <section className="relative py-28 px-6 overflow-hidden bg-[#F3F8FD]">
       <div className="relative max-w-4xl mx-auto text-center">
         <FadeIn>
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/8 text-primary text-sm font-medium mb-8">
-            <Sparkles className="w-4 h-4" />
-            Empieza hoy, sin tarjeta de crédito
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-[#E5EDF5] text-[#176FC1] text-xs sm:text-sm font-semibold mb-8 shadow-2xs">
+            <Sparkles className="w-4 h-4 text-[#39BDEB]" />
+            Preparación continua sin ataduras
           </div>
-          <h2 className="font-display font-bold text-5xl md:text-7xl text-foreground text-balance mb-6">
-            Tu carrera
+          <h2 className="font-display font-bold text-4xl sm:text-5xl md:text-6xl text-[#142D49] text-balance mb-6">
+            Tu carrera docente
             <br />
-            <span className="gradient-text">no puede esperar.</span>
+            <span className="gradient-text">merece el mejor respaldo.</span>
           </h2>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed mb-12">
-            Únete a los 48,000 docentes que ya están preparándose para el siguiente nivel. Acceso gratuito por 14 días.
+          <p className="text-base sm:text-lg text-[#536B83] max-w-2xl mx-auto leading-relaxed mb-10">
+            Únete a la comunidad de más de 48,000 docentes en toda Colombia que se preparan con rigor pedagógico y tecnología.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <button
               onClick={() => onNavigate('dashboard')}
-              className="group px-10 py-5 rounded-2xl bg-gradient-to-r from-blue-600 to-violet-600 text-white text-lg font-bold shadow-2xl shadow-blue-600/25 hover:shadow-blue-600/50 transition-all duration-300 btn-magnetic"
+              className="px-8 py-4 rounded-2xl bg-[#176FC1] hover:bg-[#142D49] text-white text-base font-bold shadow-md hover:shadow-xl transition-all duration-300 btn-magnetic flex items-center justify-center gap-2"
             >
-              <span className="flex items-center gap-3">
-                Comenzar gratis ahora
-                <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
-              </span>
+              <span>Comenzar ahora gratis</span>
+              <ArrowRight className="w-4 h-4" />
             </button>
             <button
               onClick={() => onNavigate('pricing')}
-              className="px-10 py-5 rounded-2xl glass border border-border hover:border-primary/30 text-foreground text-lg font-semibold transition-all duration-300 btn-magnetic"
+              className="px-8 py-4 rounded-2xl bg-white border border-[#E5EDF5] hover:border-[#176FC1] text-[#142D49] text-base font-semibold transition-all duration-300 btn-magnetic shadow-xs"
             >
               Ver planes y precios
             </button>

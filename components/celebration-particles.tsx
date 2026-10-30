@@ -13,7 +13,7 @@ interface Particle {
   delay: number
 }
 
-const COLORS = ['#3b82f6', '#8b5cf6', '#ec4899', '#10b981', '#f59e0b', '#06b6d4', '#6366f1']
+const COLORS = ['#176FC1', '#39BDEB', '#E9A83A', '#142D49', '#10B981', '#39BDEB', '#E9A83A']
 
 interface CelebrationParticlesProps {
   count?: number

@@ -94,7 +94,7 @@ export default function Navigation({ onNavigate, currentView, onOpenAuth }: NavP
         transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
           scrolled || isDashboard
-            ? 'glass border-b border-border/50 shadow-sm'
+            ? 'bg-white/95 backdrop-blur-md border-b border-[#E5EDF5] shadow-[0_2px_12px_rgba(20,45,73,0.04)]'
             : 'bg-transparent'
         }`}
       >
@@ -104,10 +104,10 @@ export default function Navigation({ onNavigate, currentView, onOpenAuth }: NavP
             onClick={() => onNavigate('home')}
             className="flex items-center gap-2.5 group"
           >
-            <div className="w-8 h-8 rounded-xl overflow-hidden ring-1 ring-border/60 shadow-md group-hover:scale-105 group-hover:ring-amber-500/50 transition-all duration-300 shrink-0 bg-black">
-              <img src="/logo.png" alt="Maestro Logo" className="w-full h-full object-cover" />
+            <div className="w-8 h-8 rounded-xl overflow-hidden ring-1 ring-[#E5EDF5] shadow-sm group-hover:scale-105 group-hover:ring-[#176FC1]/50 transition-all duration-300 shrink-0 bg-white p-0.5">
+              <img src="/logo.png" alt="Maestro Logo" className="w-full h-full object-contain" />
             </div>
-            <span className="text-base font-bold tracking-tight text-foreground font-display">
+            <span className="text-base font-bold tracking-tight text-[#142D49] font-display">
               MaestroTech
             </span>
           </button>
@@ -118,16 +118,16 @@ export default function Navigation({ onNavigate, currentView, onOpenAuth }: NavP
               <button
                 key={link.view}
                 onClick={() => onNavigate(link.view)}
-                className={`relative px-3.5 py-2 rounded-lg text-sm font-medium transition-all duration-200 btn-magnetic ${
+                className={`relative px-3.5 py-2 rounded-xl text-sm font-medium transition-all duration-200 btn-magnetic ${
                   currentView === link.view
-                    ? 'text-primary'
-                    : 'text-muted-foreground hover:text-foreground'
+                    ? 'text-[#176FC1] font-semibold'
+                    : 'text-[#536B83] hover:text-[#142D49] hover:bg-[#F3F8FD]'
                 }`}
               >
                 {currentView === link.view && (
                   <motion.span
                     layoutId="nav-indicator"
-                    className="absolute inset-0 bg-primary/8 rounded-lg"
+                    className="absolute inset-0 bg-[#F3F8FD] border border-[#E5EDF5] rounded-xl shadow-xs"
                     transition={{ type: 'spring', bounce: 0.2, duration: 0.4 }}
                   />
                 )}
@@ -139,9 +139,9 @@ export default function Navigation({ onNavigate, currentView, onOpenAuth }: NavP
             {canAccessAdmin(role) && (
               <Link
                 href="/admin"
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-violet-500/10 hover:bg-violet-500/20 text-violet-400 border border-violet-500/30 text-xs font-semibold transition-colors ml-1"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#142D49]/10 hover:bg-[#142D49]/15 text-[#142D49] border border-[#142D49]/20 text-xs font-semibold transition-colors ml-1"
               >
-                <Shield className="w-3.5 h-3.5" />
+                <Shield className="w-3.5 h-3.5 text-[#176FC1]" />
                 <span>Superusuario</span>
               </Link>
             )}
@@ -149,7 +149,7 @@ export default function Navigation({ onNavigate, currentView, onOpenAuth }: NavP
             {canAccessTeacher(role) && (
               <Link
                 href="/teacher"
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-xs font-semibold transition-colors ml-1"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#176FC1]/10 hover:bg-[#176FC1]/15 text-[#176FC1] border border-[#176FC1]/20 text-xs font-semibold transition-colors ml-1"
               >
                 <BookOpen className="w-3.5 h-3.5" />
                 <span>Panel Docente</span>
@@ -163,19 +163,19 @@ export default function Navigation({ onNavigate, currentView, onOpenAuth }: NavP
               <div className="relative">
                 <button
                   onClick={() => setUserDropdownOpen(!userDropdownOpen)}
-                  className="flex items-center gap-2 p-1.5 pl-2.5 rounded-2xl glass border border-border/60 hover:border-primary/40 transition-colors"
+                  className="flex items-center gap-2 p-1.5 pl-3 rounded-2xl bg-white border border-[#E5EDF5] hover:border-[#176FC1]/50 shadow-xs transition-colors"
                 >
-                  <span className="text-xs font-semibold text-foreground max-w-[120px] truncate">
+                  <span className="text-xs font-semibold text-[#142D49] max-w-[120px] truncate">
                     {displayName}
                   </span>
                   {role && (
                     <span
                       className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded-md ${
                         role === 'admin'
-                          ? 'bg-violet-500/15 text-violet-400 border border-violet-500/30'
+                          ? 'bg-[#142D49]/10 text-[#142D49] border border-[#142D49]/20'
                           : role === 'instructor'
-                          ? 'bg-blue-500/15 text-blue-400 border border-blue-500/30'
-                          : 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
+                          ? 'bg-[#176FC1]/10 text-[#176FC1] border border-[#176FC1]/20'
+                          : 'bg-[#39BDEB]/15 text-[#142D49] border border-[#39BDEB]/30'
                       }`}
                     >
                       {role === 'admin' ? 'Superusuario' : role === 'instructor' ? 'Docente' : 'Estudiante'}
@@ -185,14 +185,14 @@ export default function Navigation({ onNavigate, currentView, onOpenAuth }: NavP
                     <img
                       src={userAvatar}
                       alt={displayName}
-                      className="w-7 h-7 rounded-xl object-cover border border-border"
+                      className="w-7 h-7 rounded-xl object-cover border border-[#E5EDF5]"
                     />
                   ) : (
-                    <div className="w-7 h-7 rounded-xl bg-gradient-to-br from-blue-600 to-violet-600 flex items-center justify-center text-white text-[10px] font-bold">
+                    <div className="w-7 h-7 rounded-xl bg-[#176FC1] text-white flex items-center justify-center text-[10px] font-bold">
                       {userInitials}
                     </div>
                   )}
-                  <ChevronDown className="w-3.5 h-3.5 text-muted-foreground" />
+                  <ChevronDown className="w-3.5 h-3.5 text-[#536B83]" />
                 </button>
 
                 <AnimatePresence>
@@ -201,15 +201,15 @@ export default function Navigation({ onNavigate, currentView, onOpenAuth }: NavP
                       initial={{ opacity: 0, y: 8, scale: 0.95 }}
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, y: 8, scale: 0.95 }}
-                      className="absolute right-0 mt-2 w-56 rounded-2xl glass border border-border/80 bg-card/95 shadow-xl p-2 z-50 text-xs"
+                      className="absolute right-0 mt-2 w-56 rounded-2xl bg-white border border-[#E5EDF5] shadow-xl p-2 z-50 text-xs"
                     >
                       {canAccessAdmin(role) && (
                         <Link
                           href="/admin"
                           onClick={() => setUserDropdownOpen(false)}
-                          className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-left hover:bg-violet-500/10 text-violet-400 transition-colors font-semibold"
+                          className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-left hover:bg-[#F3F8FD] text-[#142D49] transition-colors font-semibold"
                         >
-                          <Shield className="w-4 h-4" />
+                          <Shield className="w-4 h-4 text-[#176FC1]" />
                           Panel Superusuario
                         </Link>
                       )}
@@ -217,23 +217,23 @@ export default function Navigation({ onNavigate, currentView, onOpenAuth }: NavP
                         <Link
                           href="/teacher"
                           onClick={() => setUserDropdownOpen(false)}
-                          className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-left hover:bg-emerald-500/10 text-emerald-400 transition-colors font-semibold"
+                          className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-left hover:bg-[#F3F8FD] text-[#176FC1] transition-colors font-semibold"
                         >
                           <BookOpen className="w-4 h-4" />
                           Panel Docente
                         </Link>
                       )}
                       {(canAccessAdmin(role) || canAccessTeacher(role)) && (
-                        <div className="my-1 border-t border-border/50" />
+                        <div className="my-1 border-t border-[#E5EDF5]" />
                       )}
                       <button
                         onClick={() => {
                           setUserDropdownOpen(false)
                           onNavigate('dashboard')
                         }}
-                        className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-left hover:bg-muted text-foreground transition-colors font-medium"
+                        className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-left hover:bg-[#F3F8FD] text-[#142D49] transition-colors font-medium"
                       >
-                        <LayoutDashboard className="w-4 h-4 text-primary" />
+                        <LayoutDashboard className="w-4 h-4 text-[#176FC1]" />
                         Mi Dashboard
                       </button>
                       <button
@@ -241,19 +241,19 @@ export default function Navigation({ onNavigate, currentView, onOpenAuth }: NavP
                           setUserDropdownOpen(false)
                           onNavigate('courses')
                         }}
-                        className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-left hover:bg-muted text-foreground transition-colors font-medium"
+                        className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-left hover:bg-[#F3F8FD] text-[#142D49] transition-colors font-medium"
                       >
-                        <Sparkles className="w-4 h-4 text-blue-500" />
+                        <Sparkles className="w-4 h-4 text-[#39BDEB]" />
                         Catálogo de Cursos
                       </button>
-                      <div className="my-1 border-t border-border/50" />
+                      <div className="my-1 border-t border-[#E5EDF5]" />
                       <button
                         onClick={async () => {
                           setUserDropdownOpen(false)
                           await signOut()
                           onNavigate('home')
                         }}
-                        className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-left text-rose-500 hover:bg-rose-500/10 transition-colors font-medium"
+                        className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-left text-rose-500 hover:bg-rose-50 transition-colors font-medium"
                       >
                         <LogOut className="w-4 h-4" />
                         Cerrar sesión
@@ -266,16 +266,15 @@ export default function Navigation({ onNavigate, currentView, onOpenAuth }: NavP
               <>
                 <button
                   onClick={() => onOpenAuth?.('signin')}
-                  className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors duration-200 btn-magnetic"
+                  className="text-sm font-medium text-[#536B83] hover:text-[#142D49] transition-colors duration-200 btn-magnetic px-3 py-2"
                 >
                   Iniciar sesión
                 </button>
                 <button
                   onClick={() => onOpenAuth?.('signup')}
-                  className="relative px-4 py-2 rounded-xl bg-primary text-primary-foreground text-sm font-semibold shadow-md hover:shadow-lg hover:shadow-primary/25 transition-all duration-300 btn-magnetic overflow-hidden group"
+                  className="px-4.5 py-2 rounded-xl bg-[#176FC1] hover:bg-[#142D49] text-white text-sm font-semibold shadow-xs hover:shadow-md transition-all duration-300 btn-magnetic"
                 >
-                  <span className="relative z-10">Comenzar gratis</span>
-                  <span className="absolute inset-0 bg-gradient-to-r from-blue-600 to-violet-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  Comenzar gratis
                 </button>
               </>
             )}
@@ -284,7 +283,7 @@ export default function Navigation({ onNavigate, currentView, onOpenAuth }: NavP
           {/* Mobile menu button */}
           <button
             onClick={() => setMobileOpen(!mobileOpen)}
-            className="md:hidden p-2 rounded-lg text-foreground hover:bg-muted transition-colors"
+            className="md:hidden p-2 rounded-xl text-[#142D49] hover:bg-[#F3F8FD] transition-colors"
             aria-label="Toggle mobile menu"
           >
             {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -300,7 +299,7 @@ export default function Navigation({ onNavigate, currentView, onOpenAuth }: NavP
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.2 }}
-            className="fixed top-16 left-0 right-0 z-40 glass border-b border-border/50 md:hidden"
+            className="fixed top-16 left-0 right-0 z-40 bg-white border-b border-[#E5EDF5] shadow-lg md:hidden"
           >
             <div className="max-w-7xl mx-auto px-6 py-4 flex flex-col gap-1">
               {activeNavLinks.map((link) => (
@@ -312,30 +311,30 @@ export default function Navigation({ onNavigate, currentView, onOpenAuth }: NavP
                   }}
                   className={`px-4 py-3 rounded-xl text-sm font-medium text-left transition-all duration-200 ${
                     currentView === link.view
-                      ? 'bg-primary/10 text-primary'
-                      : 'text-foreground hover:bg-muted'
+                      ? 'bg-[#F3F8FD] text-[#176FC1] font-semibold'
+                      : 'text-[#142D49] hover:bg-[#F3F8FD]'
                   }`}
                 >
                   {link.label}
                 </button>
               ))}
-              <div className="border-t border-border/50 mt-2 pt-2 flex flex-col gap-2">
+              <div className="border-t border-[#E5EDF5] mt-2 pt-2 flex flex-col gap-2">
                 {isAuthenticated ? (
                   <>
                     {canAccessAdmin(role) && (
                       <Link
                         href="/admin"
                         onClick={() => setMobileOpen(false)}
-                        className="px-4 py-2.5 rounded-xl bg-violet-500/10 text-violet-400 text-xs font-semibold text-center flex items-center justify-center gap-2"
+                        className="px-4 py-2.5 rounded-xl bg-[#142D49]/10 text-[#142D49] text-xs font-semibold text-center flex items-center justify-center gap-2"
                       >
-                        <Shield className="w-4 h-4" /> Panel Superusuario
+                        <Shield className="w-4 h-4 text-[#176FC1]" /> Panel Superusuario
                       </Link>
                     )}
                     {canAccessTeacher(role) && (
                       <Link
                         href="/teacher"
                         onClick={() => setMobileOpen(false)}
-                        className="px-4 py-2.5 rounded-xl bg-emerald-500/10 text-emerald-400 text-xs font-semibold text-center flex items-center justify-center gap-2"
+                        className="px-4 py-2.5 rounded-xl bg-[#176FC1]/10 text-[#176FC1] text-xs font-semibold text-center flex items-center justify-center gap-2"
                       >
                         <BookOpen className="w-4 h-4" /> Panel Docente
                       </Link>
@@ -345,7 +344,7 @@ export default function Navigation({ onNavigate, currentView, onOpenAuth }: NavP
                         onNavigate('dashboard')
                         setMobileOpen(false)
                       }}
-                      className="px-4 py-3 rounded-xl bg-primary text-primary-foreground text-sm font-semibold text-center"
+                      className="px-4 py-3 rounded-xl bg-[#176FC1] text-white text-sm font-semibold text-center"
                     >
                       Ir a mi Dashboard
                     </button>
@@ -367,7 +366,7 @@ export default function Navigation({ onNavigate, currentView, onOpenAuth }: NavP
                         onOpenAuth?.('signin')
                         setMobileOpen(false)
                       }}
-                      className="px-4 py-3 rounded-xl text-sm font-medium text-foreground hover:bg-muted transition-colors text-center"
+                      className="px-4 py-3 rounded-xl text-sm font-medium text-[#142D49] hover:bg-[#F3F8FD] transition-colors text-center"
                     >
                       Iniciar sesión
                     </button>
@@ -376,7 +375,7 @@ export default function Navigation({ onNavigate, currentView, onOpenAuth }: NavP
                         onOpenAuth?.('signup')
                         setMobileOpen(false)
                       }}
-                      className="px-4 py-3 rounded-xl bg-primary text-primary-foreground text-sm font-semibold text-center"
+                      className="px-4 py-3 rounded-xl bg-[#176FC1] text-white text-sm font-semibold text-center"
                     >
                       Comenzar gratis
                     </button>
