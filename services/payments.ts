@@ -27,8 +27,8 @@ const NEQUI_STORAGE_KEY = 'maestrotech_nequi_payments_v2'
 export const PAYMENT_CONFIG = {
   merchantName: 'MaestroTech Colombia',
   merchantPhone: '310 892 4512',
-  paymentUrl: process.env.NEXT_PUBLIC_PAYMENT_URL || 'https://recarga.nequi.com.co/',
-  nequiPaymentUrl: process.env.NEXT_PUBLIC_PAYMENT_URL || 'https://recarga.nequi.com.co/',
+  paymentUrl: process.env.NEXT_PUBLIC_PAYMENT_URL || 'https://checkout.nequi.wompi.co/l/4X0ger',
+  nequiPaymentUrl: process.env.NEXT_PUBLIC_PAYMENT_URL || 'https://checkout.nequi.wompi.co/l/4X0ger',
   defaultAmountProMonthly: 49900,
   defaultAmountProAnnual: 39900,
   supportWhatsapp: 'https://wa.me/573108924512?text=Hola,%20acabo%20de%20realizar%20mi%20pago%20para%20MaestroTech',

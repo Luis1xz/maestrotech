@@ -79,7 +79,7 @@ export default function PricingView({ onNavigate }: PricingProps) {
 
   const handlePlanClick = (planName: string) => {
     if (planName === 'Docente Pro') {
-      const paymentUrl = PAYMENT_CONFIG.paymentUrl
+      const paymentUrl = 'https://checkout.nequi.wompi.co/l/4X0ger'
       window.open(paymentUrl, '_blank')
     } else if (planName === 'Institucional') {
       window.open(
