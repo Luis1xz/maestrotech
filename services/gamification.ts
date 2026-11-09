@@ -9,7 +9,7 @@ import {
 
 export type { Badge, MasteryLevel, TopicPerformance, UserGamificationState }
 
-const STORAGE_KEY = 'maestrotech_gamification_v2'
+const STORAGE_KEY = 'legadodocente_gamification_v3'
 
 function getInitialState(): UserGamificationState {
   return {

@@ -52,7 +52,7 @@ export async function POST(request: NextRequest) {
     const buffer = Buffer.from(arrayBuffer)
 
     // 1. Escribir fragmento o archivo completo en os.tmpdir() (siempre escribible en Vercel y local, sin disparar hot-reload)
-    const tmpTargetDir = path.join(os.tmpdir(), 'maestrotech-uploads', folderName, courseId)
+    const tmpTargetDir = path.join(os.tmpdir(), 'legadodocente-uploads', folderName, courseId)
     const tmpFullFilePath = path.join(tmpTargetDir, fileNameWithTime)
     await fs.mkdir(tmpTargetDir, { recursive: true })
 

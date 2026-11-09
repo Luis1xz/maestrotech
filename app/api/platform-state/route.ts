@@ -186,8 +186,8 @@ export async function POST(request: NextRequest) {
               ...u,
               role,
               role_updated_at: updatedAt,
-              email: u.email || email || 'usuario@maestrotech.co',
-              full_name: u.full_name || full_name || 'Docente MaestroTech',
+              email: u.email || email || 'usuario@legadodocente.co',
+              full_name: u.full_name || full_name || 'Docente Legado Docente',
               first_name: u.first_name ?? first_name ?? null,
               last_name: u.last_name ?? last_name ?? null,
               avatar_url: u.avatar_url ?? avatar_url ?? null,
@@ -199,8 +199,8 @@ export async function POST(request: NextRequest) {
         if (!matched && id) {
           state.users.unshift({
             id,
-            email: email || 'usuario@maestrotech.co',
-            full_name: full_name || 'Docente MaestroTech',
+            email: email || 'usuario@legadodocente.co',
+            full_name: full_name || 'Docente Legado Docente',
             first_name: first_name ?? null,
             last_name: last_name ?? null,
             role,

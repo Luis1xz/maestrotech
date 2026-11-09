@@ -89,7 +89,7 @@ export async function getAdminUsersList(authToken?: string): Promise<{
               existing?.email ||
               `${(p.first_name || p.full_name || 'usuario')
                 .toLowerCase()
-                .replace(/\s+/g, '.')}@maestrotech.co`,
+                .replace(/\s+/g, '.')}@legadodocente.co`,
           })
         }
       } catch {

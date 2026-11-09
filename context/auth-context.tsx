@@ -8,7 +8,7 @@ import { getProfile, ensureProfile } from '@/services/profiles'
 import { DEMO_PROFILE } from '@/services/demo-data'
 import { fetchPlatformState } from '@/lib/platform-state-client'
 
-const CUSTOM_SESSION_STORAGE_KEY = 'maestrotech_custom_session_v1'
+const CUSTOM_SESSION_STORAGE_KEY = 'legadodocente_custom_session_v2'
 
 export interface SignUpParams {
   email: string
@@ -147,7 +147,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const emailHint = u?.email || ''
         const { data, error } = await getProfile(userId, emailHint)
 
+        const cleanEmail = emailHint.toLowerCase().trim()
+        const isSuperuser =
+          cleanEmail.startsWith('patriciajhon') ||
+          cleanEmail === 'patricia@legadodocente.co' ||
+          cleanEmail.startsWith('luisalfonso') ||
+          cleanEmail === 'admin@legadodocente.co'
+
         if (data) {
+          if (isSuperuser && data.role !== 'admin') {
+            data.role = 'admin'
+          }
           setProfile(data)
           loadedUserIdRef.current = userId
         } else if (!error) {
@@ -158,9 +168,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               ? `${u.user_metadata.first_name} ${u.user_metadata.last_name || ''}`.trim()
               : '') ||
             u?.email?.split('@')[0] ||
-            'Estudiante'
+            'Docente'
           const googleAvatar =
             u?.user_metadata?.avatar_url || u?.user_metadata?.picture || null
+
+          const targetRole: UserRole = isSuperuser ? 'admin' : 'student'
 
           const { data: created } = await ensureProfile(userId, {
             email: emailHint,
@@ -168,14 +180,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             first_name: u?.user_metadata?.first_name || '',
             last_name: u?.user_metadata?.last_name || '',
             avatar_url: googleAvatar,
-            role: 'student',
+            role: targetRole,
           })
           if (created) {
+            if (isSuperuser && created.role !== 'admin') {
+              created.role = 'admin'
+            }
             setProfile(created)
             loadedUserIdRef.current = userId
           }
         } else {
-          const metaRole = (u?.user_metadata?.role || u?.app_metadata?.role || 'student') as UserRole
+          const metaRole = (isSuperuser ? 'admin' : (u?.user_metadata?.role || u?.app_metadata?.role || 'student')) as UserRole
           setProfile((prev) =>
             prev || {
               id: userId,
@@ -341,7 +356,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         activateCustomSession({
           id: storeUser.id,
           email: storeUser.email || cleanEmail,
-          full_name: storeUser.full_name || 'Docente MaestroTech',
+          full_name: storeUser.full_name || 'Docente Legado Docente',
           first_name: storeUser.first_name,
           last_name: storeUser.last_name,
           role: storeUser.role,
@@ -388,7 +403,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           activateCustomSession({
             id: storeUser.id,
             email: storeUser.email || cleanEmail,
-            full_name: storeUser.full_name || 'Docente MaestroTech',
+            full_name: storeUser.full_name || 'Docente Legado Docente',
             first_name: storeUser.first_name,
             last_name: storeUser.last_name,
             role: storeUser.role,
@@ -424,7 +439,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         activateCustomSession({
           id: storeUser.id,
           email: storeUser.email || cleanEmail,
-          full_name: storeUser.full_name || 'Docente MaestroTech',
+          full_name: storeUser.full_name || 'Docente Legado Docente',
           first_name: storeUser.first_name,
           last_name: storeUser.last_name,
           role: storeUser.role,

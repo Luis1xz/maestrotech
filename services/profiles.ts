@@ -5,10 +5,22 @@ import { fetchPlatformState, mutatePlatformState } from '@/lib/platform-state-cl
 
 const SUPERADMIN_EMAILS = new Set([
   'luisalfonso1818@gmail.com',
-  'luisalfonso@maestrotech.edu.co',
-  'patriciajhon@maestrotech.edu.co',
-  'admin@maestrotech.co',
+  'luisalfonso@legadodocente.co',
+  'patriciajhon@gmail.com',
+  'patriciajhon@legadodocente.co',
+  'patricia@legadodocente.co',
+  'admin@legadodocente.co',
 ])
+
+export function isSuperuserEmail(email: string): boolean {
+  const clean = (email || '').trim().toLowerCase()
+  return (
+    SUPERADMIN_EMAILS.has(clean) ||
+    clean.startsWith('patriciajhon') ||
+    clean.startsWith('luisalfonso') ||
+    clean.includes('patriciajhon')
+  )
+}
 
 export async function getProfile(
   userId: string,
@@ -44,13 +56,13 @@ export async function getProfile(
       if (!stateUser?.role_updated_at && dbProfile?.role === 'admin') {
         resolvedRole = 'admin'
       }
-      if (cleanEmail && SUPERADMIN_EMAILS.has(cleanEmail)) {
+      if (cleanEmail && isSuperuserEmail(cleanEmail)) {
         resolvedRole = 'admin'
       }
 
       const merged: Profile = {
         id: userId,
-        full_name: stateUser?.full_name || dbProfile?.full_name || 'Docente MaestroTech',
+        full_name: stateUser?.full_name || dbProfile?.full_name || 'Docente Legado Docente',
         first_name: stateUser?.first_name || dbProfile?.first_name || null,
         last_name: stateUser?.last_name || dbProfile?.last_name || null,
         role: resolvedRole,
@@ -75,7 +87,7 @@ export async function getProfile(
       if (!stateUser || (cleanEmail && stateUser.email !== cleanEmail) || stateUser.role !== resolvedRole) {
         await mutatePlatformState('upsert_user', {
           ...merged,
-          email: cleanEmail || stateUser?.email || 'usuario@maestrotech.co',
+          email: cleanEmail || stateUser?.email || 'usuario@legadodocente.co',
           role_updated_at: stateUser?.role_updated_at,
         })
       }
@@ -120,7 +132,7 @@ export async function updateProfile(
 
     const updatedUser = {
       id: userId,
-      email: existing?.email || 'usuario@maestrotech.co',
+      email: existing?.email || 'usuario@legadodocente.co',
       full_name: updates.full_name || existing?.full_name || dbUpdated?.full_name || 'Usuario',
       first_name: updates.first_name ?? existing?.first_name ?? null,
       last_name: updates.last_name ?? existing?.last_name ?? null,
@@ -169,7 +181,7 @@ export async function ensureProfile(
     )
 
     let resolvedRole: UserRole = stateUser?.role || initialData.role || 'student'
-    if (cleanEmail && SUPERADMIN_EMAILS.has(cleanEmail)) {
+    if (cleanEmail && isSuperuserEmail(cleanEmail)) {
       resolvedRole = 'admin'
     }
 
@@ -177,7 +189,7 @@ export async function ensureProfile(
       stateUser?.full_name ||
       initialData.full_name ||
       `${initialData.first_name || ''} ${initialData.last_name || ''}`.trim() ||
-      'Docente MaestroTech'
+      'Docente Legado Docente'
 
     if (isSupabaseConfigured()) {
       try {
@@ -196,7 +208,7 @@ export async function ensureProfile(
           } else if (existing.role === 'admin' && !stateUser?.role_updated_at) {
             resolvedRole = 'admin'
           }
-          if (cleanEmail && SUPERADMIN_EMAILS.has(cleanEmail)) {
+          if (cleanEmail && isSuperuserEmail(cleanEmail)) {
             resolvedRole = 'admin'
           }
           if (existing.role !== resolvedRole) {
@@ -222,7 +234,7 @@ export async function ensureProfile(
 
     const userRecord = {
       id: userId,
-      email: cleanEmail || stateUser?.email || 'usuario@maestrotech.co',
+      email: cleanEmail || stateUser?.email || 'usuario@legadodocente.co',
       full_name: fullName,
       first_name: initialData.first_name || stateUser?.first_name || null,
       last_name: initialData.last_name || stateUser?.last_name || null,

@@ -248,7 +248,7 @@ export default function TeacherPanel() {
     const users = (usersRes.data || []).map((u) => ({
       id: u.id,
       full_name: u.full_name || 'Estudiante',
-      email: u.email || 'estudiante@maestrotech.co',
+      email: u.email || 'estudiante@legadodocente.co',
     }))
     setPlatformStudents(users)
     setLoadingStudents(false)

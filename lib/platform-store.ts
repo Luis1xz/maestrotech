@@ -70,6 +70,16 @@ export const INITIAL_PLATFORM_STATE: PlatformStateData = {
       created_at: '2026-01-02T00:00:00Z',
     },
     {
+      id: 'a1b2c3d4-0000-4000-8000-000000000003',
+      full_name: 'Patricia Jhon',
+      first_name: 'Patricia',
+      last_name: 'Jhon',
+      email: 'patriciajhon@gmail.com',
+      role: 'admin',
+      avatar_url: null,
+      created_at: '2026-01-02T00:00:00Z',
+    },
+    {
       id: '849d7cc6-4d5e-4cae-88e0-abb134051cae',
       full_name: 'Patricia',
       first_name: 'Patricia',

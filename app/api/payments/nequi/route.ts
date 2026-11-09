@@ -26,7 +26,7 @@ let memoryNequiPayments: NequiPaymentRecord[] = [
   {
     id: 'neq_demo_001',
     userId: 'b5ccdb90-a6c0-4b99-add5-c93fac47ee84',
-    userEmail: 'estudiante@maestrotech.co',
+    userEmail: 'estudiante@legadodocente.co',
     userName: 'Carlos Andrés Gómez',
     courseId: '2aac8ece-e71b-4c7c-99be-9b4fe37879da',
     courseTitle: 'Preparación Integral Concurso Docente CNSC y Decreto 1278',
@@ -56,7 +56,7 @@ let memoryNequiPayments: NequiPaymentRecord[] = [
     status: 'completed',
     createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(),
     confirmedAt: new Date(Date.now() - 1000 * 60 * 60 * 22).toISOString(),
-    confirmedBy: 'Superusuario MaestroTech',
+    confirmedBy: 'Superusuario Legado Docente',
     notes: 'Confirmado y matriculado automáticamente',
   },
 ]
@@ -77,10 +77,10 @@ export async function POST(req: NextRequest) {
       const newPayment: NequiPaymentRecord = {
         id: `neq_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
         userId: payload.userId || 'guest_user',
-        userEmail: payload.userEmail || 'usuario@maestrotech.co',
+        userEmail: payload.userEmail || 'usuario@legadodocente.co',
         userName: payload.userName || 'Docente Aspirante',
         courseId: payload.courseId || 'plan_pro',
-        courseTitle: payload.courseTitle || 'Plan Docente Pro MaestroTech',
+        courseTitle: payload.courseTitle || 'Plan Docente Pro Legado Docente',
         planName: payload.planName || 'Docente Pro',
         amount: payload.amount || 39900,
         currency: 'COP',
@@ -110,7 +110,7 @@ export async function POST(req: NextRequest) {
 
       memoryNequiPayments[idx].status = 'completed'
       memoryNequiPayments[idx].confirmedAt = new Date().toISOString()
-      memoryNequiPayments[idx].confirmedBy = confirmedBy || 'Superusuario MaestroTech'
+      memoryNequiPayments[idx].confirmedBy = confirmedBy || 'Superusuario Legado Docente'
 
       // Also activate enrollment in platform store
       const payment = memoryNequiPayments[idx]
@@ -238,7 +238,7 @@ export async function POST(req: NextRequest) {
         const paymentRecord: NequiPaymentRecord = {
           id: `neq_ret_${Date.now()}`,
           userId: targetUserId,
-          userEmail: userEmail || 'estudiante@maestrotech.co',
+          userEmail: userEmail || 'estudiante@legadodocente.co',
           userName: userName || 'Docente Aspirante',
           courseId: courseId || 'plan_pro',
           courseTitle: 'Plan Docente Pro (Redirección Nequi)',

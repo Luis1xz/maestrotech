@@ -4,7 +4,7 @@ import os from 'os'
 import { INITIAL_PLATFORM_STATE, PlatformStateData } from '@/lib/platform-store'
 
 const DATA_FILE_PATH = path.join(process.cwd(), 'data', 'platform-store.json')
-const TMP_FILE_PATH = path.join(os.tmpdir(), 'maestrotech-platform-store.json')
+const TMP_FILE_PATH = path.join(os.tmpdir(), 'legadodocente-platform-store.json')
 
 let memoryCache: PlatformStateData | null = null
 

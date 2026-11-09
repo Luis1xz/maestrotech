@@ -1,5 +1,5 @@
 -- ========================================================
--- MAESTROTECH — PROMOCIÓN SEGURA DE SUPERUSUARIOS
+-- LEGADO DOCENTE — PROMOCIÓN SEGURA DE SUPERUSUARIOS
 -- ========================================================
 -- Este script permite asignar de forma explícita y segura el rol
 -- de Superusuario (role = 'admin') a las cuentas reales de:

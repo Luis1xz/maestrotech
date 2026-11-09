@@ -1,5 +1,5 @@
 -- ========================================================
--- MAESTROTECH — DATOS SEMILLA (CURSOS INICIALES)
+-- LEGADO DOCENTE — DATOS SEMILLA (CURSOS INICIALES)
 -- Ejecutar en Supabase SQL Editor para poblar los cursos iniciales
 -- ========================================================
 

@@ -9,9 +9,6 @@ import {
   ArrowRight,
   AlertCircle,
   CheckCircle2,
-  GraduationCap,
-  BookOpen,
-  ShieldCheck,
   UserCheck,
 } from 'lucide-react'
 import { useAuth } from '@/hooks/use-auth'
@@ -38,7 +35,7 @@ export default function AuthModal({
   const [loading, setLoading] = useState(false)
   const [loadingGoogle, setLoadingGoogle] = useState(false)
 
-  const { signIn, signInWithGoogle, quickSignInAs } = useAuth()
+  const { signIn, signInWithGoogle } = useAuth()
 
   if (!isOpen) return null
 
@@ -68,21 +65,6 @@ export default function AuthModal({
       setErrorMsg(msg)
       setLoadingGoogle(false)
     }
-  }
-
-  const handleQuickRoleAccess = async (targetEmail: string, label: string) => {
-    setErrorMsg(null)
-    setSuccessMsg(`Ingresando como ${label}...`)
-    setLoading(true)
-    const res = await quickSignInAs(targetEmail)
-    setLoading(false)
-    if (res.error) {
-      setSuccessMsg(null)
-      setErrorMsg(res.error.message)
-      return
-    }
-    onSuccess?.()
-    onClose()
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -295,50 +277,6 @@ export default function AuthModal({
               <UserCheck className="w-3.5 h-3.5 text-[#E5A83B]" />
               Iniciar caracterización inteligente (5 etapas)
             </button>
-          </div>
-
-          {/* Cuentas de Acceso Rápido / Demo Roles */}
-          <div className="mt-5 pt-3.5 border-t border-[#E5EDF5]">
-            <p className="text-[10px] font-bold text-[#536B83] uppercase tracking-wider mb-2 text-center">
-              Acceso Rápido por Rol
-            </p>
-            <div className="grid grid-cols-3 gap-2">
-              <button
-                type="button"
-                onClick={() => handleQuickRoleAccess('estudiante@legadodocente.co', 'Estudiante')}
-                className="p-2 rounded-xl bg-[#F8FAFC] border border-[#E5EDF5] hover:border-[#0045E6] text-left transition-all"
-              >
-                <div className="flex items-center gap-1.5 text-xs font-bold text-[#142D49]">
-                  <GraduationCap className="w-3.5 h-3.5 text-[#0045E6]" />
-                  <span>Estudiante</span>
-                </div>
-                <p className="text-[9px] text-[#536B83] truncate">estudiante@...</p>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => handleQuickRoleAccess('docente@legadodocente.co', 'Docente')}
-                className="p-2 rounded-xl bg-[#F8FAFC] border border-[#E5EDF5] hover:border-[#0045E6] text-left transition-all"
-              >
-                <div className="flex items-center gap-1.5 text-xs font-bold text-[#142D49]">
-                  <BookOpen className="w-3.5 h-3.5 text-[#E5A83B]" />
-                  <span>Docente</span>
-                </div>
-                <p className="text-[9px] text-[#536B83] truncate">docente@...</p>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => handleQuickRoleAccess('luisalfonso1818@gmail.com', 'Superusuario')}
-                className="p-2 rounded-xl bg-[#F8FAFC] border border-[#E5EDF5] hover:border-[#0045E6] text-left transition-all"
-              >
-                <div className="flex items-center gap-1.5 text-xs font-bold text-[#142D49]">
-                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-                  <span>Admin</span>
-                </div>
-                <p className="text-[9px] text-[#536B83] truncate">Superusuario</p>
-              </button>
-            </div>
           </div>
         </motion.div>
       </div>

@@ -119,7 +119,7 @@ export default function Dashboard({ onNavigate, onOpenAuth, onSelectCourse }: Da
     let isMounted = true
 
     async function loadDashboardData() {
-      if (!user && !isDemo) {
+      if (!user) {
         setLoading(false)
         return
       }
@@ -163,7 +163,7 @@ export default function Dashboard({ onNavigate, onOpenAuth, onSelectCourse }: Da
     return () => {
       isMounted = false
     }
-  }, [user?.id, isDemo])
+  }, [user?.id])
 
   const navigate = (view: string) => {
     setActiveView(view)
@@ -243,7 +243,7 @@ export default function Dashboard({ onNavigate, onOpenAuth, onSelectCourse }: Da
 
         {/* User Card */}
         <div className="px-6 py-5 border-b border-[#E5EDF5]">
-          {isAuthenticated || isDemo ? (
+          {isAuthenticated ? (
             <>
               <div className="flex items-center gap-3">
                 {userAvatar ? (

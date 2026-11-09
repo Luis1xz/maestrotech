@@ -22,16 +22,16 @@ export interface NequiPaymentRecord {
   notes?: string
 }
 
-const NEQUI_STORAGE_KEY = 'maestrotech_nequi_payments_v2'
+const NEQUI_STORAGE_KEY = 'legadodocente_nequi_payments_v3'
 
 export const PAYMENT_CONFIG = {
-  merchantName: 'MaestroTech Colombia',
+  merchantName: 'Legado Docente Colombia',
   merchantPhone: '310 892 4512',
   paymentUrl: process.env.NEXT_PUBLIC_PAYMENT_URL || 'https://checkout.nequi.wompi.co/l/4X0ger',
   nequiPaymentUrl: process.env.NEXT_PUBLIC_PAYMENT_URL || 'https://checkout.nequi.wompi.co/l/4X0ger',
   defaultAmountProMonthly: 49900,
   defaultAmountProAnnual: 39900,
-  supportWhatsapp: 'https://wa.me/573108924512?text=Hola,%20acabo%20de%20realizar%20mi%20pago%20para%20MaestroTech',
+  supportWhatsapp: 'https://wa.me/573108924512?text=Hola,%20acabo%20de%20realizar%20mi%20pago%20para%20Legado%20Docente',
 }
 
 export const NEQUI_CONFIG = PAYMENT_CONFIG
@@ -48,7 +48,7 @@ function getStoredPayments(): NequiPaymentRecord[] {
     {
       id: 'neq_demo_001',
       userId: 'b5ccdb90-a6c0-4b99-add5-c93fac47ee84',
-      userEmail: 'estudiante@maestrotech.co',
+      userEmail: 'estudiante@legadodocente.co',
       userName: 'Carlos Andrés Gómez',
       courseId: '2aac8ece-e71b-4c7c-99be-9b4fe37879da',
       courseTitle: 'Preparación Integral Concurso Docente CNSC y Decreto 1278',
@@ -78,7 +78,7 @@ function getStoredPayments(): NequiPaymentRecord[] {
       status: 'completed',
       createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(),
       confirmedAt: new Date(Date.now() - 1000 * 60 * 60 * 22).toISOString(),
-      confirmedBy: 'Superusuario MaestroTech',
+      confirmedBy: 'Superusuario Legado Docente',
       notes: 'Confirmado y matriculado automáticamente',
     },
   ]
@@ -181,7 +181,7 @@ export async function createNequiPayment(params: {
 
 export async function confirmNequiPayment(
   paymentId: string,
-  confirmedBy: string = 'Superusuario MaestroTech'
+  confirmedBy: string = 'Superusuario Legado Docente'
 ): Promise<{ success: boolean; error?: string; payment?: NequiPaymentRecord }> {
   const current = getStoredPayments()
   const idx = current.findIndex((p) => p.id === paymentId)

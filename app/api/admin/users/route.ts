@@ -60,7 +60,7 @@ export async function GET(request: NextRequest) {
           ...p,
           role: existing?.role || p.role,
           role_updated_at: existing?.role_updated_at,
-          email: emailMap.get(p.id) || existing?.email || 'registrado@maestrotech.co',
+          email: emailMap.get(p.id) || existing?.email || 'registrado@legadodocente.co',
         })
       }
     } else if (url && anonKey) {
@@ -88,7 +88,7 @@ export async function GET(request: NextRequest) {
             existing?.email ||
             `${(p.first_name || p.full_name || 'usuario')
               .toLowerCase()
-              .replace(/\s+/g, '.')}@maestrotech.co`,
+              .replace(/\s+/g, '.')}@legadodocente.co`,
         })
       }
     }
@@ -326,8 +326,8 @@ export async function PATCH(request: NextRequest) {
             ...u,
             role,
             role_updated_at: updatedAt,
-            email: u.email || cleanEmail || 'usuario@maestrotech.co',
-            full_name: u.full_name || full_name || 'Docente MaestroTech',
+            email: u.email || cleanEmail || 'usuario@legadodocente.co',
+            full_name: u.full_name || full_name || 'Docente Legado Docente',
             first_name: u.first_name ?? first_name ?? null,
             last_name: u.last_name ?? last_name ?? null,
             avatar_url: u.avatar_url ?? avatar_url ?? null,
@@ -340,8 +340,8 @@ export async function PATCH(request: NextRequest) {
         const resolvedId = id || crypto.randomUUID()
         state.users.unshift({
           id: resolvedId,
-          email: cleanEmail || 'usuario@maestrotech.co',
-          full_name: full_name || cleanEmail.split('@')[0] || 'Docente MaestroTech',
+          email: cleanEmail || 'usuario@legadodocente.co',
+          full_name: full_name || cleanEmail.split('@')[0] || 'Docente Legado Docente',
           first_name: first_name ?? null,
           last_name: last_name ?? null,
           role,

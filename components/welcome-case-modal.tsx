@@ -14,7 +14,7 @@ import {
 import CelebrationParticles from '@/components/celebration-particles'
 import { recordWelcomeCaseCompleted } from '@/services/gamification'
 
-const WELCOME_STORAGE_KEY = 'maestrotech_welcome_case_v1'
+const WELCOME_STORAGE_KEY = 'legadodocente_welcome_case_v2'
 
 interface WelcomeCaseModalProps {
   onContinue: () => void

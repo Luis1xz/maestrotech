@@ -87,12 +87,15 @@ export async function GET(
     }
 
     const relativeSubPath = path.join(...cleanSegments)
-    const tmpFilePath = path.join(os.tmpdir(), 'maestrotech-uploads', relativeSubPath)
+    const tmpFilePath = path.join(os.tmpdir(), 'legadodocente-uploads', relativeSubPath)
+    const tmpLegacyFilePath = path.join(os.tmpdir(), 'maestrotech-uploads', relativeSubPath)
     const publicFilePath = path.join(process.cwd(), 'public', 'uploads', relativeSubPath)
 
     let resolvedPath: string | null = null
     if (fs.existsSync(tmpFilePath)) {
       resolvedPath = tmpFilePath
+    } else if (fs.existsSync(tmpLegacyFilePath)) {
+      resolvedPath = tmpLegacyFilePath
     } else if (fs.existsSync(publicFilePath)) {
       resolvedPath = publicFilePath
     }

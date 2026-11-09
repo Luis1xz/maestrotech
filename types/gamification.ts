@@ -53,7 +53,7 @@ export const MASTERY_LEVELS: MasteryLevel[] = [
   },
   {
     level: 5,
-    title: 'Maestro Mentor CNSC',
+    title: 'Docente Mentor CNSC',
     minXp: 1500,
     maxXp: 3000,
     badgeReward: '👑 Excelencia y liderazgo docente',
@@ -65,7 +65,7 @@ export const ALL_BADGES: Badge[] = [
   {
     id: 'pioneer',
     title: 'Pionero del Aprendizaje',
-    description: 'Completaste con éxito tu primer caso situacional en MaestroTech.',
+    description: 'Completaste con éxito tu primer caso situacional en Legado Docente.',
     icon: 'Sparkles',
     category: 'onboarding',
     xpReward: 50,

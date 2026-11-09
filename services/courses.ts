@@ -452,7 +452,7 @@ export async function createCourse(
       level: courseData.level || 'Intermedio',
       category: courseData.category || 'Pedagogía',
       instructor_id: courseData.instructor_id || null,
-      instructor_name: courseData.instructor_name || 'Docente MaestroTech',
+      instructor_name: courseData.instructor_name || 'Docente Legado Docente',
       instructor_role: courseData.instructor_role || 'Docente Formador',
       duration_hours: courseData.duration_hours || 6,
       created_at: now,

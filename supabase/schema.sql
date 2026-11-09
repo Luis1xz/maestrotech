@@ -1,5 +1,5 @@
 -- ========================================================
--- MAESTROTECH — ESQUEMA COMPLETO DE BASE DE DATOS SUPABASE
+-- LEGADO DOCENTE — ESQUEMA COMPLETO DE BASE DE DATOS SUPABASE
 -- PostgreSQL + RLS + Triggers + Storage
 -- ========================================================
 

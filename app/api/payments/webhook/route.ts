@@ -43,7 +43,7 @@ export async function POST(req: NextRequest) {
     }
 
     if (status === 'APPROVED') {
-      const email = customer_email || 'estudiante@maestrotech.co'
+      const email = customer_email || 'estudiante@legadodocente.co'
 
       // Registrar y activar directamente en el store de la plataforma
       mutateStore((state) => {

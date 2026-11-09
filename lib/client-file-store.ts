@@ -1,4 +1,4 @@
-const DB_NAME = 'maestrotech_binary_files_v1'
+const DB_NAME = 'legadodocente_binary_files_v2'
 const STORE_NAME = 'files'
 const DB_VERSION = 1
 

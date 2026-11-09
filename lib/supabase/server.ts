@@ -4,10 +4,22 @@ import { readStore } from '@/lib/platform-store-server'
 
 const SUPERADMIN_EMAILS = new Set([
   'luisalfonso1818@gmail.com',
-  'luisalfonso@maestrotech.edu.co',
-  'patriciajhon@maestrotech.edu.co',
-  'admin@maestrotech.co',
+  'luisalfonso@legadodocente.co',
+  'patriciajhon@gmail.com',
+  'patriciajhon@legadodocente.co',
+  'patricia@legadodocente.co',
+  'admin@legadodocente.co',
 ])
+
+export function isSuperadminEmail(email: string): boolean {
+  const clean = (email || '').trim().toLowerCase()
+  return (
+    SUPERADMIN_EMAILS.has(clean) ||
+    clean.startsWith('patriciajhon') ||
+    clean.startsWith('luisalfonso') ||
+    clean.includes('patriciajhon')
+  )
+}
 
 /**
  * Cliente exclusivo de servidor con privilegios administrativos (service_role).
@@ -111,7 +123,7 @@ export async function verifyAdminRequest(authHeader: string | null): Promise<{
     (u) => u.id === user.id || (u.email || '').toLowerCase() === emailLower
   )
 
-  if (SUPERADMIN_EMAILS.has(emailLower) || storeUser?.role === 'admin') {
+  if (isSuperadminEmail(emailLower) || storeUser?.role === 'admin') {
     return {
       authorized: true,
       userId: user.id,

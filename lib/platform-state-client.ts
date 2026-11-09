@@ -1,8 +1,8 @@
 import { INITIAL_PLATFORM_STATE, PlatformStateData } from './platform-store'
 
-const LOCAL_STORAGE_KEY = 'maestrotech_platform_state_v3'
-const DELETED_IDS_KEY = 'maestrotech_deleted_ids_v3'
-const DELETED_USER_IDS_KEY = 'maestrotech_deleted_user_ids_v3'
+const LOCAL_STORAGE_KEY = 'legadodocente_platform_state_v4'
+const DELETED_IDS_KEY = 'legadodocente_deleted_ids_v4'
+const DELETED_USER_IDS_KEY = 'legadodocente_deleted_user_ids_v4'
 
 let cachedState: PlatformStateData | null = null
 
@@ -366,8 +366,8 @@ function applyMutationToState(state: PlatformStateData, action: string, payload:
             ...u,
             role,
             role_updated_at: updatedAt,
-            email: u.email || email || 'usuario@maestrotech.co',
-            full_name: u.full_name || full_name || 'Docente MaestroTech',
+            email: u.email || email || 'usuario@legadodocente.co',
+            full_name: u.full_name || full_name || 'Docente Legado Docente',
             first_name: u.first_name ?? first_name ?? null,
             last_name: u.last_name ?? last_name ?? null,
             avatar_url: u.avatar_url ?? avatar_url ?? null,
@@ -379,8 +379,8 @@ function applyMutationToState(state: PlatformStateData, action: string, payload:
       if (!matched && id) {
         state.users.unshift({
           id,
-          email: email || 'usuario@maestrotech.co',
-          full_name: full_name || 'Docente MaestroTech',
+          email: email || 'usuario@legadodocente.co',
+          full_name: full_name || 'Docente Legado Docente',
           first_name: first_name ?? null,
           last_name: last_name ?? null,
           role,

@@ -16,7 +16,7 @@ const CATEGORIES = ['Todos', 'Concurso Docente', 'Aptitudes Básicas', 'Pedagog�
 
 export default function CoursesView({ onSelectCourse, onNavigate }: CoursesViewProps) {
   const [selectedCategory, setSelectedCategory] = useState('Todos')
-  const { courses, loading, error, isDemo, refetch } = useCourses({
+  const { courses, loading, error, refetch } = useCourses({
     category: selectedCategory === 'Todos' ? undefined : selectedCategory,
   })
 
@@ -42,13 +42,6 @@ export default function CoursesView({ onSelectCourse, onNavigate }: CoursesViewP
           <p className="text-[#1E293B] text-base sm:text-lg max-w-2xl mx-auto leading-relaxed">
             Legado Docente «Aprende, comparte, deja huella» — Formación rigurosa estructurada en Aptitudes Básicas, Conocimientos Pedagógicos y Componente Disciplinar conforme al Decreto 1278 y la CNSC.
           </p>
-
-          {isDemo && (
-            <div className="mt-4 inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#E6C565]/15 border border-[#C99E32] text-[#9C7316] text-xs font-bold">
-              <span>Modo Demostración</span>
-              <span className="text-[#1E293B]">— Conecta Supabase en .env.local para ver datos reales</span>
-            </div>
-          )}
         </motion.div>
 
         {/* Category filters */}

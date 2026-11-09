@@ -10,6 +10,7 @@ import { AuthProvider, useAuth } from '@/hooks/use-auth'
 import AuthModal from '@/components/auth-modal'
 import WelcomeCaseModal from '@/components/welcome-case-modal'
 import { AlertCircle, CheckCircle2 } from 'lucide-react'
+import { getSupabase, isSupabaseConfigured } from '@/lib/supabase/client'
 
 import ParticleCanvas from '@/components/particle-canvas'
 
@@ -60,13 +61,34 @@ function MainApp() {
     } else if (authError) {
       setAuthErrorBanner(decodeURIComponent(authError))
       window.history.replaceState({}, document.title, window.location.pathname)
-    } else if (viewParam === 'dashboard' || codeParam) {
-      if (viewParam === 'dashboard') {
+    } else if (codeParam) {
+      if (isSupabaseConfigured()) {
+        getSupabase()
+          .auth.exchangeCodeForSession(codeParam)
+          .then(({ data }) => {
+            if (data?.session) {
+              setView('dashboard')
+            }
+          })
+          .catch((err) => {
+            console.error('[page] Error al intercambiar código PKCE:', err)
+          })
+          .finally(() => {
+            setTimeout(() => {
+              window.history.replaceState({}, document.title, window.location.pathname)
+            }, 600)
+          })
+      } else {
         setView('dashboard')
+        setTimeout(() => {
+          window.history.replaceState({}, document.title, window.location.pathname)
+        }, 600)
       }
+    } else if (viewParam === 'dashboard') {
+      setView('dashboard')
       setTimeout(() => {
         window.history.replaceState({}, document.title, window.location.pathname)
-      }, 800)
+      }, 600)
     }
   }, [])
 
@@ -82,8 +104,8 @@ function MainApp() {
       return
     }
 
-    // Proteger sección de Dashboard si no está autenticado (y no está en modo demo)
-    if (v === 'dashboard' && !isAuthenticated && !isDemo) {
+    // Proteger sección de Dashboard si no está autenticado
+    if (v === 'dashboard' && !isAuthenticated) {
       openAuth('signin', 'dashboard')
       return
     }

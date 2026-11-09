@@ -264,7 +264,7 @@ export default function VideoPlayer({
     )
   }
 
-  // 4. Reproductor HTML5 + Nativo Estilizado de MaestroTech (Supabase Storage / MP4 / WebM / Mock)
+  // 4. Reproductor HTML5 + Nativo Estilizado de Legado Docente (Supabase Storage / MP4 / WebM / Mock)
   const progressPercent = realDuration > 0 ? Math.min(100, (currentTime / realDuration) * 100) : 0
 
   return (

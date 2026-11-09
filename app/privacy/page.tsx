@@ -42,8 +42,8 @@ export default function PrivacyPage() {
           </h1>
           <p className="text-sm text-[#536B83]">
             <strong>Aplicación:</strong> Legado Docente (URL oficial:{' '}
-            <a href="https://maestrotech.vercel.app" className="text-[#176FC1] hover:underline">
-              https://maestrotech.vercel.app
+            <a href="https://legadodocente.co" className="text-[#176FC1] hover:underline">
+              https://legadodocente.co
             </a>
             ) · <strong>Última actualización:</strong> Octubre 2026 · Cumplimiento de la Ley 1581 de 2012 (Colombia) y de la{' '}
             <em>Google API Services User Data Policy</em>.
@@ -57,8 +57,8 @@ export default function PrivacyPage() {
             <span>Notice for Google OAuth Verification Reviewers (English Summary)</span>
           </div>
           <p className="leading-relaxed text-[#536B83]">
-            This Privacy Policy applies to the web application <strong>MaestroTech</strong> located at{' '}
-            <code className="bg-white border border-[#E5EDF5] px-1.5 py-0.5 rounded text-[#142D49]">https://maestrotech.vercel.app</code>. MaestroTech accesses user data through Google OAuth exclusively for identity authentication and account creation (specifically scopes: <code className="bg-white border border-[#E5EDF5] px-1.5 py-0.5 rounded text-[#142D49]">email</code>, <code className="bg-white border border-[#E5EDF5] px-1.5 py-0.5 rounded text-[#142D49]">profile</code>, and <code className="bg-white border border-[#E5EDF5] px-1.5 py-0.5 rounded text-[#142D49]">openid</code>). We collect only the user&apos;s email address, public profile name, and avatar image to identify them on the platform. <strong>We do not sell, rent, transfer, or share Google user data with any third parties or advertisers. We do not use Google user data to train generalized AI models.</strong> Users can request complete deletion of their account and data at any time by contacting <code className="text-[#176FC1] font-medium">soporte@maestrotech.co</code>.
+            This Privacy Policy applies to the web application <strong>Legado Docente</strong> located at{' '}
+            <code className="bg-white border border-[#E5EDF5] px-1.5 py-0.5 rounded text-[#142D49]">https://legadodocente.co</code>. Legado Docente accesses user data through Google OAuth exclusively for identity authentication and account creation (specifically scopes: <code className="bg-white border border-[#E5EDF5] px-1.5 py-0.5 rounded text-[#142D49]">email</code>, <code className="bg-white border border-[#E5EDF5] px-1.5 py-0.5 rounded text-[#142D49]">profile</code>, and <code className="bg-white border border-[#E5EDF5] px-1.5 py-0.5 rounded text-[#142D49]">openid</code>). We collect only the user&apos;s email address, public profile name, and avatar image to identify them on the platform. <strong>We do not sell, rent, transfer, or share Google user data with any third parties or advertisers. We do not use Google user data to train generalized AI models.</strong> Users can request complete deletion of their account and data at any time by contacting <code className="text-[#176FC1] font-medium">soporte@legadodocente.co</code>.
           </p>
         </section>
 
@@ -72,16 +72,16 @@ export default function PrivacyPage() {
               1. Responsable del Tratamiento de los Datos
             </h2>
             <p>
-              El responsable del tratamiento de los datos personales recopilados a través de la plataforma web <strong>MaestroTech</strong> (disponible en <code className="text-xs bg-[#F3F8FD] px-1.5 py-0.5 rounded text-[#142D49] border border-[#E5EDF5]">https://maestrotech.vercel.app</code>) es <strong>Maestro Technologies SAS</strong>, sociedad comercial constituida bajo las leyes de la República de Colombia, con domicilio principal en Bogotá D.C., Colombia.
+              El responsable del tratamiento de los datos personales recopilados a través de la plataforma web <strong>Legado Docente</strong> (disponible en <code className="text-xs bg-[#F3F8FD] px-1.5 py-0.5 rounded text-[#142D49] border border-[#E5EDF5]">https://legadodocente.co</code>) es <strong>Legado Docente SAS</strong>, sociedad comercial constituida bajo las leyes de la República de Colombia, con domicilio principal en Bogotá D.C., Colombia.
             </p>
             <div className="mt-3 text-xs sm:text-sm space-y-1">
-              <p><strong>Razón social:</strong> Maestro Technologies SAS</p>
-              <p><strong>Nombre comercial y de la aplicación:</strong> MaestroTech</p>
-              <p><strong>Sitio web principal:</strong> https://maestrotech.vercel.app</p>
+              <p><strong>Razón social:</strong> Legado Docente SAS</p>
+              <p><strong>Nombre comercial y de la aplicación:</strong> Legado Docente</p>
+              <p><strong>Sitio web principal:</strong> https://legadodocente.co</p>
               <p>
                 <strong>Correo electrónico oficial de contacto y privacidad:</strong>{' '}
-                <a href="mailto:soporte@maestrotech.co" className="text-[#176FC1] hover:underline">
-                  soporte@maestrotech.co
+                <a href="mailto:soporte@legadodocente.co" className="text-[#176FC1] hover:underline">
+                  soporte@legadodocente.co
                 </a>
               </p>
             </div>
@@ -94,7 +94,7 @@ export default function PrivacyPage() {
               2. Datos Personales que Recopilamos
             </h2>
             <p>
-              MaestroTech recopila información con el único propósito de prestar sus servicios formativos y pedagógicos para docentes. Los tipos de datos recopilados incluyen:
+              Legado Docente recopila información con el único propósito de prestar sus servicios formativos y pedagógicos para docentes. Los tipos de datos recopilados incluyen:
             </p>
             <div className="mt-4 space-y-3">
               <div className="p-4 rounded-xl bg-[#F3F8FD] border border-[#E5EDF5]">
@@ -107,7 +107,7 @@ export default function PrivacyPage() {
               <div className="p-4 rounded-xl bg-background/50 border border-border/40">
                 <h3 className="font-semibold text-foreground text-sm mb-1">B. Datos obtenidos mediante autenticación de terceros (Google OAuth):</h3>
                 <p className="text-xs sm:text-sm">
-                  Cuando el usuario elige iniciar sesión con el botón &quot;Continuar con Google&quot;, MaestroTech solicita acceso únicamente a los ámbitos (*scopes*) básicos autorizados:
+                  Cuando el usuario elige iniciar sesión con el botón &quot;Continuar con Google&quot;, Legado Docente solicita acceso únicamente a los ámbitos (*scopes*) básicos autorizados:
                 </p>
                 <ul className="list-disc pl-5 mt-2 space-y-1 text-xs sm:text-sm">
                   <li><strong>Identificador único de Google (Google ID):</strong> Para reconocer de forma unívoca la cuenta del usuario.</li>
@@ -133,7 +133,7 @@ export default function PrivacyPage() {
               3. Cumplimiento de la Política de Datos de Usuario de Google (Google API User Data Policy)
             </h2>
             <p className="text-[#142D49] text-sm sm:text-base font-medium mb-3">
-              El uso y la transferencia que hace MaestroTech a cualquier otra aplicación de la información recibida a través de las APIs de Google cumplen de manera irrestricta con la{' '}
+              El uso y la transferencia que hace Legado Docente a cualquier otra aplicación de la información recibida a través de las APIs de Google cumplen de manera irrestricta con la{' '}
               <a
                 href="https://developers.google.com/terms/api-services-user-data-policy"
                 target="_blank"
@@ -170,7 +170,7 @@ export default function PrivacyPage() {
               <UserCheck className="w-5 h-5 text-[#176FC1]" />
               4. Finalidad del Tratamiento de los Datos
             </h2>
-            <p>Los datos personales recabados por MaestroTech se tratan exclusivamente para:</p>
+            <p>Los datos personales recabados por Legado Docente se tratan exclusivamente para:</p>
             <ol className="list-decimal pl-5 mt-3 space-y-2 text-xs sm:text-sm">
               <li>Permitir el registro, autenticación segura y recuperación de acceso de los docentes a la plataforma.</li>
               <li>Suministrar acceso a los cursos, simuladores de exámenes docentes y materiales pedagógicos.</li>
@@ -196,7 +196,7 @@ export default function PrivacyPage() {
               <li><strong>Aislamiento de datos (Row Level Security):</strong> Cada usuario solo puede consultar y modificar sus propios datos mediante políticas RLS estrictas a nivel de motor de base de datos.</li>
             </ul>
             <p className="mt-3 text-xs sm:text-sm">
-              <strong>Periodo de conservación:</strong> Los datos se conservan únicamente mientras el usuario mantenga su cuenta activa en MaestroTech, o hasta que solicite la supresión de la misma.
+              <strong>Periodo de conservación:</strong> Los datos se conservan únicamente mientras el usuario mantenga su cuenta activa en Legado Docente, o hasta que solicite la supresión de la misma.
             </p>
           </section>
 
@@ -207,7 +207,7 @@ export default function PrivacyPage() {
               6. Procedimiento para Solicitar la Eliminación de Cuenta y Datos
             </h2>
             <p>
-              Cualquier usuario de MaestroTech tiene derecho a solicitar la eliminación completa, permanente e irreversible de su cuenta y de todos sus datos personales asociados (incluidos registros de Google OAuth, progreso y calificaciones).
+              Cualquier usuario de Legado Docente tiene derecho a solicitar la eliminación completa, permanente e irreversible de su cuenta y de todos sus datos personales asociados (incluidos registros de Google OAuth, progreso y calificaciones).
             </p>
             <div className="mt-3 p-4 rounded-xl bg-[#F3F8FD] border border-[#E5EDF5]">
               <p className="text-xs sm:text-sm font-semibold text-[#142D49] mb-1">
@@ -215,8 +215,8 @@ export default function PrivacyPage() {
               </p>
               <p className="text-xs sm:text-sm">
                 Envíe un correo electrónico desde la cuenta registrada a:{' '}
-                <a href="mailto:soporte@maestrotech.co" className="text-[#176FC1] font-bold hover:underline">
-                  soporte@maestrotech.co
+                <a href="mailto:soporte@legadodocente.co" className="text-[#176FC1] font-bold hover:underline">
+                  soporte@legadodocente.co
                 </a>
               </p>
               <p className="text-xs text-[#536B83] mt-1">
@@ -237,8 +237,8 @@ export default function PrivacyPage() {
             </p>
             <p className="mt-2 text-sm font-medium text-[#142D49]">
               Correo de contacto oficial:{' '}
-              <a href="mailto:soporte@maestrotech.co" className="text-[#176FC1] hover:underline">
-                soporte@maestrotech.co
+              <a href="mailto:soporte@legadodocente.co" className="text-[#176FC1] hover:underline">
+                soporte@legadodocente.co
               </a>
             </p>
           </section>
@@ -247,7 +247,7 @@ export default function PrivacyPage() {
 
         {/* Footer info */}
         <div className="mt-12 pt-8 border-t border-[#E5EDF5] flex flex-col sm:flex-row items-center justify-between text-xs text-[#536B83] gap-4">
-          <p>© 2026 Maestro Technologies SAS. Bogotá, Colombia. Todos los derechos reservados.</p>
+          <p>© 2026 Legado Docente SAS. Bogotá, Colombia. Todos los derechos reservados.</p>
           <div className="flex gap-4">
             <Link href="/terms" className="hover:text-[#142D49] transition-colors">
               Condiciones del Servicio

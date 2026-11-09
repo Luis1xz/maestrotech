@@ -222,7 +222,7 @@ export async function getAllEnrollmentsForTeacher(
         ...e,
         course: c,
         student_name: u?.full_name || 'Estudiante Matriculado',
-        student_email: u?.email || 'estudiante@maestrotech.co',
+        student_email: u?.email || 'estudiante@legadodocente.co',
       }
     })
 
