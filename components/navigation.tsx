@@ -42,7 +42,7 @@ export default function Navigation({ onNavigate, currentView, onOpenAuth }: NavP
       .filter(Boolean)
       .slice(0, 2)
       .map((n) => n[0].toUpperCase())
-      .join('') || 'MT'
+      .join('') || 'LD'
   const userAvatar = getAvatarUrl(profile?.avatar_url)
 
   // Enlaces de navegación adaptados estrictamente por rol
@@ -59,8 +59,8 @@ export default function Navigation({ onNavigate, currentView, onOpenAuth }: NavP
     if (role === 'admin') {
       return [
         { label: 'Inicio', view: 'home' },
-        { label: 'Mi Dashboard', view: 'dashboard' },
-        { label: 'Cursos', view: 'courses' },
+        { label: 'Mi Aula Virtual', view: 'dashboard' },
+        { label: 'Mis Cursos', view: 'courses' },
         { label: 'Simulador', view: 'exam' },
       ]
     }
@@ -68,8 +68,8 @@ export default function Navigation({ onNavigate, currentView, onOpenAuth }: NavP
     if (role === 'instructor') {
       return [
         { label: 'Inicio', view: 'home' },
-        { label: 'Mi Dashboard', view: 'dashboard' },
-        { label: 'Cursos', view: 'courses' },
+        { label: 'Mi Aula Virtual', view: 'dashboard' },
+        { label: 'Mis Cursos', view: 'courses' },
         { label: 'Simulador', view: 'exam' },
       ]
     }
@@ -77,10 +77,10 @@ export default function Navigation({ onNavigate, currentView, onOpenAuth }: NavP
     // student
     return [
       { label: 'Inicio', view: 'home' },
-      { label: 'Mi Dashboard', view: 'dashboard' },
-      { label: 'Cursos', view: 'courses' },
+      { label: 'Mi Aula Virtual', view: 'dashboard' },
+      { label: 'Mis Cursos y Módulos', view: 'courses' },
       { label: 'Simulador', view: 'exam' },
-      { label: 'Precios', view: 'pricing' },
+      { label: 'Planes Pro', view: 'pricing' },
     ]
   }
 

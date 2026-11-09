@@ -251,7 +251,7 @@ export default function ExamSimulator({ onNavigate }: ExamProps) {
 
   if (phase === 'intro') {
     return (
-      <div className="min-h-screen bg-[#F3F8FD] flex items-center justify-center px-6 py-12">
+      <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center px-6 py-12">
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -260,26 +260,26 @@ export default function ExamSimulator({ onNavigate }: ExamProps) {
         >
           <button
             onClick={() => onNavigate('dashboard')}
-            className="flex items-center gap-2 text-sm text-[#536B83] hover:text-[#142D49] mb-8 transition-colors font-medium"
+            className="flex items-center gap-2 text-sm text-[#64748B] hover:text-[#0038DF] mb-8 transition-colors font-bold cursor-pointer"
           >
             <ArrowLeft className="w-4 h-4" />
-            Volver al Dashboard
+            Volver a Mi Aula Virtual
           </button>
 
-          <div className="p-10 rounded-3xl bg-white border border-[#E5EDF5] shadow-sm text-center">
-            <div className="w-20 h-20 rounded-3xl bg-[#176FC1] flex items-center justify-center mx-auto mb-6 shadow-lg shadow-[#176FC1]/20">
+          <div className="p-10 rounded-3xl bg-white border-2 border-[#C99E32] shadow-xl text-center">
+            <div className="w-20 h-20 rounded-3xl bg-[#0038DF] flex items-center justify-center mx-auto mb-6 shadow-lg shadow-[#0038DF]/20">
               <Target className="w-10 h-10 text-white" strokeWidth={1.5} />
             </div>
 
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#176FC1]/10 text-[#176FC1] border border-[#176FC1]/20 text-xs font-bold uppercase tracking-wider mb-4">
-              Simulacro Oficial Sincronizado
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#0038DF]/10 text-[#0038DF] border border-[#0038DF]/20 text-xs font-extrabold uppercase tracking-wider mb-4">
+              Simulacro Oficial Sincronizado • CNSC
             </div>
 
-            <h1 className="font-display font-bold text-3xl md:text-4xl text-[#142D49] mb-3">
+            <h1 className="font-display font-extrabold text-3xl md:text-4xl text-[#0038DF] mb-3">
               Concurso de Méritos Docente CNSC
             </h1>
-            <p className="text-[#536B83] mb-8 max-w-md mx-auto text-sm leading-relaxed">
-              Simulacro de práctica con {questions.length} preguntas situacionales. Tiempo límite: 60 minutos. Basado en el marco del MEN, el Estatuto Docente 1278 y casos pedagógicos reales.
+            <p className="text-[#1E293B] mb-8 max-w-md mx-auto text-sm leading-relaxed">
+              Simulacro de entrenamiento con {questions.length} preguntas situacionales. Tiempo límite: 60 minutos. Basado en el marco del MEN, el Estatuto Docente 1278 y casos pedagógicos reales.
             </p>
 
             <div className="grid grid-cols-3 gap-4 mb-10">
@@ -288,22 +288,20 @@ export default function ExamSimulator({ onNavigate }: ExamProps) {
                 { label: 'Duración', value: '60 min', icon: Clock },
                 { label: 'Aprobación', value: '60%', icon: CheckCircle2 },
               ].map(({ label, value, icon: Icon }) => (
-                <div key={label} className="p-4 rounded-2xl bg-[#F3F8FD] border border-[#E5EDF5]">
-                  <Icon className="w-5 h-5 text-[#176FC1] mx-auto mb-2" />
-                  <p className="text-lg font-bold font-display text-[#142D49]">{value}</p>
-                  <p className="text-xs text-[#536B83]">{label}</p>
+                <div key={label} className="p-4 rounded-2xl bg-[#F8FAFC] border border-[#E2E8F0]">
+                  <Icon className="w-5 h-5 text-[#0038DF] mx-auto mb-2" />
+                  <p className="text-lg font-extrabold font-display text-[#0038DF]">{value}</p>
+                  <p className="text-xs text-[#64748B] font-semibold">{label}</p>
                 </div>
               ))}
             </div>
 
             <button
               onClick={() => setPhase('exam')}
-              className="group w-full py-4 rounded-2xl bg-[#176FC1] hover:bg-[#142D49] text-white font-bold text-base shadow-md shadow-[#176FC1]/20 hover:shadow-lg transition-all"
+              className="btn-gold-cta btn-gold-pill w-full py-4 text-base font-extrabold flex items-center justify-center gap-2 cursor-pointer shadow-lg group"
             >
-              <span className="flex items-center justify-center gap-2">
-                Comenzar simulacro
-                <ChevronRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
-              </span>
+              <span>Comenzar simulacro cronometrado</span>
+              <ChevronRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
             </button>
           </div>
         </motion.div>
@@ -313,7 +311,7 @@ export default function ExamSimulator({ onNavigate }: ExamProps) {
 
   if (phase === 'result') {
     return (
-      <div className="min-h-screen bg-[#F3F8FD] px-6 py-16 flex items-center justify-center">
+      <div className="min-h-screen bg-[#F8FAFC] px-6 py-16 flex items-center justify-center">
         <CelebrationParticles trigger={passed} />
         <motion.div
           initial={{ opacity: 0, y: 24 }}
@@ -321,10 +319,10 @@ export default function ExamSimulator({ onNavigate }: ExamProps) {
           className="w-full max-w-3xl space-y-6"
         >
           {/* Main Score Card */}
-          <div className="p-8 sm:p-10 rounded-3xl bg-white border border-[#E5EDF5] shadow-sm text-center">
+          <div className="p-8 sm:p-10 rounded-3xl bg-white border-2 border-[#C99E32] shadow-xl text-center">
             <div
               className={`w-20 h-20 rounded-3xl ${
-                passed ? 'bg-emerald-600 shadow-emerald-600/20' : 'bg-[#E9A83A] shadow-[#E9A83A]/20'
+                passed ? 'bg-emerald-600 shadow-emerald-600/20' : 'bg-gradient-to-r from-[#9C7316] to-[#C99E32]'
               } flex items-center justify-center mx-auto mb-5 shadow-lg`}
             >
               {passed ? (
@@ -336,27 +334,27 @@ export default function ExamSimulator({ onNavigate }: ExamProps) {
 
             <p
               className={`text-xs font-bold uppercase tracking-widest mb-1.5 ${
-                passed ? 'text-emerald-600' : 'text-[#E9A83A]'
+                passed ? 'text-emerald-600' : 'text-[#9C7316]'
               }`}
             >
               {passed ? '¡Simulacro Superado con Éxito!' : '¡Buen Esfuerzo! Cada Intento Suma'}
             </p>
-            <h2 className="font-display font-bold text-5xl md:text-6xl text-[#142D49] mb-2">
+            <h2 className="font-display font-extrabold text-5xl md:text-6xl text-[#0038DF] mb-2">
               {pct}%
             </h2>
-            <p className="text-[#536B83] text-xs sm:text-sm mb-6">
+            <p className="text-[#64748B] text-xs sm:text-sm mb-6 font-medium">
               {score} de {questions.length} respuestas acertadas · {sessionXp} XP obtenidos en esta sesión
             </p>
 
-            <div className="h-2.5 bg-[#E5EDF5] rounded-full overflow-hidden max-w-sm mx-auto mb-6">
+            <div className="h-2.5 bg-[#E2E8F0] rounded-full overflow-hidden max-w-sm mx-auto mb-6">
               <motion.div
                 initial={{ width: 0 }}
                 animate={{ width: `${pct}%` }}
                 transition={{ duration: 1.5, ease: [0.22, 1, 0.36, 1] }}
                 className={`h-full rounded-full ${
                   passed
-                    ? 'bg-gradient-to-r from-emerald-500 to-[#39BDEB]'
-                    : 'bg-gradient-to-r from-[#E9A83A] to-rose-500'
+                    ? 'bg-gradient-to-r from-emerald-500 to-[#0038DF]'
+                    : 'bg-gradient-to-r from-[#9C7316] to-[#C99E32]'
                 }`}
               />
             </div>
@@ -368,12 +366,12 @@ export default function ExamSimulator({ onNavigate }: ExamProps) {
                 {
                   label: 'Sin responder',
                   value: selected.filter((s) => s === null).length,
-                  color: 'text-[#E9A83A]',
+                  color: 'text-[#9C7316]',
                 },
               ].map(({ label, value, color }) => (
-                <div key={label} className="p-3 rounded-2xl bg-[#F3F8FD] border border-[#E5EDF5]">
-                  <p className={`text-xl font-bold font-display ${color}`}>{value}</p>
-                  <p className="text-[10px] text-[#536B83] font-medium">{label}</p>
+                <div key={label} className="p-3 rounded-2xl bg-[#F8FAFC] border border-[#E2E8F0]">
+                  <p className={`text-xl font-extrabold font-display ${color}`}>{value}</p>
+                  <p className="text-[10px] text-[#64748B] font-semibold">{label}</p>
                 </div>
               ))}
             </div>
@@ -396,34 +394,34 @@ export default function ExamSimulator({ onNavigate }: ExamProps) {
           />
 
           {/* Gamification & Badges Card */}
-          <div className="p-6 rounded-3xl bg-white border border-[#E5EDF5] shadow-xs space-y-4">
+          <div className="p-6 rounded-3xl bg-white border border-[#E2E8F0] shadow-xs space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-xl bg-[#176FC1] text-white flex items-center justify-center shadow-xs">
-                  <Zap className="w-5 h-5 text-[#39BDEB]" />
+                <div className="w-9 h-9 rounded-xl bg-[#0038DF] text-white flex items-center justify-center shadow-xs">
+                  <Zap className="w-5 h-5 text-[#E6C565]" />
                 </div>
                 <div>
-                  <h3 className="font-display font-bold text-sm text-[#142D49]">
+                  <h3 className="font-display font-extrabold text-sm text-[#0038DF]">
                     Nivel de Dominio Docente: {gamification.levelTitle}
                   </h3>
-                  <p className="text-[11px] text-[#536B83]">
+                  <p className="text-[11px] text-[#64748B]">
                     Nivel {gamification.level} · {gamification.xp} XP totales acumulados
                   </p>
                 </div>
               </div>
-              <span className="px-3 py-1 rounded-full bg-[#176FC1]/10 text-[#176FC1] font-bold text-xs border border-[#176FC1]/20">
+              <span className="px-3 py-1 rounded-full bg-[#0038DF]/10 text-[#0038DF] font-bold text-xs border border-[#0038DF]/20">
                 +{sessionXp} XP ganados
               </span>
             </div>
 
             <div className="space-y-1.5">
-              <div className="flex justify-between text-[11px] text-[#536B83]">
+              <div className="flex justify-between text-[11px] text-[#64748B]">
                 <span>Progreso hacia el siguiente nivel</span>
                 <span>{gamification.xp} / {gamification.nextLevelXp} XP</span>
               </div>
-              <div className="h-2 bg-[#E5EDF5] rounded-full overflow-hidden">
+              <div className="h-2 bg-[#E2E8F0] rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-gradient-to-r from-[#176FC1] to-[#39BDEB] rounded-full"
+                  className="h-full bg-gradient-to-r from-[#0038DF] to-[#C99E32] rounded-full"
                   style={{
                     width: `${Math.min(100, Math.round((gamification.xp / gamification.nextLevelXp) * 100))}%`,
                   }}
@@ -433,14 +431,14 @@ export default function ExamSimulator({ onNavigate }: ExamProps) {
 
             {/* Badges unlocked */}
             <div className="pt-2">
-              <p className="text-xs font-semibold text-[#142D49] mb-2 flex items-center gap-1.5">
-                <Award className="w-3.5 h-3.5 text-[#E9A83A]" /> Insignias Obtenidas ({gamification.unlockedBadges.length})
+              <p className="text-xs font-bold text-[#1E293B] mb-2 flex items-center gap-1.5">
+                <Award className="w-3.5 h-3.5 text-[#C99E32]" /> Insignias Obtenidas ({gamification.unlockedBadges.length})
               </p>
               <div className="flex flex-wrap gap-2">
                 {gamification.unlockedBadges.map((badge: Badge) => (
                   <span
                     key={badge.id}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#F3F8FD] border border-[#E5EDF5] text-xs font-medium text-[#142D49]"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0] text-xs font-bold text-[#1E293B]"
                     title={badge.description}
                   >
                     <span>{badge.icon}</span>
@@ -457,72 +455,72 @@ export default function ExamSimulator({ onNavigate }: ExamProps) {
             <div className="p-6 rounded-3xl bg-white border border-emerald-200 shadow-xs space-y-3">
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="w-5 h-5 text-emerald-600" />
-                <h4 className="font-display font-bold text-sm text-[#142D49]">
+                <h4 className="font-display font-bold text-sm text-[#0038DF]">
                   Fortalezas Detectadas
                 </h4>
               </div>
-              <p className="text-[11px] text-[#536B83] leading-relaxed">
+              <p className="text-[11px] text-[#64748B] leading-relaxed">
                 Tus respuestas evidencian gran solvencia y comprensión pedagógica en:
               </p>
               <div className="space-y-2">
                 {gamification.strengths.map((str: TopicPerformance) => (
-                  <div key={str.topic} className="p-3 rounded-2xl bg-[#F3F8FD] border border-[#E5EDF5]">
+                  <div key={str.topic} className="p-3 rounded-2xl bg-[#F8FAFC] border border-[#E2E8F0]">
                     <p className="text-xs font-bold text-emerald-600">{str.topic}</p>
-                    <p className="text-[10px] text-[#536B83] mt-0.5">{str.suggestion}</p>
+                    <p className="text-[10px] text-[#64748B] mt-0.5">{str.suggestion}</p>
                   </div>
                 ))}
               </div>
             </div>
 
             {/* Ejes a Fortalecer y Recomendaciones */}
-            <div className="p-6 rounded-3xl bg-white border border-[#E9A83A]/30 shadow-xs space-y-3">
+            <div className="p-6 rounded-3xl bg-white border-2 border-[#C99E32] shadow-xs space-y-3">
               <div className="flex items-center gap-2">
-                <Lightbulb className="w-5 h-5 text-[#E9A83A]" />
-                <h4 className="font-display font-bold text-sm text-[#142D49]">
+                <Lightbulb className="w-5 h-5 text-[#C99E32]" />
+                <h4 className="font-display font-bold text-sm text-[#0038DF]">
                   Ejes por Reforzar
                 </h4>
               </div>
-              <p className="text-[11px] text-[#536B83] leading-relaxed">
+              <p className="text-[11px] text-[#64748B] leading-relaxed">
                 Recomendaciones personalizadas para elevar tu puntaje en el concurso:
               </p>
               <div className="space-y-2">
                 {gamification.improvementAreas.map((imp: TopicPerformance) => (
-                  <div key={imp.topic} className="p-3 rounded-2xl bg-[#F3F8FD] border border-[#E5EDF5]">
-                    <p className="text-xs font-bold text-[#E9A83A]">{imp.topic}</p>
-                    <p className="text-[10px] text-[#536B83] mt-0.5">{imp.suggestion}</p>
+                  <div key={imp.topic} className="p-3 rounded-2xl bg-[#F8FAFC] border border-[#E2E8F0]">
+                    <p className="text-xs font-bold text-[#9C7316]">{imp.topic}</p>
+                    <p className="text-[10px] text-[#64748B] mt-0.5">{imp.suggestion}</p>
                   </div>
                 ))}
               </div>
               <button
                 onClick={() => onNavigate('courses')}
-                className="w-full mt-2 py-2.5 rounded-xl bg-[#E9A83A] hover:bg-[#d49428] text-white text-xs font-bold flex items-center justify-center gap-1.5 transition-colors shadow-xs"
+                className="btn-gold-cta btn-gold-pill w-full mt-2 py-2.5 text-xs font-extrabold flex items-center justify-center gap-1.5 transition-all shadow-xs cursor-pointer"
               >
                 <BookOpen className="w-3.5 h-3.5" />
-                Ver Cursos y Guías de Apoyo
+                Ver Módulos de Apoyo (140h)
               </button>
             </div>
           </div>
 
           {/* Competency Radar Chart */}
-          <div className="p-6 sm:p-8 rounded-3xl bg-white border border-[#E5EDF5] shadow-xs">
-            <h3 className="font-display font-bold text-[#142D49] mb-1 text-sm sm:text-base">
+          <div className="p-6 sm:p-8 rounded-3xl bg-white border border-[#E2E8F0] shadow-xs">
+            <h3 className="font-display font-extrabold text-[#0038DF] mb-1 text-sm sm:text-base">
               Radar de Competencias CNSC
             </h3>
-            <p className="text-xs text-[#536B83] mb-4">
+            <p className="text-xs text-[#64748B] mb-4">
               Alineación y dominio por cada eje evaluado por el Ministerio de Educación Nacional
             </p>
             <div className="h-56">
               <ResponsiveContainer width="100%" height="100%">
                 <RadarChart data={radarData}>
-                  <PolarGrid stroke="#E5EDF5" />
+                  <PolarGrid stroke="#E2E8F0" />
                   <PolarAngleAxis
                     dataKey="subject"
-                    tick={{ fontSize: 11, fill: '#536B83' }}
+                    tick={{ fontSize: 11, fill: '#64748B' }}
                   />
                   <Radar
                     dataKey="A"
-                    stroke="#176FC1"
-                    fill="#176FC1"
+                    stroke="#0038DF"
+                    fill="#0038DF"
                     fillOpacity={0.2}
                     strokeWidth={2}
                   />
@@ -546,17 +544,17 @@ export default function ExamSimulator({ onNavigate }: ExamProps) {
                 setShowHintForQuestion({})
                 setMentorMood('thinking')
               }}
-              className="flex items-center justify-center gap-2 py-4 rounded-2xl bg-white border border-[#E5EDF5] hover:border-[#176FC1] text-[#142D49] hover:text-[#176FC1] font-semibold text-sm transition-all shadow-xs"
+              className="flex items-center justify-center gap-2 py-4 rounded-2xl bg-white border border-[#E2E8F0] hover:border-[#C99E32] text-[#0038DF] font-bold text-sm transition-all shadow-xs cursor-pointer"
             >
               <RotateCcw className="w-4 h-4" />
               Repetir simulacro
             </button>
             <button
               onClick={() => onNavigate('dashboard')}
-              className="flex items-center justify-center gap-2 py-4 rounded-2xl bg-[#176FC1] hover:bg-[#142D49] text-white font-semibold text-sm shadow-md shadow-[#176FC1]/20 transition-all"
+              className="flex items-center justify-center gap-2 py-4 rounded-2xl bg-[#0038DF] hover:bg-[#002299] text-white font-bold text-sm shadow-md transition-all cursor-pointer"
             >
               <Home className="w-4 h-4" />
-              Volver al Dashboard
+              Volver a Mi Aula Virtual
             </button>
           </div>
         </motion.div>
@@ -568,28 +566,28 @@ export default function ExamSimulator({ onNavigate }: ExamProps) {
   const sel = selected[current]
 
   return (
-    <div className="min-h-screen bg-[#F3F8FD] flex flex-col">
+    <div className="min-h-screen bg-[#F8FAFC] flex flex-col">
       {/* Exam header */}
-      <header className="sticky top-0 z-20 bg-white/95 backdrop-blur-md border-b border-[#E5EDF5] shadow-xs">
+      <header className="sticky top-0 z-20 bg-white/95 backdrop-blur-md border-b border-[#E2E8F0] shadow-xs">
         <div className="max-w-4xl mx-auto px-6 h-16 flex items-center justify-between gap-4">
           <button
             onClick={() => onNavigate('dashboard')}
-            className="flex items-center gap-2 text-sm text-[#536B83] hover:text-[#142D49] transition-colors font-medium"
+            className="flex items-center gap-2 text-sm text-[#64748B] hover:text-[#0038DF] transition-colors font-bold cursor-pointer"
           >
             <ArrowLeft className="w-4 h-4" />
-            <span className="hidden sm:block">Salir</span>
+            <span className="hidden sm:block">Salir a Mi Aula</span>
           </button>
 
           <div className="flex-1 max-w-sm">
-            <div className="h-2 bg-[#E5EDF5] rounded-full overflow-hidden">
+            <div className="h-2 bg-[#E2E8F0] rounded-full overflow-hidden">
               <motion.div
                 animate={{ width: `${((current + 1) / questions.length) * 100}%` }}
                 transition={{ duration: 0.4 }}
-                className="h-full bg-gradient-to-r from-[#176FC1] to-[#39BDEB] rounded-full"
+                className="h-full bg-gradient-to-r from-[#0038DF] to-[#C99E32] rounded-full"
               />
             </div>
-            <p className="text-xs text-[#536B83] text-center mt-1 font-medium">
-              {current + 1} / {questions.length}
+            <p className="text-xs text-[#64748B] text-center mt-1 font-semibold">
+              Pregunta {current + 1} de {questions.length}
             </p>
           </div>
 
@@ -597,10 +595,10 @@ export default function ExamSimulator({ onNavigate }: ExamProps) {
             className={`flex items-center gap-2 px-4 py-2 rounded-xl border font-mono font-bold text-sm transition-all ${
               isRed
                 ? 'border-rose-300 bg-rose-50 text-rose-600'
-                : 'border-[#E5EDF5] bg-[#F3F8FD] text-[#142D49]'
+                : 'border-[#E2E8F0] bg-[#F8FAFC] text-[#0038DF]'
             }`}
           >
-            <Clock className="w-4 h-4 text-[#39BDEB]" />
+            <Clock className="w-4 h-4 text-[#C99E32]" />
             {formatTime(timeLeft)}
           </div>
         </div>
@@ -640,7 +638,7 @@ export default function ExamSimulator({ onNavigate }: ExamProps) {
             className="flex-1 flex flex-col"
           >
             <div className="flex items-center justify-between mb-4">
-              <span className="text-xs font-bold uppercase tracking-wider text-[#176FC1] px-3 py-1 rounded-full bg-[#176FC1]/10 border border-[#176FC1]/20">
+              <span className="text-xs font-bold uppercase tracking-wider text-[#0038DF] px-3 py-1 rounded-full bg-[#0038DF]/10 border border-[#0038DF]/20">
                 {q.competency}
               </span>
               <button
@@ -649,18 +647,19 @@ export default function ExamSimulator({ onNavigate }: ExamProps) {
                   f[current] = !f[current]
                   setFlagged(f)
                 }}
-                className={`p-2 rounded-lg transition-colors ${
+                className={`p-2 rounded-lg transition-colors cursor-pointer ${
                   flagged[current]
-                    ? 'text-[#E9A83A] bg-[#E9A83A]/10'
-                    : 'text-[#536B83] hover:bg-[#F3F8FD]'
+                    ? 'text-[#C99E32] bg-[#C99E32]/10'
+                    : 'text-[#64748B] hover:bg-[#F8FAFC]'
                 }`}
               >
                 <Flag className="w-4 h-4" />
               </button>
             </div>
 
-            <div className="p-7 sm:p-8 rounded-3xl bg-white border border-[#E5EDF5] shadow-xs mb-6">
-              <p className="text-base sm:text-lg font-semibold text-[#142D49] leading-relaxed">
+            {/* Tarjeta Contenedora de Pregunta — Estilo Oficial */}
+            <div className="p-7 sm:p-8 rounded-[16px] bg-white border-2 border-[#C99E32] shadow-sm mb-6">
+              <p className="text-base sm:text-lg font-bold text-[#0038DF] leading-relaxed">
                 {q.text}
               </p>
             </div>
@@ -670,18 +669,19 @@ export default function ExamSimulator({ onNavigate }: ExamProps) {
               <motion.div
                 initial={{ opacity: 0, y: -8 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="mb-4 p-4 rounded-2xl bg-[#E9A83A]/10 border border-[#E9A83A]/30 flex items-start gap-3 text-xs text-[#142D49]"
+                className="mb-4 p-4 rounded-2xl bg-[#C99E32]/15 border border-[#C99E32]/30 flex items-start gap-3 text-xs text-[#1E293B]"
               >
-                <Lightbulb className="w-4 h-4 shrink-0 mt-0.5 text-[#E9A83A]" />
+                <Lightbulb className="w-4 h-4 shrink-0 mt-0.5 text-[#9C7316]" />
                 <div>
-                  <span className="font-bold block text-[#E9A83A]">Pista Pedagógica Orientadora:</span>
-                  <span className="text-[#536B83]">
+                  <span className="font-bold block text-[#9C7316]">Pista Pedagógica Orientadora:</span>
+                  <span className="text-[#64748B]">
                     En el marco del Decreto 1278 y 1290, se privilegian las acciones formativas, concertadas y dialógicas por encima de sanciones punitivas o enfoques meramente memorísticos.
                   </span>
                 </div>
               </motion.div>
             )}
 
+            {/* Opciones de Respuesta — Cajas blancas con letra inicial en azul rey */}
             <div className="space-y-3 mb-6">
               {q.options.map((opt, i) => {
                 const isSelected = sel === i
@@ -695,25 +695,25 @@ export default function ExamSimulator({ onNavigate }: ExamProps) {
                     transition={{ delay: i * 0.05 }}
                     onClick={() => selectAnswer(i)}
                     disabled={answered}
-                    className={`w-full flex items-center gap-4 p-5 rounded-2xl border text-left transition-all duration-300 ${
+                    className={`w-full flex items-center gap-4 p-4 sm:p-5 rounded-[10px] border-[1.5px] text-left transition-all duration-200 ${
                       !answered
-                        ? 'border-[#E5EDF5] bg-white hover:border-[#176FC1]/50 hover:bg-[#F3F8FD] cursor-pointer text-[#142D49] shadow-xs'
+                        ? 'border-[#E2E8F0] hover:border-[#C99E32] bg-white cursor-pointer text-[#1E293B] shadow-xs'
                         : isCorrect
-                          ? 'border-emerald-300 bg-emerald-50 text-emerald-950 shadow-xs'
+                          ? 'border-emerald-400 bg-emerald-50 text-emerald-950 shadow-xs'
                           : isSelected && !isCorrect
-                            ? 'border-rose-300 bg-rose-50 text-rose-950 shadow-xs'
-                            : 'border-[#E5EDF5] bg-white text-[#536B83] opacity-60'
+                            ? 'border-rose-400 bg-rose-50 text-rose-950 shadow-xs'
+                            : 'border-[#E2E8F0] bg-white text-[#64748B] opacity-60'
                     }`}
                   >
                     <span
-                      className={`w-9 h-9 rounded-xl flex items-center justify-center text-sm font-bold shrink-0 transition-all ${
+                      className={`w-8 h-8 rounded-lg flex items-center justify-center text-sm font-extrabold shrink-0 transition-all ${
                         !answered
-                          ? 'bg-[#F3F8FD] text-[#536B83] border border-[#E5EDF5]'
+                          ? 'bg-[#0038DF]/10 text-[#0038DF]'
                           : isCorrect
                             ? 'bg-emerald-600 text-white'
                             : isSelected
                               ? 'bg-rose-600 text-white'
-                              : 'bg-[#F3F8FD] text-[#536B83]'
+                              : 'bg-[#F8FAFC] text-[#64748B] border border-[#E2E8F0]'
                       }`}
                     >
                       {answered ? (
@@ -728,7 +728,7 @@ export default function ExamSimulator({ onNavigate }: ExamProps) {
                         String.fromCharCode(65 + i)
                       )}
                     </span>
-                    <span className="text-sm font-medium">{opt}</span>
+                    <span className="text-sm font-medium leading-relaxed">{opt}</span>
                   </motion.button>
                 )
               })}
@@ -757,37 +757,37 @@ export default function ExamSimulator({ onNavigate }: ExamProps) {
                           +{retriedQuestions[current] ? 15 : 25} XP
                         </span>
                       </div>
-                      <p className="text-xs text-[#142D49] leading-relaxed pt-1">
+                      <p className="text-xs text-[#1E293B] leading-relaxed pt-1">
                         {q.explanation}
                       </p>
                     </div>
                   ) : (
                     /* Error pedagógico constructivo y reintento */
-                    <div className="p-5 rounded-2xl border border-[#176FC1]/25 bg-[#F3F8FD] space-y-3">
+                    <div className="p-5 rounded-2xl border border-[#0038DF]/25 bg-[#F8FAFC] space-y-3">
                       <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2 text-[#176FC1] font-bold text-sm">
-                          <Brain className="w-5 h-5 text-[#176FC1]" />
+                        <div className="flex items-center gap-2 text-[#0038DF] font-bold text-sm">
+                          <Brain className="w-5 h-5 text-[#0038DF]" />
                           <span>Oportunidad de Aprendizaje Reflexivo</span>
                         </div>
-                        <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-[#176FC1]/10 text-[#176FC1]">
+                        <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-[#0038DF]/10 text-[#0038DF]">
                           +5 XP por perseverancia
                         </span>
                       </div>
-                      <p className="text-xs text-[#536B83] leading-relaxed">
+                      <p className="text-xs text-[#64748B] leading-relaxed">
                         ¡Tranquilo(a), no pasa nada! No hay respuestas fallidas sino momentos formativos.
                         <br />
-                        <span className="text-[#142D49] font-medium">{q.explanation}</span>
+                        <span className="text-[#1E293B] font-medium">{q.explanation}</span>
                       </p>
 
                       <div className="pt-2 flex flex-col sm:flex-row items-center gap-3">
                         <button
                           onClick={handleRetryQuestion}
-                          className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#176FC1] hover:bg-[#142D49] text-white text-xs font-bold shadow-xs transition-colors"
+                          className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#0038DF] hover:bg-[#002299] text-white text-xs font-bold shadow-xs transition-colors cursor-pointer"
                         >
                           <RotateCcw className="w-3.5 h-3.5" />
                           Ver pista y reintentar pregunta
                         </button>
-                        <span className="text-[11px] text-[#536B83]">
+                        <span className="text-[11px] text-[#64748B]">
                           Aprender de los errores fortalece tu memoria a largo plazo.
                         </span>
                       </div>
@@ -797,11 +797,11 @@ export default function ExamSimulator({ onNavigate }: ExamProps) {
               )}
             </AnimatePresence>
 
-            <div className="flex items-center justify-between mt-auto">
+            <div className="flex items-center justify-between mt-auto pt-4">
               <button
                 onClick={goPrev}
                 disabled={current === 0}
-                className="flex items-center gap-2 px-5 py-3 rounded-xl bg-white border border-[#E5EDF5] hover:border-[#176FC1]/40 text-[#142D49] text-sm font-semibold disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-xs"
+                className="flex items-center gap-2 px-5 py-3 rounded-xl bg-white border border-[#E2E8F0] hover:border-[#0038DF]/40 text-[#1E293B] text-sm font-bold disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-xs cursor-pointer"
               >
                 <ChevronLeft className="w-4 h-4" />
                 Anterior
@@ -817,10 +817,10 @@ export default function ExamSimulator({ onNavigate }: ExamProps) {
                     }}
                     className={`transition-all ${
                       i === current
-                        ? 'w-6 h-2.5 rounded-full bg-[#176FC1]'
+                        ? 'w-6 h-2.5 rounded-full bg-[#0038DF]'
                         : selected[i] !== null
-                          ? 'w-2.5 h-2.5 rounded-full bg-[#176FC1]/40'
-                          : 'w-2.5 h-2.5 rounded-full bg-[#E5EDF5] hover:bg-[#536B83]/30'
+                          ? 'w-2.5 h-2.5 rounded-full bg-[#0038DF]/40'
+                          : 'w-2.5 h-2.5 rounded-full bg-[#E2E8F0] hover:bg-[#64748B]/30'
                     }`}
                   />
                 ))}
@@ -828,9 +828,9 @@ export default function ExamSimulator({ onNavigate }: ExamProps) {
 
               <button
                 onClick={goNext}
-                className="flex items-center gap-2 px-5 py-3 rounded-xl bg-[#176FC1] hover:bg-[#142D49] text-white text-sm font-bold shadow-md shadow-[#176FC1]/20 transition-all"
+                className="btn-gold-cta btn-gold-pill flex items-center gap-2 px-6 py-3 text-sm font-extrabold shadow-md transition-all cursor-pointer"
               >
-                {current === questions.length - 1 ? 'Ver resultados' : 'Siguiente'}
+                <span>{current === questions.length - 1 ? 'Ver resultados' : 'Siguiente'}</span>
                 <ChevronRight className="w-4 h-4" />
               </button>
             </div>

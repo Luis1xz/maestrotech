@@ -284,46 +284,46 @@ export default function LearningView({
   const lessonMaterials = activeLesson?.materials || []
 
   return (
-    <div className="min-h-screen bg-[#F3F8FD] flex flex-col lg:flex-row">
+    <div className="min-h-screen bg-[#F8FAFC] flex flex-col lg:flex-row">
       {/* Sidebar — Course outline */}
-      <aside className="w-full lg:w-80 xl:w-96 lg:border-r border-[#E5EDF5] bg-white lg:overflow-y-auto no-scrollbar shrink-0 shadow-xs">
-        <div className="p-6 border-b border-[#E5EDF5]">
+      <aside className="w-full lg:w-80 xl:w-96 lg:border-r border-[#E2E8F0] bg-white lg:overflow-y-auto no-scrollbar shrink-0 shadow-xs">
+        <div className="p-6 border-b border-[#E2E8F0]">
           <button
             onClick={() => onNavigate('dashboard')}
-            className="flex items-center gap-2 text-sm text-[#536B83] hover:text-[#142D49] mb-4 transition-colors font-medium"
+            className="flex items-center gap-2 text-sm text-[#64748B] hover:text-[#0038DF] mb-4 transition-colors font-bold"
           >
             <ArrowLeft className="w-4 h-4" />
-            Mi Panel de Estudio
+            Volver a Mi Aula Virtual
           </button>
 
           <div className="flex items-center gap-2 mb-2">
-            <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-[#176FC1]/10 text-[#176FC1] border border-[#176FC1]/20">
-              {course.category || 'Pedagogía'}
+            <span className="text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-md bg-[#0038DF]/10 text-[#0038DF] border border-[#0038DF]/20">
+              {course.category || 'Concurso Docente'}
             </span>
             {isEnrolled && (
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200">
-                ✓ Estudiante Matriculado
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                ✓ Matrícula Activa
               </span>
             )}
           </div>
 
-          <h2 className="font-display font-bold text-[#142D49] mb-1 line-clamp-2">
+          <h2 className="font-display font-extrabold text-[#0038DF] mb-1 line-clamp-2">
             {course.title}
           </h2>
-          <p className="text-xs text-[#536B83] mb-4">
+          <p className="text-xs text-[#64748B] mb-4 font-medium">
             {course.modules.length} módulos · {totalLessons} clases · {allCourseMaterials.length}{' '}
-            recursos PDF
+            recursos oficiales
           </p>
 
           {/* Barra de progreso real */}
-          <div className="h-2 bg-[#E5EDF5] rounded-full overflow-hidden">
+          <div className="h-2 bg-[#E2E8F0] rounded-full overflow-hidden">
             <div
-              className="h-full bg-gradient-to-r from-[#176FC1] to-[#39BDEB] rounded-full transition-all duration-500"
+              className="h-full bg-gradient-to-r from-[#0038DF] to-[#C99E32] rounded-full transition-all duration-500"
               style={{ width: `${percentComplete}%` }}
             />
           </div>
           <div className="flex items-center justify-between mt-2">
-            <p className="text-xs text-[#536B83] font-medium">
+            <p className="text-xs text-[#64748B] font-semibold">
               {completedLessons} de {totalLessons} clases · {percentComplete}%
             </p>
             {isEnrolled && (
@@ -331,9 +331,9 @@ export default function LearningView({
                 type="button"
                 onClick={handleOpenCertificate}
                 disabled={issuingCert}
-                className="text-[11px] font-semibold text-[#E9A83A] hover:underline flex items-center gap-1"
+                className="text-[11px] font-bold text-[#9C7316] hover:underline flex items-center gap-1"
               >
-                <Award className="w-3.5 h-3.5" />
+                <Award className="w-3.5 h-3.5 text-[#C99E32]" />
                 {issuingCert ? 'Generando...' : 'Ver Certificado'}
               </button>
             )}
@@ -345,18 +345,18 @@ export default function LearningView({
           {course.modules.map((mod, modIdx) => (
             <div
               key={mod.id}
-              className="rounded-2xl border border-[#E5EDF5] bg-white overflow-hidden shadow-xs"
+              className="rounded-2xl border border-[#E2E8F0] bg-white overflow-hidden shadow-xs"
             >
-              <div className="p-3.5 bg-[#F3F8FD] border-b border-[#E5EDF5] flex items-center justify-between">
+              <div className="p-3.5 bg-[#F8FAFC] border-b border-[#E2E8F0] flex items-center justify-between">
                 <div>
-                  <span className="text-[10px] font-bold text-[#176FC1] uppercase tracking-wider">
+                  <span className="text-[10px] font-extrabold text-[#0038DF] uppercase tracking-wider">
                     Módulo {mod.order_index || modIdx + 1}
                   </span>
-                  <p className="text-xs font-semibold text-[#142D49] truncate max-w-[210px]">
+                  <p className="text-xs font-bold text-[#1E293B] truncate max-w-[210px]">
                     {mod.title}
                   </p>
                 </div>
-                <span className="text-[10px] text-[#536B83] font-mono">
+                <span className="text-[10px] text-[#64748B] font-mono">
                   {mod.lessons.length} clases
                 </span>
               </div>
@@ -376,10 +376,10 @@ export default function LearningView({
                       }}
                       className={`w-full flex items-center gap-3 p-3 rounded-xl text-left transition-all ${
                         isCurrent
-                          ? 'bg-[#F3F8FD] border border-[#176FC1] text-[#176FC1] font-semibold shadow-xs'
+                          ? 'bg-[#0038DF]/5 border-2 border-[#C99E32] text-[#0038DF] font-bold shadow-xs'
                           : isLocked
                             ? 'opacity-60 hover:opacity-80'
-                            : 'hover:bg-[#F3F8FD] text-[#142D49]'
+                            : 'hover:bg-[#F8FAFC] text-[#1E293B]'
                       }`}
                     >
                       <div
@@ -387,33 +387,33 @@ export default function LearningView({
                           isCompleted
                             ? 'bg-emerald-50 text-emerald-600'
                             : isCurrent
-                              ? 'bg-[#176FC1] text-white'
-                              : 'bg-[#F3F8FD] text-[#536B83]'
+                              ? 'bg-[#0038DF] text-white shadow-xs'
+                              : 'bg-[#F8FAFC] text-[#64748B] border border-[#E2E8F0]'
                         }`}
                       >
                         {isCompleted ? (
                           <CheckCircle2 className="w-4 h-4" strokeWidth={2.5} />
                         ) : isLocked ? (
-                          <Lock className="w-3.5 h-3.5" />
+                          <Lock className="w-3.5 h-3.5 text-[#64748B]" />
                         ) : (
-                          <Play className="w-3 h-3 fill-current" />
+                          <Play className="w-3 h-3 fill-current text-[#0038DF]" />
                         )}
                       </div>
 
                       <div className="flex-1 min-w-0">
                         <p
-                          className={`text-xs font-medium truncate ${
-                            isCurrent ? 'text-[#176FC1] font-bold' : 'text-[#142D49]'
+                          className={`text-xs truncate ${
+                            isCurrent ? 'text-[#0038DF] font-bold' : 'text-[#1E293B] font-medium'
                           }`}
                         >
                           {lesson.title}
                         </p>
                         <div className="flex items-center gap-2 mt-0.5">
-                          <span className="text-[10px] text-[#536B83]">
+                          <span className="text-[10px] text-[#64748B]">
                             {Math.round((lesson.duration_seconds || 1800) / 60)} min
                           </span>
                           {lesson.materials && lesson.materials.length > 0 && (
-                            <span className="text-[9px] font-semibold text-[#176FC1] bg-[#176FC1]/10 px-1.5 py-0.2 rounded">
+                            <span className="text-[9px] font-bold text-[#9C7316] bg-[#C99E32]/10 px-1.5 py-0.2 rounded border border-[#C99E32]/20">
                               {lesson.materials.length} PDF
                             </span>
                           )}
@@ -432,23 +432,23 @@ export default function LearningView({
       <main className="flex-1 flex flex-col overflow-hidden">
         {/* Banner de matrícula si el usuario no está matriculado */}
         {!hasCourseAccess && (
-          <div className="bg-gradient-to-r from-[#E9A83A]/10 via-[#176FC1]/5 to-transparent border-b border-[#E9A83A]/30 px-6 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
-            <div className="flex items-center gap-2 text-[#142D49] font-medium">
-              <Lock className="w-4 h-4 text-[#E9A83A] shrink-0" />
+          <div className="bg-gradient-to-r from-[#C99E32]/15 via-[#0038DF]/5 to-transparent border-b border-[#C99E32]/40 px-6 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+            <div className="flex items-center gap-2 text-[#1E293B] font-medium">
+              <Lock className="w-4 h-4 text-[#C99E32] shrink-0" />
               <span>
-                Acceso exclusivo para estudiantes matriculados. La inscripción a este curso es activada únicamente de forma manual por un Administrador.
+                Acceso exclusivo para estudiantes matriculados. La inscripción a este curso es gestionada conforme a tu postulación.
               </span>
             </div>
             {!isAuthenticated ? (
               <button
                 onClick={() => onOpenAuth?.()}
-                className="px-4 py-1.5 rounded-lg bg-[#176FC1] hover:bg-[#142D49] text-white font-semibold text-xs shadow-xs transition-colors shrink-0"
+                className="btn-gold-cta btn-gold-pill px-4 py-1.5 text-xs font-bold cursor-pointer shrink-0"
               >
                 Iniciar Sesión
               </button>
             ) : (
-              <span className="px-3 py-1 rounded-full bg-[#E9A83A]/15 text-[#E9A83A] border border-[#E9A83A]/30 font-semibold text-[11px] shrink-0">
-                Requiere activación del Administrador
+              <span className="px-3 py-1 rounded-full bg-[#C99E32]/15 text-[#9C7316] border border-[#C99E32]/30 font-bold text-[11px] shrink-0">
+                Requiere activación de matrícula
               </span>
             )}
           </div>
@@ -457,34 +457,34 @@ export default function LearningView({
         {/* Video Player Area */}
         <div className="p-4 sm:p-6 pb-0">
           {isCurrentLessonLocked ? (
-            <div className="relative bg-white aspect-video w-full rounded-2xl flex flex-col items-center justify-center p-6 text-center border border-[#E5EDF5] shadow-sm">
-              <div className="w-16 h-16 rounded-2xl bg-[#E9A83A]/10 text-[#E9A83A] border border-[#E9A83A]/25 flex items-center justify-center mb-4">
+            <div className="relative bg-white aspect-video w-full rounded-2xl flex flex-col items-center justify-center p-6 text-center border-2 border-[#C99E32]/40 shadow-sm">
+              <div className="w-16 h-16 rounded-2xl bg-[#C99E32]/15 text-[#C99E32] border border-[#C99E32]/30 flex items-center justify-center mb-4">
                 <Lock className="w-8 h-8" />
               </div>
-              <h3 className="font-display font-bold text-lg text-[#142D49] mb-2">
+              <h3 className="font-display font-extrabold text-lg text-[#0038DF] mb-2">
                 Curso exclusivo para estudiantes matriculados
               </h3>
-              <p className="text-xs text-[#536B83] max-w-md mb-5 leading-relaxed">
-                Para acceder a las videoclases, guías PDF descargables, simulacros y certificado de{' '}
-                <strong className="text-[#142D49]">{course.title}</strong>, un Administrador de Legado Docente debe activar tu matrícula manualmente en el sistema.
+              <p className="text-xs text-[#64748B] max-w-md mb-5 leading-relaxed">
+                Para acceder a las videoclases, guías descargables, simulacros y certificación de{' '}
+                <strong className="text-[#0038DF]">{course.title}</strong>, accede con tu cuenta autorizada.
               </p>
               {!isAuthenticated ? (
                 <button
                   onClick={() => onOpenAuth?.()}
-                  className="px-6 py-3 rounded-xl bg-[#176FC1] hover:bg-[#142D49] text-white font-semibold text-xs shadow-md shadow-[#176FC1]/20 transition-all"
+                  className="btn-gold-cta btn-gold-pill px-6 py-3 text-xs font-bold cursor-pointer"
                 >
                   Iniciar Sesión con mi Cuenta
                 </button>
               ) : (
                 <div className="flex flex-col sm:flex-row items-center gap-3">
-                  <div className="px-4 py-2.5 rounded-xl bg-[#F3F8FD] border border-[#E5EDF5] text-xs text-[#536B83]">
-                    Cuenta activa: <strong className="text-[#142D49]">{user?.email}</strong> · Sin matrícula en este curso
+                  <div className="px-4 py-2.5 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0] text-xs text-[#64748B]">
+                    Cuenta activa: <strong className="text-[#0038DF]">{user?.email}</strong>
                   </div>
                   <button
                     onClick={() => onNavigate('dashboard')}
-                    className="px-5 py-2.5 rounded-xl bg-[#176FC1] hover:bg-[#142D49] text-white font-semibold text-xs shadow-xs transition-colors"
+                    className="px-5 py-2.5 rounded-xl bg-[#0038DF] hover:bg-[#002299] text-white font-bold text-xs shadow-xs transition-colors cursor-pointer"
                   >
-                    Ir a Mis Cursos Matriculados
+                    Ir a Mi Aula Virtual
                   </button>
                 </div>
               )}
@@ -510,28 +510,28 @@ export default function LearningView({
             <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
               <div>
                 <div className="flex items-center gap-2 mb-2">
-                  <span className="text-xs font-semibold uppercase tracking-wider text-[#536B83]">
+                  <span className="text-xs font-semibold uppercase tracking-wider text-[#64748B]">
                     {activeModule?.title || 'Contenido'}
                   </span>
-                  <ChevronRight className="w-3 h-3 text-[#536B83]" />
-                  <span className="text-xs text-[#176FC1] font-semibold">
+                  <ChevronRight className="w-3 h-3 text-[#64748B]" />
+                  <span className="text-xs text-[#0038DF] font-bold">
                     Clase {activeLesson?.order_index || 1}
                   </span>
                 </div>
-                <h1 className="font-display font-bold text-2xl text-[#142D49]">
+                <h1 className="font-display font-extrabold text-2xl text-[#0038DF]">
                   {activeLesson?.title || course.title}
                 </h1>
-                <div className="flex flex-wrap items-center gap-4 mt-2 text-xs text-[#536B83]">
-                  <span className="flex items-center gap-1.5">
-                    <Clock className="w-3.5 h-3.5 text-[#39BDEB]" />
+                <div className="flex flex-wrap items-center gap-4 mt-2 text-xs text-[#64748B]">
+                  <span className="flex items-center gap-1.5 font-medium">
+                    <Clock className="w-3.5 h-3.5 text-[#C99E32]" />
                     {Math.round((activeLesson?.duration_seconds || 1800) / 60)} min
                   </span>
-                  <span className="flex items-center gap-1.5">
-                    <Star className="w-3.5 h-3.5 text-[#E9A83A] fill-[#E9A83A]" />
+                  <span className="flex items-center gap-1.5 font-medium">
+                    <Star className="w-3.5 h-3.5 text-[#C99E32] fill-[#C99E32]" />
                     4.9 calificación
                   </span>
-                  <span className="text-[#142D49] font-medium">
-                    Docente: {course.instructor_name || 'Dra. Elena Restrepo'}
+                  <span className="text-[#1E293B] font-bold">
+                    Docente: {course.instructor_name || 'Comité Académico Legado Docente'}
                   </span>
                 </div>
               </div>
@@ -539,23 +539,23 @@ export default function LearningView({
               <div className="flex items-center gap-2 shrink-0">
                 <button
                   onClick={() => setShowAI(!showAI)}
-                  className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold transition-all ${
+                  className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                     showAI
-                      ? 'bg-[#176FC1] text-white shadow-sm'
-                      : 'bg-white border border-[#E5EDF5] hover:border-[#176FC1]/50 text-[#142D49] shadow-xs'
+                      ? 'bg-[#0038DF] text-white shadow-sm'
+                      : 'bg-white border border-[#E2E8F0] hover:border-[#C99E32] text-[#0038DF] shadow-xs'
                   }`}
                 >
-                  <Brain className="w-4 h-4 text-[#39BDEB]" />
-                  <span>Tutor IA Pedagógico</span>
+                  <Brain className="w-4 h-4 text-[#C99E32]" />
+                  <span>Mentor Pedagógico IA</span>
                 </button>
 
                 {isEnrolled && (
                   <button
                     onClick={handleOpenCertificate}
                     disabled={issuingCert}
-                    className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-[#E9A83A]/10 hover:bg-[#E9A83A]/20 border border-[#E9A83A]/30 text-[#E9A83A] text-xs font-semibold transition-all shadow-xs"
+                    className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-[#C99E32]/15 hover:bg-[#C99E32]/25 border border-[#C99E32]/30 text-[#9C7316] text-xs font-bold transition-all shadow-xs cursor-pointer"
                   >
-                    <Award className="w-4 h-4" />
+                    <Award className="w-4 h-4 text-[#C99E32]" />
                     <span>Certificado</span>
                   </button>
                 )}
@@ -571,14 +571,14 @@ export default function LearningView({
                   exit={{ opacity: 0, height: 0 }}
                   className="overflow-hidden"
                 >
-                  <div className="p-6 rounded-2xl bg-white border border-[#E5EDF5] shadow-xs">
+                  <div className="p-6 rounded-2xl bg-white border-2 border-[#C99E32] shadow-md">
                     <div className="flex items-center gap-3 mb-4">
-                      <div className="w-8 h-8 rounded-xl bg-[#176FC1] flex items-center justify-center">
+                      <div className="w-8 h-8 rounded-xl bg-[#0038DF] flex items-center justify-center">
                         <Brain className="w-4 h-4 text-white" />
                       </div>
                       <div>
-                        <p className="text-xs font-bold text-[#142D49]">Tutor IA Maestro</p>
-                        <p className="text-[10px] text-[#176FC1] font-medium">
+                        <p className="text-xs font-bold text-[#0038DF]">Mentor Pedagógico IA</p>
+                        <p className="text-[10px] text-[#9C7316] font-bold">
                           Especialista en Concurso Docente CNSC y Decreto 1278
                         </p>
                       </div>
@@ -593,8 +593,8 @@ export default function LearningView({
                           <div
                             className={`max-w-[85%] px-4 py-2.5 rounded-2xl text-xs leading-relaxed ${
                               m.role === 'user'
-                                ? 'bg-[#176FC1] text-white rounded-br-sm shadow-xs'
-                                : 'bg-[#F3F8FD] border border-[#E5EDF5] text-[#142D49] rounded-bl-sm'
+                                ? 'bg-[#0038DF] text-white rounded-br-sm shadow-xs'
+                                : 'bg-[#F8FAFC] border border-[#E2E8F0] text-[#1E293B] rounded-bl-sm font-medium'
                             }`}
                           >
                             {m.text}
@@ -609,7 +609,7 @@ export default function LearningView({
                         <button
                           key={s}
                           onClick={() => sendAI(s)}
-                          className="text-[11px] px-3 py-1 rounded-lg bg-[#F3F8FD] hover:bg-[#176FC1]/10 text-[#536B83] hover:text-[#176FC1] border border-[#E5EDF5] hover:border-[#176FC1]/30 transition-colors"
+                          className="text-[11px] px-3 py-1 rounded-lg bg-[#F8FAFC] hover:bg-[#0038DF]/10 text-[#64748B] hover:text-[#0038DF] border border-[#E2E8F0] hover:border-[#C99E32] transition-colors cursor-pointer"
                         >
                           {s}
                         </button>
@@ -624,13 +624,13 @@ export default function LearningView({
                           if (e.key === 'Enter') sendAI()
                         }}
                         placeholder="Pregunta sobre esta lección o el Decreto 1278..."
-                        className="flex-1 px-4 py-2.5 rounded-xl bg-[#F3F8FD] border border-[#E5EDF5] focus:border-[#176FC1] focus:outline-none text-xs text-[#142D49] placeholder-[#536B83]"
+                        className="flex-1 px-4 py-2.5 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0] focus:border-[#0038DF] focus:outline-none text-xs text-[#1E293B] placeholder-[#64748B]"
                       />
                       <button
                         onClick={() => sendAI()}
-                        className="p-2.5 rounded-xl bg-[#176FC1] hover:bg-[#142D49] text-white transition-colors"
+                        className="p-2.5 rounded-xl bg-[#0038DF] hover:bg-[#002299] text-white transition-colors cursor-pointer"
                       >
-                        <Zap className="w-4 h-4 text-[#39BDEB]" />
+                        <Zap className="w-4 h-4 text-[#C99E32]" />
                       </button>
                     </div>
                   </div>
@@ -639,13 +639,13 @@ export default function LearningView({
             </AnimatePresence>
 
             {/* Materiales de estudio y descargas */}
-            <div className="p-6 rounded-2xl bg-white border border-[#E5EDF5] shadow-xs space-y-4">
+            <div className="p-6 rounded-2xl bg-white border border-[#E2E8F0] shadow-xs space-y-4">
               <div className="flex items-center justify-between">
-                <h3 className="font-display font-bold text-sm text-[#142D49] flex items-center gap-2">
-                  <FileText className="w-4 h-4 text-[#176FC1]" />
+                <h3 className="font-display font-extrabold text-sm text-[#0038DF] flex items-center gap-2">
+                  <FileText className="w-4 h-4 text-[#0038DF]" />
                   Materiales de Estudio y Guías Descargables del Curso
                 </h3>
-                <span className="text-[10px] font-semibold px-2.5 py-0.5 rounded-full bg-[#176FC1]/10 text-[#176FC1] border border-[#176FC1]/20">
+                <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-[#0038DF]/10 text-[#0038DF] border border-[#0038DF]/20">
                   {allCourseMaterials.length} recursos disponibles
                 </span>
               </div>
@@ -666,24 +666,24 @@ export default function LearningView({
                         key={mat.id}
                         className={`flex items-center justify-between p-3.5 rounded-xl border text-xs transition-all ${
                           isFromCurrentLesson
-                            ? 'bg-[#F3F8FD] border-[#176FC1]/40'
-                            : 'bg-white border-[#E5EDF5] hover:border-[#176FC1]/30'
+                            ? 'bg-[#F8FAFC] border-2 border-[#C99E32]'
+                            : 'bg-white border-[#E2E8F0] hover:border-[#0038DF]/30'
                         }`}
                       >
                         <div className="flex items-center gap-3 min-w-0">
-                          <div className="w-9 h-9 rounded-lg bg-[#176FC1]/10 text-[#176FC1] flex items-center justify-center shrink-0">
+                          <div className="w-9 h-9 rounded-lg bg-[#0038DF]/10 text-[#0038DF] flex items-center justify-center shrink-0">
                             <FileText className="w-4 h-4" />
                           </div>
                           <div className="min-w-0">
                             <div className="flex items-center gap-2">
-                              <p className="font-semibold text-[#142D49] truncate">{mat.title}</p>
+                              <p className="font-bold text-[#1E293B] truncate">{mat.title}</p>
                               {isFromCurrentLesson && (
-                                <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-[#176FC1]/15 text-[#176FC1] shrink-0">
+                                <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-[#0038DF]/10 text-[#0038DF] shrink-0 border border-[#0038DF]/20">
                                   Esta clase
                                 </span>
                               )}
                             </div>
-                            <span className="text-[10px] text-[#536B83] uppercase">
+                            <span className="text-[10px] text-[#64748B] uppercase font-mono">
                               {mat.file_type || 'PDF'} · {formatFileSize(mat.file_size)}
                               {mat.lessonTitle ? ` · ${mat.lessonTitle}` : ''}
                             </span>
@@ -691,7 +691,7 @@ export default function LearningView({
                         </div>
 
                         {isLocked ? (
-                          <div className="flex items-center gap-1.5 text-[11px] text-[#E9A83A] px-3 py-1.5 rounded-lg bg-[#E9A83A]/10 border border-[#E9A83A]/25">
+                          <div className="flex items-center gap-1.5 text-[11px] text-[#9C7316] px-3 py-1.5 rounded-lg bg-[#C99E32]/10 border border-[#C99E32]/25 font-bold">
                             <Lock className="w-3.5 h-3.5" />
                             <span>Solo matriculados</span>
                           </div>
@@ -699,7 +699,7 @@ export default function LearningView({
                           <button
                             onClick={() => handleDownloadMaterial(mat)}
                             disabled={downloadingMatId === mat.id}
-                            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-[#176FC1] hover:bg-[#142D49] text-white text-xs font-semibold transition-colors shrink-0 shadow-xs"
+                            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-[#0038DF] hover:bg-[#002299] text-white text-xs font-bold transition-colors shrink-0 shadow-xs cursor-pointer"
                           >
                             <Download className="w-3.5 h-3.5" />
                             <span>
@@ -712,18 +712,18 @@ export default function LearningView({
                   })}
                 </div>
               ) : (
-                <p className="text-xs text-[#536B83]">
+                <p className="text-xs text-[#64748B]">
                   Aún no hay materiales adjuntos en este curso.
                 </p>
               )}
             </div>
 
             {/* Descripción de la lección */}
-            <div className="p-6 rounded-2xl bg-white border border-[#E5EDF5] shadow-xs">
-              <h3 className="font-display font-bold text-sm text-[#142D49] mb-3">
+            <div className="p-6 rounded-2xl bg-white border border-[#E2E8F0] shadow-xs">
+              <h3 className="font-display font-extrabold text-sm text-[#0038DF] mb-3">
                 Síntesis Pedagógica de la Clase
               </h3>
-              <p className="text-xs sm:text-sm text-[#536B83] leading-relaxed">
+              <p className="text-xs sm:text-sm text-[#1E293B] leading-relaxed">
                 {activeLesson?.description ||
                   course.description ||
                   'En esta sesión profundizarás en los conceptos pedagógicos esenciales para tu labor docente.'}
@@ -731,16 +731,16 @@ export default function LearningView({
             </div>
 
             {/* Mis Apuntes de Clase */}
-            <div className="p-6 rounded-2xl bg-white border border-[#E5EDF5] shadow-xs space-y-3">
+            <div className="p-6 rounded-2xl bg-white border border-[#E2E8F0] shadow-xs space-y-3">
               <div className="flex items-center justify-between">
-                <h3 className="font-display font-bold text-sm text-[#142D49] flex items-center gap-2">
-                  <PenTool className="w-4 h-4 text-[#176FC1]" />
+                <h3 className="font-display font-extrabold text-sm text-[#0038DF] flex items-center gap-2">
+                  <PenTool className="w-4 h-4 text-[#0038DF]" />
                   Mis Apuntes Personales de esta Clase
                 </h3>
                 <button
                   type="button"
                   onClick={handleSaveNote}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#176FC1]/10 hover:bg-[#176FC1]/20 text-[#176FC1] text-xs font-semibold transition-colors"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#0038DF]/10 hover:bg-[#0038DF]/20 text-[#0038DF] text-xs font-bold transition-colors cursor-pointer"
                 >
                   <Save className="w-3.5 h-3.5" />
                   <span>{noteSaved ? '¡Apuntes guardados!' : 'Guardar apuntes'}</span>
@@ -750,8 +750,8 @@ export default function LearningView({
                 rows={3}
                 value={note}
                 onChange={(e) => setNote(e.target.value)}
-                placeholder="Escribe aquí tus ideas clave, artículos normativos o recordatorios para el examen..."
-                className="w-full p-3.5 rounded-xl bg-[#F3F8FD] border border-[#E5EDF5] focus:border-[#176FC1] text-xs text-[#142D49] outline-none resize-none leading-relaxed placeholder-[#536B83]"
+                placeholder="Escribe aquí tus ideas clave, artículos normativos o recordatorios para el concurso..."
+                className="w-full p-3.5 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0] focus:border-[#0038DF] text-xs text-[#1E293B] outline-none resize-none leading-relaxed placeholder-[#64748B]"
               />
             </div>
 
@@ -759,7 +759,7 @@ export default function LearningView({
             <div className="grid sm:grid-cols-2 gap-4">
               <button
                 onClick={handleMarkComplete}
-                className="w-full py-3.5 rounded-2xl bg-[#176FC1] hover:bg-[#142D49] text-white text-xs sm:text-sm font-bold shadow-md shadow-[#176FC1]/20 transition-all flex items-center justify-center gap-2"
+                className="btn-gold-cta btn-gold-banner py-3.5 px-6 text-xs sm:text-sm font-extrabold flex items-center justify-center gap-2 cursor-pointer shadow-md"
               >
                 <CheckCircle2 className="w-4 h-4" />
                 <span>
@@ -771,10 +771,10 @@ export default function LearningView({
 
               <button
                 onClick={() => onNavigate('exam')}
-                className="w-full py-3.5 rounded-2xl bg-white border border-[#E5EDF5] hover:border-[#176FC1] text-[#142D49] hover:text-[#176FC1] text-xs sm:text-sm font-bold transition-all shadow-xs flex items-center justify-center gap-2"
+                className="w-full py-3.5 rounded-2xl bg-white border-2 border-[#E2E8F0] hover:border-[#C99E32] text-[#0038DF] hover:text-[#002299] text-xs sm:text-sm font-extrabold transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer"
               >
-                <BookOpen className="w-4 h-4 text-[#176FC1]" />
-                <span>Practicar en Simulacro CNSC</span>
+                <BookOpen className="w-4 h-4 text-[#C99E32]" />
+                <span>Practicar en Simulador CNSC</span>
               </button>
             </div>
           </div>
@@ -784,44 +784,44 @@ export default function LearningView({
       {/* Modal de Certificado Oficial */}
       <AnimatePresence>
         {certModalOpen && issuedCert && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#142D49]/70 backdrop-blur-md">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md">
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="relative w-full max-w-2xl rounded-3xl bg-white border-2 border-[#E9A83A] shadow-2xl p-8 text-center space-y-6"
+              className="relative w-full max-w-2xl rounded-3xl bg-white border-2 border-[#C99E32] shadow-2xl p-8 text-center space-y-6"
             >
               <button
                 onClick={() => setCertModalOpen(false)}
-                className="absolute top-5 right-5 p-2 rounded-xl text-[#536B83] hover:text-[#142D49] hover:bg-[#F3F8FD] transition-colors"
+                className="absolute top-5 right-5 p-2 rounded-xl text-[#64748B] hover:text-[#1E293B] hover:bg-[#F8FAFC] transition-colors cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
 
-              <div className="w-16 h-16 rounded-2xl bg-[#E9A83A]/15 text-[#E9A83A] border border-[#E9A83A]/30 flex items-center justify-center mx-auto">
+              <div className="w-16 h-16 rounded-2xl bg-[#C99E32]/15 text-[#C99E32] border border-[#C99E32]/30 flex items-center justify-center mx-auto">
                 <Award className="w-9 h-9" />
               </div>
 
               <div className="space-y-1">
-                <p className="text-[11px] font-bold uppercase tracking-widest text-[#E9A83A]">
+                <p className="text-[11px] font-bold uppercase tracking-widest text-[#9C7316]">
                   Certificación Académica Verificada • Legado Docente Colombia
                 </p>
-                <h2 className="font-display font-bold text-2xl sm:text-3xl text-[#142D49]">
+                <h2 className="font-display font-extrabold text-2xl sm:text-3xl text-[#0038DF]">
                   Certificado de Formación Docente
                 </h2>
               </div>
 
-              <div className="p-6 rounded-2xl bg-[#F3F8FD] border border-[#E5EDF5] space-y-3">
-                <p className="text-xs text-[#536B83]">Se otorga el presente certificado a:</p>
-                <p className="font-display font-bold text-xl text-[#176FC1]">
-                  {profile?.full_name || user?.email || 'Docente Legado Docente'}
+              <div className="p-6 rounded-2xl bg-[#F8FAFC] border border-[#E2E8F0] space-y-3">
+                <p className="text-xs text-[#64748B]">Se otorga el presente certificado a:</p>
+                <p className="font-display font-bold text-xl text-[#0038DF]">
+                  {profile?.full_name || user?.email || 'Docente Aspirante'}
                 </p>
-                <p className="text-xs text-[#536B83]">
-                  Por cursar y aprobar satisfactoriamente el programa de actualización pedagógica:
+                <p className="text-xs text-[#64748B]">
+                  Por cursar y aprobar satisfactoriamente el programa de formación:
                 </p>
-                <p className="font-display font-bold text-base text-[#142D49]">{course.title}</p>
-                <div className="flex flex-wrap items-center justify-center gap-4 pt-2 text-[11px] text-[#536B83] font-mono">
-                  <span>Intensidad: {course.duration_hours || 48} horas</span>
+                <p className="font-display font-extrabold text-base text-[#1E293B]">{course.title}</p>
+                <div className="flex flex-wrap items-center justify-center gap-4 pt-2 text-[11px] text-[#64748B] font-mono">
+                  <span>Intensidad: {course.duration_hours || 140} horas</span>
                   <span>•</span>
                   <span>Código: {issuedCert.certificate_number}</span>
                   <span>•</span>
@@ -834,13 +834,13 @@ export default function LearningView({
               <div className="flex flex-col sm:flex-row gap-3 justify-center">
                 <button
                   onClick={() => window.print()}
-                  className="px-6 py-2.5 rounded-xl bg-[#E9A83A] hover:bg-[#d49428] text-white text-xs font-bold shadow-md flex items-center justify-center gap-2 transition-colors"
+                  className="btn-gold-cta btn-gold-pill px-6 py-2.5 text-xs font-bold flex items-center justify-center gap-2 cursor-pointer shadow-md"
                 >
                   <Printer className="w-4 h-4" /> Imprimir / Guardar como PDF
                 </button>
                 <button
                   onClick={() => setCertModalOpen(false)}
-                  className="px-6 py-2.5 rounded-xl bg-white border border-[#E5EDF5] text-xs font-semibold text-[#142D49] hover:bg-[#F3F8FD] transition-colors"
+                  className="px-6 py-2.5 rounded-xl bg-white border border-[#E2E8F0] text-xs font-bold text-[#1E293B] hover:bg-[#F8FAFC] transition-colors cursor-pointer"
                 >
                   Cerrar
                 </button>

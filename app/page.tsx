@@ -38,6 +38,7 @@ function MainApp() {
   const [authModalOpen, setAuthModalOpen] = useState(false)
   const [authModalMode, setAuthModalMode] = useState<'signin' | 'signup'>('signin')
   const [pendingViewAfterAuth, setPendingViewAfterAuth] = useState<View | null>(null)
+  const [dashboardTab, setDashboardTab] = useState<string>('dashboard')
   const [authErrorBanner, setAuthErrorBanner] = useState<string | null>(null)
   const [paymentNotice, setPaymentNotice] = useState<string | null>(null)
 
@@ -104,9 +105,24 @@ function MainApp() {
       return
     }
 
+    // Si el usuario ya está autenticado y pide ver cursos, no devolverlo al inicio público
+    // sino abrir directamente el Panel de Cursos dentro de su sesión en el Dashboard
+    if (v === 'courses' && isAuthenticated) {
+      setDashboardTab('courses')
+      setView('dashboard')
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+      return
+    }
+
     // Proteger sección de Dashboard si no está autenticado
-    if (v === 'dashboard' && !isAuthenticated) {
-      openAuth('signin', 'dashboard')
+    if (v === 'dashboard') {
+      if (!isAuthenticated) {
+        openAuth('signin', 'dashboard')
+        return
+      }
+      setDashboardTab('dashboard')
+      setView('dashboard')
+      window.scrollTo({ top: 0, behavior: 'smooth' })
       return
     }
 
@@ -122,9 +138,15 @@ function MainApp() {
 
   const handleAuthSuccess = () => {
     if (pendingViewAfterAuth) {
-      setView(pendingViewAfterAuth)
+      if (pendingViewAfterAuth === 'courses') {
+        setDashboardTab('courses')
+        setView('dashboard')
+      } else {
+        setView(pendingViewAfterAuth)
+      }
       setPendingViewAfterAuth(null)
     } else {
+      setDashboardTab('dashboard')
       setView('dashboard')
     }
   }
@@ -145,6 +167,7 @@ function MainApp() {
     return (
       <div className="min-h-screen bg-background text-foreground">
         <Dashboard
+          initialTab={dashboardTab}
           onNavigate={navigate}
           onOpenAuth={() => openAuth('signin')}
           onSelectCourse={handleSelectCourse}

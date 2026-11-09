@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   LayoutDashboard,
@@ -40,11 +40,13 @@ import {
   Tooltip,
 } from 'recharts'
 import { useAuth } from '@/hooks/use-auth'
+import { useCourses } from '@/hooks/use-courses'
 import { getUserEnrollments, EnrollmentWithCourse } from '@/services/enrollments'
 import { getUserGlobalProgress, UserGlobalProgress } from '@/services/progress'
 import { getUserCertificates, CertificateWithCourse } from '@/services/certificates'
 import { getAvatarUrl } from '@/lib/supabase/storage'
 import AIMentor from '@/components/ai-mentor'
+import DashboardCoursesPanel from '@/components/dashboard-courses-panel'
 import { getUserGamification } from '@/services/gamification'
 import { Badge, TopicPerformance, UserGamificationState } from '@/types/gamification'
 import Link from 'next/link'
@@ -53,13 +55,14 @@ interface DashboardProps {
   onNavigate: (view: string) => void
   onOpenAuth?: () => void
   onSelectCourse?: (slug: string) => void
+  initialTab?: string
 }
 
 const SIDEBAR_ITEMS = [
-  { icon: LayoutDashboard, label: 'Dashboard', view: 'dashboard' },
-  { icon: BookOpen, label: 'Explorar Catálogo', view: 'courses' },
-  { icon: Target, label: 'Simulacro CNSC', view: 'exam' },
-  { icon: Brain, label: 'Asistente IA', view: 'ai' },
+  { icon: LayoutDashboard, label: 'Mi Aula Virtual', view: 'dashboard' },
+  { icon: BookOpen, label: 'Mis Cursos y Módulos', view: 'courses' },
+  { icon: Target, label: 'Simulador CNSC', view: 'exam' },
+  { icon: Brain, label: 'Mentor Pedagógico IA', view: 'ai' },
   { icon: Award, label: 'Mis Certificados', view: 'achievements' },
   { icon: BarChart3, label: 'Analíticas', view: 'analytics' },
 ]
@@ -89,11 +92,23 @@ const ACHIEVEMENTS = [
   { icon: Trophy, label: 'Especialista en Evaluación MEN', color: 'text-violet-500 bg-violet-500/10' },
 ]
 
-export default function Dashboard({ onNavigate, onOpenAuth, onSelectCourse }: DashboardProps) {
-  const { user, profile, isAuthenticated, isDemo, role, signOut } = useAuth()
+export default function Dashboard({
+  onNavigate,
+  onOpenAuth,
+  onSelectCourse,
+  initialTab = 'dashboard',
+}: DashboardProps) {
+  const { user, profile, isAuthenticated, role, signOut } = useAuth()
+  const { courses: availableCourses } = useCourses()
   const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [activeView, setActiveView] = useState('dashboard')
+  const [activeView, setActiveView] = useState(initialTab)
   const [searchTerm, setSearchTerm] = useState('')
+
+  useEffect(() => {
+    if (initialTab) {
+      setActiveView(initialTab)
+    }
+  }, [initialTab])
 
   const [enrollments, setEnrollments] = useState<EnrollmentWithCourse[]>([])
   const [stats, setStats] = useState<UserGlobalProgress | null>(null)
@@ -115,61 +130,54 @@ export default function Dashboard({ onNavigate, onOpenAuth, onSelectCourse }: Da
     },
   ])
 
+  const loadDashboardData = useCallback(async () => {
+    if (!user) {
+      setLoading(false)
+      return
+    }
+
+    setLoading(true)
+    setError(null)
+
+    try {
+      const userId = user?.id || 'b5ccdb90-a6c0-4b99-add5-c93fac47ee84'
+      const [enrollRes, statsRes, certsRes] = await Promise.all([
+        getUserEnrollments(userId),
+        getUserGlobalProgress(userId),
+        getUserCertificates(userId),
+      ])
+
+      if (enrollRes.error) {
+        setError(enrollRes.error.message)
+      } else {
+        setEnrollments(enrollRes.data || [])
+      }
+
+      if (statsRes.data) {
+        setStats(statsRes.data)
+      }
+      if (certsRes.data) {
+        setCertificates(certsRes.data)
+      }
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Error al cargar dashboard'
+      setError(msg)
+    } finally {
+      setLoading(false)
+    }
+  }, [user])
+
   useEffect(() => {
-    let isMounted = true
-
-    async function loadDashboardData() {
-      if (!user) {
-        setLoading(false)
-        return
-      }
-
-      setLoading(true)
-      setError(null)
-
-      try {
-        const userId = user?.id || 'b5ccdb90-a6c0-4b99-add5-c93fac47ee84'
-        const [enrollRes, statsRes, certsRes] = await Promise.all([
-          getUserEnrollments(userId),
-          getUserGlobalProgress(userId),
-          getUserCertificates(userId),
-        ])
-
-        if (!isMounted) return
-
-        if (enrollRes.error) {
-          setError(enrollRes.error.message)
-        } else {
-          setEnrollments(enrollRes.data || [])
-        }
-
-        if (statsRes.data) {
-          setStats(statsRes.data)
-        }
-        if (certsRes.data) {
-          setCertificates(certsRes.data)
-        }
-      } catch (err: unknown) {
-        if (!isMounted) return
-        const msg = err instanceof Error ? err.message : 'Error al cargar dashboard'
-        setError(msg)
-      } finally {
-        if (isMounted) setLoading(false)
-      }
-    }
-
     loadDashboardData()
-
-    return () => {
-      isMounted = false
-    }
-  }, [user?.id])
+  }, [loadDashboardData])
 
   const navigate = (view: string) => {
     setActiveView(view)
     setSidebarOpen(false)
-    if (view === 'courses' || view === 'exam' || view === 'learning') {
-      onNavigate(view)
+    if (view === 'exam') {
+      onNavigate('exam')
+    } else if (view === 'learning') {
+      onNavigate('learning')
     }
   }
 
@@ -211,7 +219,7 @@ export default function Dashboard({ onNavigate, onOpenAuth, onSelectCourse }: Da
   })
 
   return (
-    <div className="flex h-screen bg-[#F3F8FD] text-[#142D49] overflow-hidden">
+    <div className="flex h-screen bg-[#F8FAFC] text-[#1E293B] overflow-hidden">
       {/* Sidebar */}
       <motion.aside
         initial={false}
@@ -221,12 +229,12 @@ export default function Dashboard({ onNavigate, onOpenAuth, onSelectCourse }: Da
               ? 0
               : -280,
         }}
-        className={`fixed lg:relative z-40 flex flex-col w-72 h-full bg-white border-r border-[#E5EDF5] transition-transform duration-300 lg:translate-x-0 ${
+        className={`fixed lg:relative z-40 flex flex-col w-72 h-full bg-white border-r border-[#E2E8F0] transition-transform duration-300 lg:translate-x-0 ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         }`}
       >
         {/* Logo */}
-        <div className="flex items-center justify-between px-6 py-5 border-b border-[#E5EDF5]">
+        <div className="flex items-center justify-between px-6 py-5 border-b border-[#E2E8F0]">
           <button onClick={() => onNavigate('home')} className="flex items-center gap-2.5 group">
             <div className="w-8 h-8 rounded-full overflow-hidden ring-1 ring-[#C99E32] shadow-2xs group-hover:scale-105 transition-all duration-300 shrink-0 bg-white p-0.5">
               <img src="/logo-icon.png" alt="Legado Docente" className="w-full h-full object-contain" />
@@ -235,14 +243,14 @@ export default function Dashboard({ onNavigate, onOpenAuth, onSelectCourse }: Da
           </button>
           <button
             onClick={() => setSidebarOpen(false)}
-            className="lg:hidden p-1.5 rounded-lg hover:bg-[#F3F8FD] text-[#536B83] transition-colors"
+            className="lg:hidden p-1.5 rounded-lg hover:bg-[#F8FAFC] text-[#64748B] transition-colors"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
 
         {/* User Card */}
-        <div className="px-6 py-5 border-b border-[#E5EDF5]">
+        <div className="px-6 py-5 border-b border-[#E2E8F0]">
           {isAuthenticated ? (
             <>
               <div className="flex items-center gap-3">
@@ -250,7 +258,7 @@ export default function Dashboard({ onNavigate, onOpenAuth, onSelectCourse }: Da
                   <img
                     src={userAvatar}
                     alt={displayName}
-                    className="w-10 h-10 rounded-2xl object-cover border border-[#E5EDF5]"
+                    className="w-10 h-10 rounded-2xl object-cover border border-[#E2E8F0]"
                   />
                 ) : (
                   <div className="w-10 h-10 rounded-2xl bg-[#0038DF] text-white flex items-center justify-center text-xs font-bold shrink-0">
@@ -308,13 +316,13 @@ export default function Dashboard({ onNavigate, onOpenAuth, onSelectCourse }: Da
           ))}
 
           {(role === 'instructor' || role === 'admin') && (
-            <div className="pt-4 mt-4 border-t border-[#E5EDF5] space-y-1.5">
-              <p className="px-4 text-[10px] font-bold uppercase tracking-wider text-[#536B83]">
+            <div className="pt-4 mt-4 border-t border-[#E2E8F0] space-y-1.5">
+              <p className="px-4 text-[10px] font-bold uppercase tracking-wider text-[#64748B]">
                 Gestión Académica
               </p>
               <Link
                 href="/teacher"
-                className="w-full flex items-center justify-between px-4 py-2.5 rounded-xl bg-[#176FC1]/10 text-[#176FC1] text-xs font-semibold hover:bg-[#176FC1]/15 transition-colors"
+                className="w-full flex items-center justify-between px-4 py-2.5 rounded-xl bg-[#0038DF]/10 text-[#0038DF] text-xs font-bold hover:bg-[#0038DF]/15 transition-colors"
               >
                 <span className="flex items-center gap-2">
                   <BookOpen className="w-4 h-4" /> Panel Docente
@@ -324,10 +332,10 @@ export default function Dashboard({ onNavigate, onOpenAuth, onSelectCourse }: Da
               {role === 'admin' && (
                 <Link
                   href="/admin"
-                  className="w-full flex items-center justify-between px-4 py-2.5 rounded-xl bg-[#142D49]/10 text-[#142D49] text-xs font-semibold hover:bg-[#142D49]/15 transition-colors"
+                  className="w-full flex items-center justify-between px-4 py-2.5 rounded-xl bg-[#002299]/10 text-[#002299] text-xs font-bold hover:bg-[#002299]/15 transition-colors"
                 >
                   <span className="flex items-center gap-2">
-                    <Shield className="w-4 h-4 text-[#176FC1]" /> Panel Superusuario
+                    <Shield className="w-4 h-4 text-[#0038DF]" /> Panel Superusuario
                   </span>
                   <ChevronRight className="w-3.5 h-3.5" />
                 </Link>
@@ -337,7 +345,7 @@ export default function Dashboard({ onNavigate, onOpenAuth, onSelectCourse }: Da
         </nav>
 
         {/* Bottom items */}
-        <div className="px-3 py-4 border-t border-[#E5EDF5] space-y-1">
+        <div className="px-3 py-4 border-t border-[#E2E8F0] space-y-1">
           {isAuthenticated && (
             <button
               onClick={async () => {
@@ -364,39 +372,59 @@ export default function Dashboard({ onNavigate, onOpenAuth, onSelectCourse }: Da
       {/* Main Container */}
       <main className="flex-1 flex flex-col h-full overflow-hidden">
         {/* Topbar */}
-        <header className="flex items-center justify-between px-6 py-4 border-b border-[#E5EDF5] bg-white/90 backdrop-blur-md shrink-0">
+        <header className="flex items-center justify-between px-6 py-4 border-b border-[#E2E8F0] bg-white/95 backdrop-blur-md shrink-0">
           <div className="flex items-center gap-4">
             <button
               onClick={() => setSidebarOpen(true)}
-              className="lg:hidden p-2 rounded-lg hover:bg-[#F3F8FD] text-[#142D49] transition-colors"
+              className="lg:hidden p-2 rounded-lg hover:bg-[#F8FAFC] text-[#1E293B] transition-colors"
             >
               <Menu className="w-5 h-5" />
             </button>
-            <div className="relative hidden md:block">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#536B83]" />
-              <input
-                type="text"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Filtrar mis cursos matriculados..."
-                className="pl-9 pr-4 py-2 rounded-xl bg-[#F3F8FD] border border-[#E5EDF5] focus:border-[#176FC1] focus:bg-white focus:outline-none text-xs text-[#142D49] placeholder-[#536B83] w-72 transition-all"
-              />
+            <div className="flex items-center gap-2">
+              <span className="px-3.5 py-1.5 rounded-full bg-[#0038DF]/10 border border-[#0038DF]/20 text-[#0038DF] text-xs font-bold uppercase tracking-wider hidden sm:inline-flex items-center gap-1.5 shadow-2xs">
+                <Sparkles className="w-3.5 h-3.5 text-[#C99E32]" />
+                {activeView === 'courses'
+                  ? 'Catálogo y Módulos Oficiales (140 Horas)'
+                  : activeView === 'ai'
+                  ? 'Mentor Pedagógico IA (Decreto 1278)'
+                  : activeView === 'achievements'
+                  ? 'Mis Certificados Verificables'
+                  : activeView === 'analytics'
+                  ? 'Analíticas de Competencias'
+                  : 'Mi Aula Virtual • Resumen General'}
+              </span>
             </div>
           </div>
           <div className="flex items-center gap-3">
+            {activeView !== 'courses' && (
+              <button
+                onClick={() => setActiveView('courses')}
+                className="px-3.5 py-1.5 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0] hover:border-[#C99E32] text-[#0038DF] text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-xs"
+              >
+                <BookOpen className="w-3.5 h-3.5 text-[#C99E32]" />
+                <span className="hidden md:inline">Ver Plan de 140h</span>
+              </button>
+            )}
+            <button
+              onClick={() => onNavigate('exam')}
+              className="px-3.5 py-1.5 rounded-xl bg-[#0038DF] hover:bg-[#002299] text-white text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-xs"
+            >
+              <Play className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Simulador CNSC</span>
+            </button>
             {isAuthenticated ? (
-              <div className="flex items-center gap-3">
-                <span className="text-xs font-semibold text-[#142D49] hidden sm:inline">
+              <div className="flex items-center gap-3 pl-2 border-l border-[#E2E8F0]">
+                <span className="text-xs font-bold text-[#1E293B] hidden md:inline">
                   {displayName}
                 </span>
-                <div className="w-9 h-9 rounded-2xl bg-[#176FC1] text-white flex items-center justify-center text-xs font-bold shadow-2xs">
+                <div className="w-9 h-9 rounded-2xl bg-[#0038DF] text-white flex items-center justify-center text-xs font-bold shadow-xs">
                   {userInitials}
                 </div>
               </div>
             ) : (
               <button
                 onClick={onOpenAuth}
-                className="px-4 py-2 rounded-xl bg-[#176FC1] text-white text-xs font-semibold shadow-xs"
+                className="btn-gold-cta btn-gold-pill px-4 py-2 text-xs font-bold cursor-pointer"
               >
                 Iniciar sesión
               </button>
@@ -407,551 +435,779 @@ export default function Dashboard({ onNavigate, onOpenAuth, onSelectCourse }: Da
         {/* Content */}
         <div className="flex-1 overflow-y-auto no-scrollbar">
           <div className="p-6 max-w-7xl mx-auto space-y-6">
-            {/* Welcome banner */}
-            <motion.div
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              className="flex items-start justify-between"
-            >
-              <div>
-                <h1 className="font-display font-bold text-2xl md:text-3xl text-[#142D49]">
-                  Bienvenido(a), {displayName} 👋
-                </h1>
-                <p className="text-[#536B83] mt-1 text-xs sm:text-sm font-medium">
-                  Tienes {enrollments.length} cursos activos con acceso completo a videoclases y guías pedagógicas descargables.
-                </p>
-              </div>
-              <button
-                onClick={() => onNavigate('exam')}
-                className="hidden md:flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#176FC1] hover:bg-[#142D49] text-white text-sm font-semibold shadow-md transition-all btn-magnetic"
-              >
-                <Play className="w-4 h-4" fill="currentColor" />
-                Simulacro CNSC
-              </button>
-            </motion.div>
-
-            {/* AI Mentor Companion Card */}
-            <motion.div
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-            >
-              <AIMentor
-                mood="happy"
-                variant="card"
-                message={`¡Hola de nuevo, ${displayName}! Tu evolución docente avanza con gran compromiso. Hoy tienes activa tu racha de estudio de ${gamification.streakDays} días consecutivos.`}
-                hint="Consejo del día: En las pruebas de juicio situacional docente, prioriza siempre el diálogo reflexivo, la mediación formativa y los derechos fundamentales de los estudiantes."
-              />
-            </motion.div>
-
-            {error && (
-              <div className="flex items-center justify-between p-4 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-500 text-xs">
-                <div className="flex items-center gap-2">
-                  <AlertCircle className="w-4 h-4" />
-                  <span>{error}</span>
-                </div>
-              </div>
-            )}
-
-            {/* KPI row */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-              {[
-                {
-                  icon: BookOpen,
-                  label: 'Cursos matriculados',
-                  value: `${enrollments.length} cursos`,
-                  sub: enrollments.length > 0 ? 'Con acceso completo' : 'Sin cursos aún',
-                  color: 'text-[#176FC1] bg-[#176FC1]/10',
-                },
-                {
-                  icon: CheckCircle2,
-                  label: 'Clases completadas',
-                  value: `${stats?.completedLessonsCount || 0}`,
-                  sub: 'Avance verificado',
-                  color: 'text-[#39BDEB] bg-[#39BDEB]/15',
-                },
-                {
-                  icon: Clock,
-                  label: 'Horas de estudio',
-                  value: `${stats?.totalStudyHours || 1.5}h`,
-                  sub: 'Tiempo registrado',
-                  color: 'text-[#142D49] bg-[#142D49]/10',
-                },
-                {
-                  icon: Award,
-                  label: 'Certificados emitidos',
-                  value: `${certificates.length}`,
-                  sub: 'Verificables con código',
-                  color: 'text-[#E9A83A] bg-[#E9A83A]/15',
-                },
-              ].map(({ icon: Icon, label, value, sub, color }, i) => (
+            <AnimatePresence mode="wait">
+              {activeView === 'courses' ? (
                 <motion.div
-                  key={label}
-                  initial={{ opacity: 0, y: 16 }}
+                  key="courses"
+                  initial={{ opacity: 0, y: 15 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: i * 0.07 }}
-                  className="p-5 rounded-2xl bg-white border border-[#E5EDF5] hover:border-[#176FC1]/30 transition-all card-lift shadow-xs hover:shadow-md"
+                  exit={{ opacity: 0, y: -15 }}
+                  transition={{ duration: 0.25 }}
                 >
-                  <div
-                    className={`w-9 h-9 rounded-xl ${color} flex items-center justify-center mb-3`}
-                  >
-                    <Icon className="w-4.5 h-4.5" strokeWidth={2} />
-                  </div>
-                  <p className="text-xs text-[#536B83] mb-1 font-medium">{label}</p>
-                  <p className="font-display font-bold text-xl text-[#142D49]">{value}</p>
-                  <p className="text-xs mt-1 text-[#536B83]">{sub}</p>
+                  <DashboardCoursesPanel
+                    enrollments={enrollments}
+                    availableCourses={availableCourses}
+                    userId={user?.id}
+                    userEmail={user?.email || undefined}
+                    userName={displayName}
+                    onSelectCourse={(slug) => {
+                      if (onSelectCourse) onSelectCourse(slug)
+                      else onNavigate('learning')
+                    }}
+                    onNavigateToExam={() => onNavigate('exam')}
+                    onRefreshEnrollments={loadDashboardData}
+                  />
                 </motion.div>
-              ))}
-            </div>
-
-            {/* Gamificación & Seguimiento del Progreso */}
-            <div className="grid lg:grid-cols-3 gap-6">
-              {/* Nivel y XP */}
-              <motion.div
-                initial={{ opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.15 }}
-                className="p-6 rounded-2xl bg-white border border-[#E5EDF5] shadow-xs space-y-4 flex flex-col justify-between"
-              >
-                <div>
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-[#176FC1]">
-                      Ruta de Maestría Pedagógica
-                    </span>
-                    <span className="flex items-center gap-1 text-xs font-bold text-[#E9A83A] bg-[#E9A83A]/10 px-2.5 py-0.5 rounded-full border border-[#E9A83A]/25">
-                      <Flame className="w-3.5 h-3.5 fill-[#E9A83A]" /> {gamification.streakDays} días
-                    </span>
-                  </div>
-
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="w-12 h-12 rounded-2xl bg-[#176FC1] flex items-center justify-center text-white shadow-xs">
-                      <Zap className="w-6 h-6" />
+              ) : activeView === 'ai' ? (
+                <motion.div
+                  key="ai"
+                  initial={{ opacity: 0, y: 15 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -15 }}
+                  transition={{ duration: 0.25 }}
+                  className="space-y-6"
+                >
+                  <div className="p-8 rounded-3xl bg-white border-2 border-[#C99E32] shadow-xl space-y-6">
+                    <div className="flex items-center justify-between pb-6 border-b border-[#E2E8F0]">
+                      <div className="flex items-center gap-3.5">
+                        <div className="w-12 h-12 rounded-2xl bg-[#0038DF] text-white flex items-center justify-center shadow-md">
+                          <Brain className="w-6 h-6" />
+                        </div>
+                        <div>
+                          <h2 className="title-h1 text-2xl font-extrabold text-[#0038DF]">
+                            Mentor Pedagógico Inteligente
+                          </h2>
+                          <p className="text-xs text-[#64748B] font-medium">
+                            Entrenado con las normas educativas colombianas: Ley 115, Decreto 1278, Decreto 1290 y casos CNSC
+                          </p>
+                        </div>
+                      </div>
+                      <div className="hidden sm:flex items-center gap-2">
+                        <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
+                        <span className="text-xs font-bold text-emerald-600">En línea y listo</span>
+                      </div>
                     </div>
+
                     <div>
-                      <h3 className="font-display font-bold text-lg text-[#142D49]">
-                        Nivel {gamification.level}: {gamification.levelTitle}
-                      </h3>
-                      <p className="text-xs text-[#536B83] font-medium">
-                        {gamification.xp} XP acumulados
+                      <p className="text-xs font-bold text-[#1E293B] mb-2.5 flex items-center gap-1.5">
+                        <Sparkles className="w-4 h-4 text-[#C99E32]" />
+                        Temas rápidos de consulta frecuente:
                       </p>
+                      <div className="flex flex-wrap gap-2">
+                        {[
+                          '¿Cómo responder casos de juicio situacional docente?',
+                          'Diferencia entre Jean Piaget y Lev Vygotsky para la prueba',
+                          '¿Qué exige el Decreto 1290 en el SIEE?',
+                          'Rutas y protocolos para situaciones Tipo I, II y III (Ley 1620)',
+                          '¿Cómo se aplican el DUA y el PIAR según el Decreto 1421?',
+                        ].map((prompt) => (
+                          <button
+                            key={prompt}
+                            onClick={() => setAiMessage(prompt)}
+                            className="text-xs px-3.5 py-1.5 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0] hover:border-[#C99E32] text-[#1E293B] hover:text-[#0038DF] font-semibold transition-all cursor-pointer text-left"
+                          >
+                            {prompt}
+                          </button>
+                        ))}
+                      </div>
                     </div>
-                  </div>
 
-                  <div className="space-y-1.5 mb-4">
-                    <div className="flex justify-between text-[11px] text-[#536B83] font-semibold">
-                      <span>Progreso hacia Nivel {Math.min(5, gamification.level + 1)}</span>
-                      <span>{gamification.xp} / {gamification.nextLevelXp} XP</span>
+                    <div className="rounded-2xl bg-[#F8FAFC] border border-[#E2E8F0] p-6 space-y-4 min-h-[340px] max-h-[500px] overflow-y-auto">
+                      {aiHistory.map((msg, i) => (
+                        <div
+                          key={i}
+                          className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                        >
+                          <div
+                            className={`max-w-[85%] px-5 py-3 rounded-2xl text-xs sm:text-sm leading-relaxed ${
+                              msg.role === 'user'
+                                ? 'bg-[#0038DF] text-white rounded-br-sm shadow-sm'
+                                : 'bg-white text-[#1E293B] border border-[#E2E8F0] rounded-bl-sm font-medium shadow-xs'
+                            }`}
+                          >
+                            {msg.text}
+                          </div>
+                        </div>
+                      ))}
                     </div>
-                    <div className="h-2.5 bg-[#F3F8FD] border border-[#E5EDF5] rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-gradient-to-r from-[#176FC1] to-[#39BDEB] rounded-full transition-all duration-1000"
-                        style={{
-                          width: `${Math.min(100, Math.round((gamification.xp / gamification.nextLevelXp) * 100))}%`,
+
+                    <div className="flex gap-3">
+                      <input
+                        value={aiMessage}
+                        onChange={(e) => setAiMessage(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') sendMessage()
                         }}
+                        placeholder="Escribe tu consulta pedagógica o pregunta sobre la prueba docente..."
+                        className="flex-1 px-5 py-3.5 rounded-2xl bg-[#F8FAFC] border border-[#E2E8F0] focus:border-[#0038DF] focus:bg-white focus:outline-none text-xs sm:text-sm text-[#1E293B] placeholder-[#94A3B8] transition-all"
                       />
-                    </div>
-                  </div>
-                </div>
-
-                <div>
-                  <p className="text-xs font-bold text-[#142D49] mb-2 flex items-center gap-1.5">
-                    <Award className="w-3.5 h-3.5 text-[#E9A83A]" /> Insignias Obtenidas ({gamification.unlockedBadges.length})
-                  </p>
-                  <div className="flex flex-wrap gap-2">
-                    {gamification.unlockedBadges.map((badge: Badge) => (
-                      <span
-                        key={badge.id}
-                        className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-[#F3F8FD] border border-[#E5EDF5] text-xs font-medium text-[#142D49]"
-                        title={badge.description}
-                      >
-                        <span>{badge.icon}</span>
-                        <span>{badge.title}</span>
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              </motion.div>
-
-              {/* Fortalezas y Recomendaciones (Seguimiento del Progreso) */}
-              <motion.div
-                initial={{ opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.18 }}
-                className="lg:col-span-2 p-6 rounded-2xl bg-white border border-[#E5EDF5] shadow-xs flex flex-col justify-between"
-              >
-                <div>
-                  <div className="flex items-center justify-between mb-4">
-                    <div>
-                      <h3 className="font-display font-bold text-[#142D49]">
-                        Seguimiento y Recomendaciones Pedagógicas
-                      </h3>
-                      <p className="text-xs text-[#536B83]">
-                        Análisis cognitivo de tus respuestas en simulacros y lecciones
-                      </p>
-                    </div>
-                    <button
-                      onClick={() => onNavigate('exam')}
-                      className="text-xs text-[#176FC1] font-bold hover:underline"
-                    >
-                      Nuevo Simulacro →
-                    </button>
-                  </div>
-
-                  <div className="grid sm:grid-cols-2 gap-4">
-                    {/* Fortalezas */}
-                    <div className="space-y-2">
-                      <span className="text-[11px] font-bold uppercase tracking-wider text-[#176FC1] flex items-center gap-1.5">
-                        <CheckCircle2 className="w-3.5 h-3.5" /> Tus Mayores Fortalezas
-                      </span>
-                      {gamification.strengths.map((str: TopicPerformance) => (
-                        <div key={str.topic} className="p-3 rounded-xl bg-[#F3F8FD] border border-[#E5EDF5]">
-                          <p className="text-xs font-bold text-[#142D49]">{str.topic}</p>
-                          <p className="text-[11px] text-[#536B83] mt-0.5">{str.suggestion}</p>
-                        </div>
-                      ))}
-                    </div>
-
-                    {/* Ejes por Reforzar */}
-                    <div className="space-y-2">
-                      <span className="text-[11px] font-bold uppercase tracking-wider text-[#E9A83A] flex items-center gap-1.5">
-                        <Lightbulb className="w-3.5 h-3.5" /> Ejes Clave por Reforzar
-                      </span>
-                      {gamification.improvementAreas.map((imp: TopicPerformance) => (
-                        <div key={imp.topic} className="p-3 rounded-xl bg-[#E9A83A]/8 border border-[#E9A83A]/25">
-                          <p className="text-xs font-bold text-[#142D49]">{imp.topic}</p>
-                          <p className="text-[11px] text-[#536B83] mt-0.5">{imp.suggestion}</p>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="pt-4 mt-3 border-t border-[#E5EDF5] flex flex-col sm:flex-row items-center justify-between gap-3">
-                  <span className="text-xs text-[#536B83] font-medium">
-                    💡 Recomendación activa: Módulo Decreto 1278 y Evaluación Formativa Decreto 1290
-                  </span>
-                  <button
-                    onClick={() => onNavigate('courses')}
-                    className="px-4 py-2 rounded-xl bg-[#176FC1] hover:bg-[#142D49] text-white text-xs font-bold shadow-xs transition-all"
-                  >
-                    Estudiar temas recomendados
-                  </button>
-                </div>
-              </motion.div>
-            </div>
-
-            {/* Courses + AI */}
-            <div className="grid lg:grid-cols-2 gap-6">
-              {/* Mis Cursos Matriculados */}
-              <motion.div
-                initial={{ opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}
-                className="p-6 rounded-2xl bg-white border border-[#E5EDF5] shadow-xs flex flex-col justify-between"
-              >
-                <div>
-                  <div className="flex items-center justify-between mb-5">
-                    <div>
-                      <h3 className="font-display font-bold text-[#142D49]">
-                        Mis Cursos Matriculados
-                      </h3>
-                      <p className="text-xs text-[#536B83]">
-                        Haz clic en cualquier curso para ver sus videoclases y descargar todo el material PDF
-                      </p>
-                    </div>
-                    <button
-                      onClick={() => onNavigate('courses')}
-                      className="text-xs text-[#176FC1] font-bold hover:underline shrink-0"
-                    >
-                      Catálogo →
-                    </button>
-                  </div>
-
-                  {loading ? (
-                    <div className="py-8 text-center text-xs text-[#536B83]">
-                      Cargando tus cursos...
-                    </div>
-                  ) : filteredEnrollments.length === 0 ? (
-                    <div className="text-center py-8 px-4 rounded-xl bg-[#F3F8FD] border border-dashed border-[#E5EDF5] space-y-2">
-                      <BookOpen className="w-8 h-8 text-[#E9A83A] mx-auto mb-1" />
-                      <p className="text-xs font-bold text-[#142D49]">
-                        Aún no tienes cursos matriculados
-                      </p>
-                      <p className="text-[11px] text-[#536B83] max-w-md mx-auto leading-relaxed">
-                        La inscripción a los programas de Legado Docente es activada por pasarela de pago o manualmente por un Administrador (<span className="text-[#142D49] font-mono">{user?.email}</span>).
-                      </p>
                       <button
-                        onClick={() => onNavigate('courses')}
-                        className="mt-2 px-4 py-2 rounded-xl bg-white border border-[#E5EDF5] hover:border-[#176FC1] text-[#142D49] text-xs font-bold shadow-xs"
+                        onClick={sendMessage}
+                        className="btn-gold-cta btn-gold-pill px-6 py-3.5 text-xs sm:text-sm font-extrabold flex items-center gap-2 cursor-pointer"
                       >
-                        Ver catálogo informativo
+                        <Zap className="w-4 h-4" />
+                        <span>Consultar</span>
                       </button>
                     </div>
-                  ) : (
-                    <div className="space-y-3">
-                      {filteredEnrollments.map((enr) => {
-                        const c = enr.course
-                        if (!c) return null
-                        return (
+                  </div>
+                </motion.div>
+              ) : activeView === 'achievements' ? (
+                <motion.div
+                  key="achievements"
+                  initial={{ opacity: 0, y: 15 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -15 }}
+                  transition={{ duration: 0.25 }}
+                  className="space-y-6"
+                >
+                  <div className="p-8 rounded-3xl bg-white border-2 border-[#C99E32] shadow-xl space-y-6">
+                    <div className="flex items-center justify-between pb-6 border-b border-[#E2E8F0]">
+                      <div>
+                        <span className="eyebrow-white-pill mb-2">RECONOCIMIENTO OFICIAL</span>
+                        <h2 className="title-h1 text-2xl font-extrabold text-[#0038DF]">
+                          Tus Certificados y Reconocimientos
+                        </h2>
+                        <p className="text-xs text-[#64748B] font-medium">
+                          Certificaciones verificables emitidas con código de registro único de Legado Docente
+                        </p>
+                      </div>
+                      <div className="w-12 h-12 rounded-2xl bg-gold-metallic text-[#1A1A1A] flex items-center justify-center font-bold shadow-md">
+                        <Award className="w-6 h-6" />
+                      </div>
+                    </div>
+
+                    {certificates.length === 0 ? (
+                      <div className="text-center py-12 px-6 rounded-2xl bg-[#F8FAFC] border border-dashed border-[#E2E8F0] space-y-3">
+                        <Award className="w-12 h-12 text-[#C99E32] mx-auto" />
+                        <h4 className="font-extrabold text-[#0038DF] text-base">
+                          Aún no has emitido certificados
+                        </h4>
+                        <p className="text-xs text-[#1E293B] max-w-md mx-auto">
+                          Completa el 100% de las lecciones del curso de 140 horas o supera un simulacro oficial para generar tu diploma oficial verificable.
+                        </p>
+                        <button
+                          onClick={() => setActiveView('courses')}
+                          className="btn-gold-cta btn-gold-pill px-6 py-2.5 text-xs font-bold inline-flex items-center gap-2 cursor-pointer mt-2"
+                        >
+                          <BookOpen className="w-3.5 h-3.5" />
+                          <span>Ir al Plan de 140 Horas</span>
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="grid sm:grid-cols-2 gap-4">
+                        {certificates.map((cert) => (
                           <div
-                            key={enr.id}
-                            onClick={() => {
-                              if (onSelectCourse) onSelectCourse(c.slug)
-                              else onNavigate('learning')
-                            }}
-                            className="group flex items-center gap-4 p-4 rounded-2xl bg-white hover:bg-[#F3F8FD] border border-[#E5EDF5] hover:border-[#176FC1]/50 transition-all cursor-pointer shadow-2xs"
+                            key={cert.id}
+                            className="p-5 rounded-2xl bg-[#F8FAFC] border-2 border-[#C99E32] hover:shadow-lg flex items-center justify-between gap-4 transition-all"
                           >
-                            <div className="w-11 h-11 rounded-xl bg-[#176FC1] text-white flex items-center justify-center shrink-0 shadow-xs">
-                              <BookOpen className="w-5 h-5 text-white" strokeWidth={1.8} />
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center gap-2">
-                                <span className="text-[10px] font-bold uppercase text-[#176FC1]">
-                                  {c.category || 'Pedagogía'}
-                                </span>
-                                <span className="text-[10px] px-2 py-0.5 rounded-md bg-[#39BDEB]/15 text-[#142D49] font-bold border border-[#39BDEB]/30">
-                                  Matriculado
-                                </span>
+                            <div className="flex items-center gap-3.5 min-w-0">
+                              <div className="w-12 h-12 rounded-xl bg-gold-metallic text-[#1A1A1A] flex items-center justify-center shrink-0 shadow-sm">
+                                <Award className="w-6 h-6" />
                               </div>
-                              <p className="text-sm font-bold text-[#142D49] truncate mt-0.5">
-                                {c.title}
-                              </p>
-                              <p className="text-[11px] text-[#536B83] mt-0.5">
-                                {c.duration_hours || 48} horas · Videos + Guías PDF descargables
-                              </p>
+                              <div className="min-w-0">
+                                <p className="text-sm font-extrabold text-[#0038DF] truncate">
+                                  {cert.course?.title || 'Certificación de Formación Docente'}
+                                </p>
+                                <p className="text-xs font-mono font-bold text-[#9C7316] mt-0.5">
+                                  Código: {cert.certificate_number}
+                                </p>
+                                <p className="text-[11px] text-[#64748B]">
+                                  Emitido: {new Date(cert.issued_at).toLocaleDateString('es-CO')}
+                                </p>
+                              </div>
                             </div>
-                            <div className="flex items-center gap-1.5 shrink-0">
-                              <span className="text-xs font-bold text-[#176FC1]">Entrar al Aula</span>
-                              <ChevronRight className="w-4 h-4 text-[#176FC1] group-hover:translate-x-0.5 transition-transform" />
+                            <button
+                              onClick={() => setSelectedCert(cert)}
+                              className="px-4 py-2 rounded-xl bg-[#0038DF] hover:bg-[#002299] text-white text-xs font-bold shrink-0 shadow-xs cursor-pointer"
+                            >
+                              Ver Diploma
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    <div className="pt-6 border-t border-[#E2E8F0]">
+                      <h3 className="font-extrabold text-sm text-[#0038DF] uppercase tracking-wider mb-4 flex items-center gap-2">
+                        <Flame className="w-4 h-4 text-[#C99E32]" />
+                        Insignias de Maestría Docente ({gamification.unlockedBadges.length})
+                      </h3>
+                      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                        {gamification.unlockedBadges.map((badge: Badge) => (
+                          <div
+                            key={badge.id}
+                            className="p-4 rounded-2xl bg-[#F8FAFC] border border-[#E2E8F0] flex items-center gap-3"
+                          >
+                            <span className="text-2xl p-2 rounded-xl bg-white border border-[#E2E8F0] shadow-2xs">
+                              {badge.icon}
+                            </span>
+                            <div>
+                              <p className="text-xs font-bold text-[#1E293B]">{badge.title}</p>
+                              <p className="text-[11px] text-[#64748B] line-clamp-1">{badge.description}</p>
+                              <span className="text-[10px] font-mono text-[#0038DF] font-bold">+{badge.xpReward} XP</span>
                             </div>
                           </div>
-                        )
-                      })}
-                    </div>
-                  )}
-                </div>
-              </motion.div>
-
-              {/* Asistente IA */}
-              <motion.div
-                initial={{ opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.25 }}
-                className="flex flex-col p-6 rounded-2xl bg-white border border-[#E5EDF5] shadow-xs"
-              >
-                <div className="flex items-center gap-3 mb-5">
-                  <div className="w-9 h-9 rounded-xl bg-[#142D49] text-white flex items-center justify-center shadow-xs">
-                    <Brain className="w-5 h-5" strokeWidth={1.8} />
-                  </div>
-                  <div>
-                    <h3 className="font-display font-bold text-[#142D49]">
-                      Asistente Pedagógico IA
-                    </h3>
-                    <div className="flex items-center gap-1.5 mt-0.5">
-                      <span className="w-2 h-2 rounded-full bg-[#176FC1] animate-pulse" />
-                      <span className="text-xs text-[#176FC1] font-semibold">
-                        Alineado al Estatuto Docente 1278
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex-1 space-y-3 overflow-y-auto no-scrollbar max-h-48 mb-4">
-                  {aiHistory.map((msg, i) => (
-                    <div
-                      key={i}
-                      className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
-                    >
-                      <div
-                        className={`max-w-[85%] px-4 py-2.5 rounded-2xl text-xs leading-relaxed ${
-                          msg.role === 'user'
-                            ? 'bg-[#176FC1] text-white rounded-br-sm'
-                            : 'bg-[#F3F8FD] text-[#142D49] border border-[#E5EDF5] rounded-bl-sm font-medium'
-                        }`}
-                      >
-                        {msg.text}
+                        ))}
                       </div>
                     </div>
-                  ))}
-                </div>
-
-                <div className="flex gap-2">
-                  <input
-                    value={aiMessage}
-                    onChange={(e) => setAiMessage(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') sendMessage()
-                    }}
-                    placeholder="Pregunta sobre Piaget, Vygotsky, Decreto 1278 o 1290..."
-                    className="flex-1 px-4 py-2 rounded-xl bg-[#F3F8FD] border border-[#E5EDF5] focus:border-[#176FC1] focus:bg-white focus:outline-none text-xs text-[#142D49] placeholder-[#536B83] transition-all"
-                  />
-                  <button
-                    onClick={sendMessage}
-                    className="p-2.5 rounded-xl bg-[#176FC1] hover:bg-[#142D49] text-white shadow-xs"
-                  >
-                    <Zap className="w-4 h-4" />
-                  </button>
-                </div>
-              </motion.div>
-            </div>
-
-            {/* Certificados y Analíticas */}
-            <div className="grid lg:grid-cols-3 gap-6">
-              {/* Progress chart */}
-              <motion.div
-                initial={{ opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 }}
-                className="lg:col-span-2 p-6 rounded-2xl bg-white border border-[#E5EDF5] shadow-xs"
-              >
-                <div className="flex items-center justify-between mb-5">
-                  <div>
-                    <h3 className="font-display font-bold text-[#142D49]">
-                      Evolución de rendimiento
-                    </h3>
-                    <p className="text-xs text-[#536B83] mt-0.5 font-medium">
-                      Puntuaciones de estudio y práctica CNSC
-                    </p>
                   </div>
-                  <div className="flex items-center gap-1.5 text-xs text-[#176FC1] font-bold bg-[#176FC1]/10 px-2.5 py-1 rounded-full border border-[#176FC1]/20">
-                    <TrendingUp className="w-4 h-4 text-[#176FC1]" />
-                    +27 pts
-                  </div>
-                </div>
-                <div className="h-48">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart
-                      data={PROGRESS_DATA}
-                      margin={{ top: 4, right: 4, bottom: 0, left: -20 }}
-                    >
-                      <defs>
-                        <linearGradient id="scoreGrad" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="#176FC1" stopOpacity={0.25} />
-                          <stop offset="95%" stopColor="#39BDEB" stopOpacity={0.02} />
-                        </linearGradient>
-                      </defs>
-                      <XAxis
-                        dataKey="day"
-                        tick={{ fontSize: 12, fill: '#536B83' }}
-                        axisLine={false}
-                        tickLine={false}
-                      />
-                      <Tooltip
-                        contentStyle={{
-                          background: '#FFFFFF',
-                          border: '1px solid #E5EDF5',
-                          borderRadius: '12px',
-                          fontSize: 12,
-                          color: '#142D49',
-                          boxShadow: '0 4px 12px rgba(20,45,73,0.08)',
-                        }}
-                        labelStyle={{ color: '#142D49', fontWeight: 600 }}
-                        itemStyle={{ color: '#176FC1' }}
-                      />
-                      <Area
-                        type="monotone"
-                        dataKey="score"
-                        stroke="#176FC1"
-                        strokeWidth={2.5}
-                        fill="url(#scoreGrad)"
-                        dot={false}
-                      />
-                    </AreaChart>
-                  </ResponsiveContainer>
-                </div>
-              </motion.div>
-
-              {/* Radar */}
-              <motion.div
-                initial={{ opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.35 }}
-                className="p-6 rounded-2xl bg-white border border-[#E5EDF5] shadow-xs"
-              >
-                <h3 className="font-display font-bold text-[#142D49] mb-1">
-                  Radar de competencias
-                </h3>
-                <p className="text-xs text-[#536B83] mb-4 font-medium">Alineación con el Decreto 1278</p>
-                <div className="h-48">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <RadarChart data={RADAR_DATA}>
-                      <PolarGrid stroke="#E5EDF5" />
-                      <PolarAngleAxis
-                        dataKey="subject"
-                        tick={{ fontSize: 10, fill: '#536B83' }}
-                      />
-                      <Radar
-                        dataKey="A"
-                        stroke="#176FC1"
-                        fill="#176FC1"
-                        fillOpacity={0.2}
-                        strokeWidth={2}
-                      />
-                    </RadarChart>
-                  </ResponsiveContainer>
-                </div>
-              </motion.div>
-            </div>
-
-            {/* Certificados y Logros */}
-            <motion.div
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
-              className="p-6 rounded-2xl bg-white border border-[#E5EDF5] shadow-xs space-y-4"
-            >
-              <div className="flex items-center justify-between">
-                <h3 className="font-display font-bold text-[#142D49]">
-                  Certificados Oficiales y Logros Académicos
-                </h3>
-              </div>
-
-              {certificates.length > 0 && (
-                <div className="grid sm:grid-cols-2 gap-4">
-                  {certificates.map((cert) => (
-                    <div
-                      key={cert.id}
-                      className="p-4 rounded-2xl bg-[#F3F8FD] border border-[#E5EDF5] hover:border-[#E9A83A]/50 flex items-center justify-between gap-3 transition-colors"
-                    >
-                      <div className="flex items-center gap-3 min-w-0">
-                        <div className="w-10 h-10 rounded-xl bg-[#E9A83A]/15 text-[#E9A83A] flex items-center justify-center shrink-0">
-                          <Award className="w-5 h-5" />
+                </motion.div>
+              ) : activeView === 'analytics' ? (
+                <motion.div
+                  key="analytics"
+                  initial={{ opacity: 0, y: 15 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -15 }}
+                  transition={{ duration: 0.25 }}
+                  className="space-y-6"
+                >
+                  <div className="grid lg:grid-cols-3 gap-6">
+                    <div className="lg:col-span-2 p-6 rounded-3xl bg-white border-2 border-[#C99E32] shadow-xl">
+                      <div className="flex items-center justify-between mb-5">
+                        <div>
+                          <span className="eyebrow-white-pill mb-1">MÉTRICAS COGNITIVAS</span>
+                          <h3 className="font-extrabold text-xl text-[#0038DF]">
+                            Evolución de Rendimiento
+                          </h3>
+                          <p className="text-xs text-[#64748B] mt-0.5">
+                            Puntuaciones estimadas en respuestas y simulacros CNSC
+                          </p>
                         </div>
-                        <div className="min-w-0">
-                          <p className="text-xs font-bold text-[#142D49] truncate">
-                            {cert.course?.title || 'Certificación Docente Legado Docente'}
-                          </p>
-                          <p className="text-[10px] font-mono text-amber-500">
-                            Código: {cert.certificate_number}
-                          </p>
+                        <div className="flex items-center gap-1.5 text-xs text-[#0038DF] font-extrabold bg-[#0038DF]/10 px-3 py-1.5 rounded-full border border-[#0038DF]/20">
+                          <TrendingUp className="w-4 h-4 text-[#0038DF]" />
+                          +27 pts promedio
                         </div>
                       </div>
+                      <div className="h-64">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <AreaChart
+                            data={PROGRESS_DATA}
+                            margin={{ top: 10, right: 10, bottom: 0, left: -20 }}
+                          >
+                            <defs>
+                              <linearGradient id="scoreGrad" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="5%" stopColor="#0038DF" stopOpacity={0.3} />
+                                <stop offset="95%" stopColor="#C99E32" stopOpacity={0.02} />
+                              </linearGradient>
+                            </defs>
+                            <XAxis
+                              dataKey="day"
+                              tick={{ fontSize: 12, fill: '#64748B' }}
+                              axisLine={false}
+                              tickLine={false}
+                            />
+                            <Tooltip
+                              contentStyle={{
+                                background: '#FFFFFF',
+                                border: '1.5px solid #C99E32',
+                                borderRadius: '14px',
+                                fontSize: 12,
+                                color: '#1E293B',
+                                boxShadow: '0 8px 24px rgba(0, 56, 223, 0.12)',
+                              }}
+                              labelStyle={{ color: '#0038DF', fontWeight: 700 }}
+                              itemStyle={{ color: '#0038DF' }}
+                            />
+                            <Area
+                              type="monotone"
+                              dataKey="score"
+                              stroke="#0038DF"
+                              strokeWidth={3}
+                              fill="url(#scoreGrad)"
+                              dot={{ stroke: '#C99E32', strokeWidth: 2, r: 4, fill: '#FFFFFF' }}
+                            />
+                          </AreaChart>
+                        </ResponsiveContainer>
+                      </div>
+                    </div>
+
+                    <div className="p-6 rounded-3xl bg-white border border-[#E2E8F0] shadow-sm">
+                      <h3 className="font-extrabold text-lg text-[#0038DF] mb-1">
+                        Radar de Competencias
+                      </h3>
+                      <p className="text-xs text-[#64748B] mb-4">Alineación con el Decreto 1278</p>
+                      <div className="h-64">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <RadarChart data={RADAR_DATA}>
+                            <PolarGrid stroke="#E2E8F0" />
+                            <PolarAngleAxis
+                              dataKey="subject"
+                              tick={{ fontSize: 11, fill: '#1E293B', fontWeight: 600 }}
+                            />
+                            <Radar
+                              dataKey="A"
+                              stroke="#0038DF"
+                              fill="#0038DF"
+                              fillOpacity={0.25}
+                              strokeWidth={2.5}
+                            />
+                          </RadarChart>
+                        </ResponsiveContainer>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              ) : (
+                /* VISTA DEFAULT: OVERVIEW */
+                <motion.div
+                  key="overview"
+                  initial={{ opacity: 0, y: 15 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -15 }}
+                  transition={{ duration: 0.25 }}
+                  className="space-y-6"
+                >
+                  {/* Welcome banner */}
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-6 rounded-3xl bg-white border border-[#E2E8F0] shadow-sm">
+                    <div>
+                      <div className="inline-flex items-center gap-2 mb-2">
+                        <span className="eyebrow-white-pill">
+                          <Sparkles className="w-3 h-3 text-[#C99E32]" />
+                          ESTUDIANTE ACTIVO
+                        </span>
+                      </div>
+                      <h1 className="font-display font-extrabold text-2xl md:text-3xl text-[#0038DF]">
+                        Bienvenido(a), {displayName} 👋
+                      </h1>
+                      <p className="text-[#1E293B] mt-1 text-xs sm:text-sm font-medium">
+                        Tienes acceso completo al <strong className="text-[#0038DF]">Curso Oficial de 140 Horas</strong>, simulacros cronometrados y guías pedagógicas descargables.
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-3 shrink-0">
                       <button
-                        onClick={() => setSelectedCert(cert)}
-                        className="px-3 py-1.5 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 text-amber-500 text-xs font-bold shrink-0 transition-colors"
+                        onClick={() => setActiveView('courses')}
+                        className="btn-gold-cta btn-gold-pill px-6 py-3 text-xs sm:text-sm font-extrabold flex items-center gap-2 shadow-sm cursor-pointer"
                       >
-                        Ver Certificado
+                        <BookOpen className="w-4 h-4" />
+                        <span>Ver Mis Módulos (140h)</span>
                       </button>
                     </div>
-                  ))}
-                </div>
-              )}
-
-              <div className="flex flex-wrap gap-3">
-                {ACHIEVEMENTS.map(({ icon: Icon, label, color }) => (
-                  <div
-                    key={label}
-                    className="flex items-center gap-2.5 px-4 py-3 rounded-2xl glass border border-border/60"
-                  >
-                    <div className={`w-8 h-8 rounded-xl ${color} flex items-center justify-center`}>
-                      <Icon className="w-4 h-4" strokeWidth={2} />
-                    </div>
-                    <span className="text-xs font-medium text-foreground">{label}</span>
                   </div>
-                ))}
-              </div>
-            </motion.div>
+
+                  {/* AI Mentor Companion Card */}
+                  <AIMentor
+                    mood="happy"
+                    variant="card"
+                    message={`¡Hola de nuevo, ${displayName}! Tu preparación para el concurso docente avanza con gran rigor. Hoy tienes activa tu racha de estudio de ${gamification.streakDays} días consecutivos.`}
+                    hint="Consejo clave: En las preguntas de juicio situacional docente, prioriza siempre el debido proceso formativo (Decreto 1290), el diálogo reflexivo y la corresponsabilidad con el PEI."
+                  />
+
+                  {error && (
+                    <div className="flex items-center justify-between p-4 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-500 text-xs">
+                      <div className="flex items-center gap-2">
+                        <AlertCircle className="w-4 h-4" />
+                        <span>{error}</span>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* KPI row */}
+                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                    {[
+                      {
+                        icon: BookOpen,
+                        label: 'Programa Oficial',
+                        value: '140 Horas',
+                        sub: '13 módulos certificados',
+                        color: 'text-[#0038DF] bg-[#0038DF]/10',
+                      },
+                      {
+                        icon: CheckCircle2,
+                        label: 'Clases completadas',
+                        value: `${stats?.completedLessonsCount || 0}`,
+                        sub: 'Avance verificado',
+                        color: 'text-[#0038DF] bg-[#0038DF]/10',
+                      },
+                      {
+                        icon: Clock,
+                        label: 'Horas registradas',
+                        value: `${stats?.totalStudyHours || 1.5}h`,
+                        sub: 'Tiempo en plataforma',
+                        color: 'text-[#1E293B] bg-[#F1F5F9]',
+                      },
+                      {
+                        icon: Award,
+                        label: 'Certificados emitidos',
+                        value: `${certificates.length}`,
+                        sub: 'Verificables con código',
+                        color: 'text-[#9C7316] bg-[#C99E32]/15',
+                      },
+                    ].map(({ icon: Icon, label, value, sub, color }, i) => (
+                      <motion.div
+                        key={label}
+                        initial={{ opacity: 0, y: 16 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.4, delay: i * 0.05 }}
+                        className="p-5 rounded-2xl bg-white border border-[#E2E8F0] hover:border-[#C99E32] transition-all shadow-xs hover:shadow-md"
+                      >
+                        <div className={`w-10 h-10 rounded-xl ${color} flex items-center justify-center mb-3`}>
+                          <Icon className="w-5 h-5" strokeWidth={2} />
+                        </div>
+                        <p className="text-xs text-[#64748B] mb-1 font-semibold">{label}</p>
+                        <p className="font-extrabold text-xl text-[#0038DF]">{value}</p>
+                        <p className="text-[11px] mt-1 text-[#64748B]">{sub}</p>
+                      </motion.div>
+                    ))}
+                  </div>
+
+                  {/* Gamificación & Seguimiento del Progreso */}
+                  <div className="grid lg:grid-cols-3 gap-6">
+                    {/* Nivel y XP */}
+                    <div className="p-6 rounded-2xl bg-white border border-[#E2E8F0] shadow-xs space-y-4 flex flex-col justify-between">
+                      <div>
+                        <div className="flex items-center justify-between mb-3">
+                          <span className="text-[11px] font-bold uppercase tracking-wider text-[#0038DF]">
+                            Ruta de Maestría Pedagógica
+                          </span>
+                          <span className="flex items-center gap-1 text-xs font-bold text-[#9C7316] bg-[#C99E32]/10 px-2.5 py-0.5 rounded-full border border-[#C99E32]/25">
+                            <Flame className="w-3.5 h-3.5 fill-[#C99E32]" /> {gamification.streakDays} días
+                          </span>
+                        </div>
+
+                        <div className="flex items-center gap-3 mb-4">
+                          <div className="w-12 h-12 rounded-2xl bg-[#0038DF] flex items-center justify-center text-white shadow-xs">
+                            <Zap className="w-6 h-6" />
+                          </div>
+                          <div>
+                            <h3 className="font-extrabold text-lg text-[#0038DF]">
+                              Nivel {gamification.level}: {gamification.levelTitle}
+                            </h3>
+                            <p className="text-xs text-[#64748B] font-medium">
+                              {gamification.xp} XP acumulados
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="space-y-1.5 mb-4">
+                          <div className="flex justify-between text-[11px] text-[#64748B] font-semibold">
+                            <span>Progreso hacia Nivel {Math.min(5, gamification.level + 1)}</span>
+                            <span>{gamification.xp} / {gamification.nextLevelXp} XP</span>
+                          </div>
+                          <div className="h-2.5 bg-[#F8FAFC] border border-[#E2E8F0] rounded-full overflow-hidden">
+                            <div
+                              className="h-full bg-gradient-to-r from-[#0038DF] to-[#C99E32] rounded-full transition-all duration-1000"
+                              style={{
+                                width: `${Math.min(100, Math.round((gamification.xp / gamification.nextLevelXp) * 100))}%`,
+                              }}
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      <div>
+                        <p className="text-xs font-bold text-[#1E293B] mb-2 flex items-center gap-1.5">
+                          <Award className="w-3.5 h-3.5 text-[#C99E32]" /> Insignias Obtenidas ({gamification.unlockedBadges.length})
+                        </p>
+                        <div className="flex flex-wrap gap-2">
+                          {gamification.unlockedBadges.map((badge: Badge) => (
+                            <span
+                              key={badge.id}
+                              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0] text-xs font-medium text-[#1E293B]"
+                              title={badge.description}
+                            >
+                              <span>{badge.icon}</span>
+                              <span>{badge.title}</span>
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Fortalezas y Recomendaciones */}
+                    <div className="lg:col-span-2 p-6 rounded-2xl bg-white border border-[#E2E8F0] shadow-xs flex flex-col justify-between">
+                      <div>
+                        <div className="flex items-center justify-between mb-4">
+                          <div>
+                            <h3 className="font-extrabold text-lg text-[#0038DF]">
+                              Diagnóstico Cognitivo y Recomendaciones
+                            </h3>
+                            <p className="text-xs text-[#64748B]">
+                              Análisis de tus respuestas según los ejes del Estatuto Docente 1278
+                            </p>
+                          </div>
+                          <button
+                            onClick={() => onNavigate('exam')}
+                            className="text-xs text-[#0038DF] font-bold hover:underline"
+                          >
+                            Nuevo Simulacro →
+                          </button>
+                        </div>
+
+                        <div className="grid sm:grid-cols-2 gap-4">
+                          {/* Fortalezas */}
+                          <div className="space-y-2">
+                            <span className="text-[11px] font-bold uppercase tracking-wider text-[#0038DF] flex items-center gap-1.5">
+                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> Tus Mayores Fortalezas
+                            </span>
+                            {gamification.strengths.map((str: TopicPerformance) => (
+                              <div key={str.topic} className="p-3 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0]">
+                                <p className="text-xs font-bold text-[#1E293B]">{str.topic}</p>
+                                <p className="text-[11px] text-[#64748B] mt-0.5">{str.suggestion}</p>
+                              </div>
+                            ))}
+                          </div>
+
+                          {/* Ejes por Reforzar */}
+                          <div className="space-y-2">
+                            <span className="text-[11px] font-bold uppercase tracking-wider text-[#9C7316] flex items-center gap-1.5">
+                              <Lightbulb className="w-3.5 h-3.5 text-[#C99E32]" /> Ejes Clave por Reforzar
+                            </span>
+                            {gamification.improvementAreas.map((imp: TopicPerformance) => (
+                              <div key={imp.topic} className="p-3 rounded-xl bg-[#C99E32]/8 border border-[#C99E32]/25">
+                                <p className="text-xs font-bold text-[#1E293B]">{imp.topic}</p>
+                                <p className="text-[11px] text-[#64748B] mt-0.5">{imp.suggestion}</p>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="pt-4 mt-3 border-t border-[#E2E8F0] flex flex-col sm:flex-row items-center justify-between gap-3">
+                        <span className="text-xs text-[#64748B] font-medium">
+                          💡 Módulo clave sugerido hoy: Módulo 1 (Decreto Ley 1278) y Módulo 6 (Decreto 1290)
+                        </span>
+                        <button
+                          onClick={() => setActiveView('courses')}
+                          className="px-4 py-2 rounded-xl bg-[#0038DF] hover:bg-[#002299] text-white text-xs font-bold shadow-xs transition-all cursor-pointer"
+                        >
+                          Ir al Plan de 140 Horas
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Cursos Matriculados + Mini Asistente IA */}
+                  <div className="grid lg:grid-cols-2 gap-6">
+                    {/* Mis Cursos Matriculados */}
+                    <div className="p-6 rounded-2xl bg-white border border-[#E2E8F0] shadow-xs flex flex-col justify-between">
+                      <div>
+                        <div className="flex items-center justify-between mb-5">
+                          <div>
+                            <h3 className="font-extrabold text-lg text-[#0038DF]">
+                              Mis Cursos y Acceso a Clases
+                            </h3>
+                            <p className="text-xs text-[#64748B]">
+                              Accede al contenido, lecciones en video y material complementario
+                            </p>
+                          </div>
+                          <button
+                            onClick={() => setActiveView('courses')}
+                            className="text-xs text-[#0038DF] font-bold hover:underline shrink-0"
+                          >
+                            Ver Todo el Plan →
+                          </button>
+                        </div>
+
+                        {loading ? (
+                          <div className="py-8 text-center text-xs text-[#64748B]">
+                            Cargando tus cursos...
+                          </div>
+                        ) : filteredEnrollments.length === 0 ? (
+                          <div className="text-center py-8 px-4 rounded-xl bg-[#F8FAFC] border border-dashed border-[#E2E8F0] space-y-2">
+                            <BookOpen className="w-8 h-8 text-[#C99E32] mx-auto mb-1" />
+                            <p className="text-xs font-bold text-[#1E293B]">
+                              Plan Oficial de 140 Horas Disponible
+                            </p>
+                            <p className="text-[11px] text-[#64748B] max-w-md mx-auto leading-relaxed">
+                              Accede a los 13 módulos temáticos y bancos de simulacros para tu preparación docente.
+                            </p>
+                            <button
+                              onClick={() => setActiveView('courses')}
+                              className="btn-gold-cta btn-gold-pill px-6 py-2 text-xs font-bold cursor-pointer mt-2"
+                            >
+                              Explorar Módulos de 140h
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="space-y-3">
+                            {filteredEnrollments.map((enr) => {
+                              const c = enr.course
+                              if (!c) return null
+                              return (
+                                <div
+                                  key={enr.id}
+                                  onClick={() => {
+                                    if (onSelectCourse) onSelectCourse(c.slug)
+                                    else onNavigate('learning')
+                                  }}
+                                  className="group flex items-center gap-4 p-4 rounded-2xl bg-white hover:bg-[#F8FAFC] border-2 border-[#E2E8F0] hover:border-[#C99E32] transition-all cursor-pointer shadow-xs"
+                                >
+                                  <div className="w-12 h-12 rounded-xl bg-[#0038DF] text-white flex items-center justify-center shrink-0 shadow-sm">
+                                    <BookOpen className="w-6 h-6 text-white" />
+                                  </div>
+                                  <div className="flex-1 min-w-0">
+                                    <div className="flex items-center gap-2">
+                                      <span className="text-[10px] font-extrabold uppercase text-[#0038DF]">
+                                        {c.category || 'Concurso Docente'}
+                                      </span>
+                                      <span className="text-[10px] px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 font-bold border border-emerald-200">
+                                        Activo
+                                      </span>
+                                    </div>
+                                    <p className="text-sm font-extrabold text-[#1E293B] truncate mt-0.5">
+                                      {c.title}
+                                    </p>
+                                    <p className="text-[11px] text-[#64748B] mt-0.5">
+                                      {c.duration_hours || 140} horas · 13 Módulos + Guías PDF
+                                    </p>
+                                  </div>
+                                  <div className="flex items-center gap-1 shrink-0">
+                                    <span className="text-xs font-bold text-[#0038DF]">Entrar</span>
+                                    <ChevronRight className="w-4 h-4 text-[#0038DF] group-hover:translate-x-1 transition-transform" />
+                                  </div>
+                                </div>
+                              )
+                            })}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Mini Asistente IA */}
+                    <div className="flex flex-col p-6 rounded-2xl bg-white border border-[#E2E8F0] shadow-xs">
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className="w-10 h-10 rounded-xl bg-[#0038DF] text-white flex items-center justify-center shadow-xs">
+                          <Brain className="w-5 h-5" />
+                        </div>
+                        <div>
+                          <h3 className="font-extrabold text-lg text-[#0038DF]">
+                            Asistente Pedagógico IA
+                          </h3>
+                          <div className="flex items-center gap-1.5">
+                            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                            <span className="text-xs text-emerald-600 font-semibold">
+                              Alineado al Estatuto Docente 1278
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex-1 space-y-2.5 overflow-y-auto no-scrollbar max-h-48 mb-4">
+                        {aiHistory.slice(-3).map((msg, i) => (
+                          <div
+                            key={i}
+                            className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                          >
+                            <div
+                              className={`max-w-[85%] px-4 py-2 rounded-2xl text-xs leading-relaxed ${
+                                msg.role === 'user'
+                                  ? 'bg-[#0038DF] text-white rounded-br-sm'
+                                  : 'bg-[#F8FAFC] text-[#1E293B] border border-[#E2E8F0] rounded-bl-sm font-medium'
+                              }`}
+                            >
+                              {msg.text}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+
+                      <div className="flex gap-2">
+                        <input
+                          value={aiMessage}
+                          onChange={(e) => setAiMessage(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') sendMessage()
+                          }}
+                          placeholder="Pregunta sobre Piaget, Decreto 1278 o 1290..."
+                          className="flex-1 px-4 py-2 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0] focus:border-[#0038DF] focus:bg-white focus:outline-none text-xs text-[#1E293B] placeholder-[#94A3B8] transition-all"
+                        />
+                        <button
+                          onClick={sendMessage}
+                          className="p-2.5 rounded-xl bg-[#0038DF] hover:bg-[#002299] text-white shadow-xs cursor-pointer"
+                        >
+                          <Zap className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Certificados y Analíticas Overview */}
+                  <div className="grid lg:grid-cols-3 gap-6">
+                    <div className="lg:col-span-2 p-6 rounded-2xl bg-white border border-[#E2E8F0] shadow-xs">
+                      <div className="flex items-center justify-between mb-5">
+                        <div>
+                          <h3 className="font-extrabold text-lg text-[#0038DF]">
+                            Evolución de Rendimiento
+                          </h3>
+                          <p className="text-xs text-[#64748B]">
+                            Puntaje acumulado en casos situacionales
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-1.5 text-xs text-[#0038DF] font-bold bg-[#0038DF]/10 px-2.5 py-1 rounded-full border border-[#0038DF]/20">
+                          <TrendingUp className="w-4 h-4" />
+                          +27 pts
+                        </div>
+                      </div>
+                      <div className="h-48">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <AreaChart
+                            data={PROGRESS_DATA}
+                            margin={{ top: 4, right: 4, bottom: 0, left: -20 }}
+                          >
+                            <defs>
+                              <linearGradient id="scoreGradOverview" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="5%" stopColor="#0038DF" stopOpacity={0.25} />
+                                <stop offset="95%" stopColor="#C99E32" stopOpacity={0.02} />
+                              </linearGradient>
+                            </defs>
+                            <XAxis
+                              dataKey="day"
+                              tick={{ fontSize: 12, fill: '#64748B' }}
+                              axisLine={false}
+                              tickLine={false}
+                            />
+                            <Tooltip
+                              contentStyle={{
+                                background: '#FFFFFF',
+                                border: '1px solid #E2E8F0',
+                                borderRadius: '12px',
+                                fontSize: 12,
+                                color: '#1E293B',
+                              }}
+                              labelStyle={{ color: '#0038DF', fontWeight: 700 }}
+                              itemStyle={{ color: '#0038DF' }}
+                            />
+                            <Area
+                              type="monotone"
+                              dataKey="score"
+                              stroke="#0038DF"
+                              strokeWidth={2.5}
+                              fill="url(#scoreGradOverview)"
+                              dot={false}
+                            />
+                          </AreaChart>
+                        </ResponsiveContainer>
+                      </div>
+                    </div>
+
+                    <div className="p-6 rounded-2xl bg-white border border-[#E2E8F0] shadow-xs">
+                      <h3 className="font-extrabold text-lg text-[#0038DF] mb-1">
+                        Radar de Competencias
+                      </h3>
+                      <p className="text-xs text-[#64748B] mb-4">Alineación con el Decreto 1278</p>
+                      <div className="h-48">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <RadarChart data={RADAR_DATA}>
+                            <PolarGrid stroke="#E2E8F0" />
+                            <PolarAngleAxis
+                              dataKey="subject"
+                              tick={{ fontSize: 10, fill: '#64748B' }}
+                            />
+                            <Radar
+                              dataKey="A"
+                              stroke="#0038DF"
+                              fill="#0038DF"
+                              fillOpacity={0.2}
+                              strokeWidth={2}
+                            />
+                          </RadarChart>
+                        </ResponsiveContainer>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         </div>
       </main>
