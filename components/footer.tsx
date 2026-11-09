@@ -15,45 +15,48 @@ interface FooterProps {
 
 export default function Footer({ onNavigate }: FooterProps) {
   return (
-    <footer className="border-t border-[#E5EDF5] bg-white text-[#142D49]">
+    <footer className="border-t border-[#E2E8F0] bg-white text-[#1E293B]">
+      {/* Línea sutil dorada superior */}
+      <div className="w-full h-1 bg-gradient-to-r from-[#9C7316] via-[#E6C565] to-[#8F6812]" />
+
       <div className="max-w-7xl mx-auto px-6 lg:px-8 py-16">
         <div className="grid grid-cols-2 md:grid-cols-5 gap-10 mb-16">
           {/* Brand */}
           <div className="col-span-2 md:col-span-1">
-            <button onClick={() => onNavigate('home')} className="flex items-center gap-2.5 mb-4 group text-left">
-              <div className="w-9 h-9 rounded-xl overflow-hidden ring-1 ring-[#E5EDF5] shadow-xs group-hover:scale-105 transition-all duration-300 shrink-0 bg-white p-0.5">
+            <button onClick={() => onNavigate('home')} className="flex items-center gap-2.5 mb-4 group text-left cursor-pointer">
+              <div className="w-9 h-9 rounded-full overflow-hidden ring-1 ring-[#C99E32] shadow-xs group-hover:scale-105 transition-all duration-300 shrink-0 bg-white p-0.5">
                 <img src="/logo-icon.png" alt="Legado Docente Logo" className="w-full h-full object-contain" />
               </div>
               <div>
-                <span className="font-bold font-display text-base text-[#0045E6] block leading-none">
+                <span className="font-extrabold font-display text-base text-[#0038DF] block leading-none">
                   LEGADO DOCENTE
                 </span>
-                <span className="text-[10px] text-[#536B83] italic tracking-tight">
+                <span className="text-[10px] text-[#9C7316] italic tracking-tight font-medium mt-0.5 block">
                   «Aprende, comparte, deja huella»
                 </span>
               </div>
             </button>
-            <p className="text-sm text-[#536B83] leading-relaxed mb-4">
-              La plataforma de preparación integral para el concurso docente y ascenso escalafonario en Colombia.
+            <p className="text-sm text-[#1E293B]/80 leading-relaxed mb-4">
+              La plataforma institucional de preparación integral para el concurso docente y ascenso escalafonario en Colombia.
             </p>
             <div className="mb-5 flex flex-col gap-1.5">
               <a
                 href="/legado-icon.png"
                 download="legado-docente-icono.png"
-                className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#E5A83B] hover:text-[#C89228] transition-colors"
+                className="inline-flex items-center gap-1.5 text-xs font-bold text-[#9C7316] hover:text-[#C99E32] transition-colors"
                 title="Descargar isotipo circular oficial en alta resolución"
               >
                 <span>Descargar Isotipo Circular (HD)</span>
-                <span className="text-[10px] bg-[#E5A83B]/10 px-1.5 py-0.5 rounded-full font-mono text-[#E5A83B]">PNG</span>
+                <span className="text-[10px] bg-gold-metallic text-[#1A1A1A] px-1.5 py-0.5 rounded-full font-mono font-bold">PNG</span>
               </a>
               <a
                 href="/legado-logo-full.png"
                 download="legado-docente-logo-completo.png"
-                className="inline-flex items-center gap-1.5 text-xs font-medium text-[#536B83] hover:text-[#0045E6] transition-colors"
+                className="inline-flex items-center gap-1.5 text-xs font-bold text-[#0038DF] hover:text-[#002299] transition-colors"
                 title="Descargar logotipo completo oficial"
               >
                 <span>Logo Oficial Completo</span>
-                <span className="text-[10px] bg-[#F3F8FD] px-1.5 py-0.5 rounded-full font-mono text-[#536B83] border border-[#E5EDF5]">PNG</span>
+                <span className="text-[10px] bg-[#F1F5F9] px-1.5 py-0.5 rounded-full font-mono text-[#0038DF] border border-[#E2E8F0]">PNG</span>
               </a>
             </div>
             <div className="flex gap-2.5">
@@ -61,7 +64,7 @@ export default function Footer({ onNavigate }: FooterProps) {
                 <a
                   key={i}
                   href="#"
-                  className="w-9 h-9 rounded-xl bg-[#F3F8FD] border border-[#E5EDF5] flex items-center justify-center text-[#536B83] hover:text-[#176FC1] hover:border-[#176FC1]/40 transition-all shadow-2xs"
+                  className="w-9 h-9 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0] flex items-center justify-center text-[#64748B] hover:text-[#0038DF] hover:border-[#C99E32] transition-all shadow-2xs"
                   aria-label="Social link"
                 >
                   <Icon className="w-4 h-4" />
@@ -73,13 +76,13 @@ export default function Footer({ onNavigate }: FooterProps) {
           {/* Links */}
           {Object.entries(LINKS).map(([cat, links]) => (
             <div key={cat}>
-              <p className="text-xs font-bold text-[#142D49] uppercase tracking-widest mb-4">{cat}</p>
+              <p className="text-xs font-extrabold text-[#0038DF] uppercase tracking-widest mb-4">{cat}</p>
               <ul className="space-y-2.5">
                 {links.map((link) => {
                   const href = link === 'Privacidad' ? '/privacy' : link === 'Términos' ? '/terms' : '#'
                   return (
                     <li key={link}>
-                      <a href={href} className="text-sm text-[#536B83] hover:text-[#176FC1] transition-colors font-medium">
+                      <a href={href} className="text-sm text-[#1E293B]/80 hover:text-[#0038DF] transition-colors font-medium">
                         {link}
                       </a>
                     </li>
@@ -90,12 +93,12 @@ export default function Footer({ onNavigate }: FooterProps) {
           ))}
         </div>
 
-        <div className="flex flex-col md:flex-row items-center justify-between gap-4 pt-8 border-t border-[#E5EDF5]">
-          <p className="text-xs text-[#536B83]">
-            © 2026 Maestro Technologies SAS. Bogotá, Colombia. Todos los derechos reservados.
+        <div className="flex flex-col md:flex-row items-center justify-between gap-4 pt-8 border-t border-[#E2E8F0]">
+          <p className="text-xs text-[#64748B]">
+            © 2026 Legado Docente SAS. Bogotá, Colombia. Todos los derechos reservados.
           </p>
-          <p className="text-xs text-[#536B83]">
-            Construido con dedicación para los docentes de Colombia 🇨🇴
+          <p className="text-xs text-[#64748B]">
+            Construido con prestigio y método para los docentes de Colombia 🇨🇴
           </p>
         </div>
       </div>

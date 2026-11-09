@@ -21,7 +21,7 @@ export default function CoursesView({ onSelectCourse, onNavigate }: CoursesViewP
   })
 
   return (
-    <div className="min-h-screen bg-[#F3F8FD] py-24 px-6">
+    <div className="min-h-screen bg-white py-24 px-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <motion.div
@@ -29,22 +29,24 @@ export default function CoursesView({ onSelectCourse, onNavigate }: CoursesViewP
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-12"
         >
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#176FC1]/10 border border-[#176FC1]/20 text-[#176FC1] text-sm font-semibold mb-4">
-            <Sparkles className="w-4 h-4 text-[#39BDEB]" />
-            Catálogo de Formación Docente
+          <div className="mb-4">
+            <span className="eyebrow-white-pill shadow-xs">
+              <Sparkles className="w-3.5 h-3.5 text-[#C99E32]" />
+              Catálogo Oficial de Formación Docente
+            </span>
           </div>
-          <h1 className="font-display font-bold text-4xl sm:text-5xl md:text-6xl text-[#142D49] mb-4">
-            Cursos diseñados para <br />
-            <span className="bg-gradient-to-r from-[#176FC1] via-[#39BDEB] to-[#176FC1] bg-clip-text text-transparent">transformar tu carrera</span>
+          <h1 className="title-h1 text-4xl sm:text-5xl md:text-6xl font-extrabold text-[#0038DF] mb-3">
+            Programa Integral de 140 Horas
           </h1>
-          <p className="text-[#536B83] text-base sm:text-lg max-w-2xl mx-auto">
-            Legado Docente «Aprende, comparte, deja huella» — Formación rigurosa de 140 horas alineada con la CNSC, el Decreto 1278 y las guías de orientación oficiales.
+          <div className="gold-divider mx-auto mb-6" />
+          <p className="text-[#1E293B] text-base sm:text-lg max-w-2xl mx-auto leading-relaxed">
+            Legado Docente «Aprende, comparte, deja huella» — Formación rigurosa estructurada en Aptitudes Básicas, Conocimientos Pedagógicos y Componente Disciplinar conforme al Decreto 1278 y la CNSC.
           </p>
 
           {isDemo && (
-            <div className="mt-4 inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#E9A83A]/10 border border-[#E9A83A]/30 text-[#E9A83A] text-xs font-medium">
+            <div className="mt-4 inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#E6C565]/15 border border-[#C99E32] text-[#9C7316] text-xs font-bold">
               <span>Modo Demostración</span>
-              <span className="text-[#536B83]">— Conecta Supabase en .env.local para ver datos reales</span>
+              <span className="text-[#1E293B]">— Conecta Supabase en .env.local para ver datos reales</span>
             </div>
           )}
         </motion.div>
@@ -55,10 +57,10 @@ export default function CoursesView({ onSelectCourse, onNavigate }: CoursesViewP
             <button
               key={cat}
               onClick={() => setSelectedCategory(cat)}
-              className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all ${
+              className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${
                 selectedCategory === cat
-                  ? 'bg-[#176FC1] text-white shadow-sm'
-                  : 'bg-white border border-[#E5EDF5] text-[#536B83] hover:text-[#142D49] hover:bg-[#F3F8FD] hover:border-[#176FC1]/30'
+                  ? 'bg-[#0038DF] text-white shadow-sm'
+                  : 'bg-white border border-[#E2E8F0] text-[#1E293B] hover:text-[#0038DF] hover:border-[#C99E32]'
               }`}
             >
               {cat}
@@ -137,66 +139,61 @@ export default function CoursesView({ onSelectCourse, onNavigate }: CoursesViewP
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, delay: i * 0.08 }}
                 onClick={() => onSelectCourse(course.slug)}
-                className="group p-6 rounded-3xl bg-white border border-[#E5EDF5] hover:border-[#176FC1]/50 shadow-xs hover:shadow-md transition-all duration-300 cursor-pointer flex flex-col justify-between"
+                className="group p-6 rounded-2xl bg-white border-2 border-[#C99E32] hover:shadow-xl transition-all duration-300 cursor-pointer flex flex-col justify-between"
               >
                 <div>
                   {/* Thumbnail / Header */}
-                  <div className="relative aspect-video rounded-2xl overflow-hidden mb-5 bg-[#F3F8FD] border border-[#E5EDF5] flex items-center justify-center">
+                  <div className="relative aspect-video rounded-xl overflow-hidden mb-5 bg-[#F8FAFC] border border-[#E2E8F0] flex items-center justify-center">
                     <img
                       src={getThumbnailUrl(course.thumbnail_url)}
                       alt={course.title}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       onError={(e) => {
-                        // fallback visual gracefully if image fails
                         ;(e.target as HTMLElement).style.display = 'none'
                       }}
                     />
                     <div className="absolute top-3 left-3 flex gap-2">
                       {course.category && (
-                        <span className="text-[10px] uppercase font-bold tracking-wider px-2.5 py-1 rounded-lg bg-[#142D49]/90 backdrop-blur-md text-white border border-[#142D49]">
+                        <span className="text-[10px] uppercase font-bold tracking-wider px-2.5 py-1 rounded-lg bg-[#0038DF] text-white">
                           {course.category}
                         </span>
                       )}
-                      {course.level && (
-                        <span className="text-[10px] font-semibold px-2 py-1 rounded-lg bg-[#39BDEB]/15 backdrop-blur-md text-[#176FC1] border border-[#39BDEB]/30">
-                          {course.level}
-                        </span>
-                      )}
+                      <span className="text-[10px] font-bold px-2.5 py-1 rounded-lg bg-gold-metallic text-[#1A1A1A] shadow-xs">
+                        140 Horas Certificables
+                      </span>
                     </div>
                   </div>
 
                   {/* Title & Description */}
-                  <h3 className="font-display font-bold text-lg text-[#142D49] mb-2 group-hover:text-[#176FC1] transition-colors line-clamp-2">
+                  <h3 className="title-h1 text-xl font-extrabold text-[#0038DF] mb-2 group-hover:text-[#002299] transition-colors line-clamp-2">
                     {course.title}
                   </h3>
-                  <p className="text-xs text-[#536B83] leading-relaxed mb-4 line-clamp-2">
+                  <p className="text-xs text-[#1E293B]/80 leading-relaxed mb-4 line-clamp-3">
                     {course.short_description || course.description}
                   </p>
                 </div>
 
                 {/* Footer details */}
-                <div className="pt-4 border-t border-[#E5EDF5]">
-                  <div className="flex items-center justify-between text-xs text-[#536B83] mb-4">
+                <div className="pt-4 border-t border-[#E2E8F0]">
+                  <div className="flex items-center justify-between text-xs text-[#64748B] mb-4">
                     {course.instructor_name && (
-                      <span className="truncate max-w-[150px] font-medium text-[#142D49]">
+                      <span className="truncate max-w-[180px] font-bold text-[#1E293B]">
                         {course.instructor_name}
                       </span>
                     )}
-                    {course.duration_hours ? (
-                      <span className="flex items-center gap-1">
-                        <Clock className="w-3.5 h-3.5 text-[#39BDEB]" />
-                        {course.duration_hours}h estimadas
-                      </span>
-                    ) : null}
+                    <span className="flex items-center gap-1 font-bold text-[#9C7316]">
+                      <Clock className="w-3.5 h-3.5 text-[#C99E32]" />
+                      140 Horas
+                    </span>
                   </div>
 
                   <div className="flex items-center justify-between">
-                    <span className="font-display font-bold text-base text-[#142D49]">
+                    <span className="title-h1 text-base font-extrabold text-[#0038DF]">
                       {course.price === 0
-                        ? 'Gratis'
+                        ? 'Matrícula Abierta'
                         : `$${Number(course.price).toLocaleString('es-CO')} COP`}
                     </span>
-                    <span className="inline-flex items-center gap-1 text-xs font-bold text-[#176FC1] group-hover:text-[#142D49] group-hover:translate-x-1 transition-all">
+                    <span className="btn-gold-cta btn-gold-pill px-4 py-1.5 text-xs font-bold text-[#1A1A1A] inline-flex items-center gap-1">
                       Ver contenido <ArrowRight className="w-3.5 h-3.5" />
                     </span>
                   </div>

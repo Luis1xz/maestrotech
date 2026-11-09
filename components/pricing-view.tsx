@@ -92,7 +92,7 @@ export default function PricingView({ onNavigate }: PricingProps) {
   }
 
   return (
-    <div className="min-h-screen bg-[#F3F8FD] py-24 px-6">
+    <div className="min-h-screen bg-white py-24 px-6">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <motion.div
@@ -100,39 +100,38 @@ export default function PricingView({ onNavigate }: PricingProps) {
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-16"
         >
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-[#E5EDF5] text-[#176FC1] text-xs sm:text-sm font-semibold mb-6 shadow-2xs">
-            <Sparkles className="w-4 h-4 text-[#39BDEB]" />
-            Inversión en tu futuro profesional
+          <div className="mb-4">
+            <span className="eyebrow-white-pill shadow-xs">
+              <Sparkles className="w-4 h-4 text-[#C99E32]" />
+              Inversión en tu Futuro y Nombramiento
+            </span>
           </div>
-          <h1 className="font-display font-bold text-5xl md:text-6xl text-[#142D49] mb-4">
-            Impulsa tu
-            <br />
-            <span className="gradient-text">carrera docente</span>
+          <h1 className="title-h1 text-4xl sm:text-5xl md:text-6xl font-extrabold text-[#0038DF] mb-3">
+            Planes de Formación Docente
           </h1>
-          <p className="text-base sm:text-lg text-[#536B83] max-w-2xl mx-auto mb-8">
-            Prepárate con rigor metodológico, simulacros ilimitados y acompañamiento pedagógico permanente.
+          <div className="gold-divider mx-auto mb-6" />
+          <p className="text-base sm:text-lg text-[#1E293B] max-w-2xl mx-auto mb-8 leading-relaxed">
+            Prepárate con rigor metodológico, 140 horas de formación oficial y simulacros situacionales ilimitados tipo CNSC.
           </p>
 
           {/* Toggle */}
-          <div className="inline-flex items-center gap-2 p-1.5 rounded-2xl bg-white border border-[#E5EDF5] shadow-xs">
+          <div className="inline-flex items-center gap-2 p-1.5 rounded-2xl bg-[#F8FAFC] border border-[#E2E8F0] shadow-xs">
             <button
               onClick={() => setAnnual(false)}
-              className={`px-5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all ${
-                !annual ? 'bg-[#176FC1] text-white shadow-xs' : 'text-[#536B83] hover:text-[#142D49]'
+              className={`px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${
+                !annual ? 'bg-[#0038DF] text-white shadow-xs' : 'text-[#64748B] hover:text-[#0038DF]'
               }`}
             >
               Mensual
             </button>
             <button
               onClick={() => setAnnual(true)}
-              className={`px-5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center gap-2 ${
-                annual ? 'bg-[#176FC1] text-white shadow-xs' : 'text-[#536B83] hover:text-[#142D49]'
+              className={`px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-2 cursor-pointer ${
+                annual ? 'bg-[#0038DF] text-white shadow-xs' : 'text-[#64748B] hover:text-[#0038DF]'
               }`}
             >
               Anual
-              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                annual ? 'bg-white/20 text-white' : 'bg-[#E9A83A]/15 text-[#E9A83A]'
-              }`}>
+              <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-gold-metallic text-[#1A1A1A]">
                 -20%
               </span>
             </button>
@@ -147,51 +146,53 @@ export default function PricingView({ onNavigate }: PricingProps) {
               initial={{ opacity: 0, y: 24 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.1 }}
-              className={`relative flex flex-col p-8 rounded-3xl bg-white border transition-all duration-300 card-lift ${
+              className={`relative flex flex-col p-8 rounded-2xl bg-white transition-all duration-300 ${
                 popular
-                  ? 'border-2 border-[#176FC1] shadow-xl'
-                  : 'border-[#E5EDF5] shadow-xs'
+                  ? 'border-2 border-[#C99E32] shadow-xl'
+                  : 'border border-[#E2E8F0] hover:border-[#C99E32] shadow-sm'
               }`}
             >
               {/* Popular badge */}
               {badge && (
-                <div className={`absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full text-white text-xs font-bold shadow-xs ${
-                  popular ? 'bg-[#E9A83A]' : 'bg-[#142D49]'
+                <div className={`absolute -top-3.5 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full text-xs font-extrabold shadow-sm ${
+                  popular ? 'bg-gold-metallic text-[#1A1A1A]' : 'bg-[#0038DF] text-white'
                 }`}>
                   {badge}
                 </div>
               )}
 
               {/* Icon */}
-              <div className={`w-12 h-12 rounded-2xl ${iconBg} flex items-center justify-center mb-5 shadow-xs`}>
+              <div className={`w-12 h-12 rounded-2xl ${
+                popular ? 'bg-gold-metallic text-[#1A1A1A]' : 'bg-[#F1F5F9] text-[#0038DF]'
+              } flex items-center justify-center mb-5 shadow-xs`}>
                 {i === 0 ? <Zap className="w-6 h-6" /> :
                  i === 1 ? <Star className="w-6 h-6" fill="currentColor" /> :
                  <Shield className="w-6 h-6" />}
               </div>
 
-              <h3 className="font-display font-bold text-xl text-[#142D49] mb-1">{name}</h3>
-              <p className="text-sm text-[#536B83] mb-5">{description}</p>
+              <h3 className="title-h1 text-2xl font-extrabold text-[#0038DF] mb-1">{name}</h3>
+              <p className="text-sm text-[#1E293B]/80 mb-5">{description}</p>
 
               <div className="mb-6">
                 <div className="flex items-end gap-1">
-                  <span className="font-display font-bold text-4xl text-[#142D49]">
+                  <span className="title-h1 text-4xl font-extrabold text-[#0038DF]">
                     {format(annual ? price.annual : price.monthly)}
                   </span>
                   {price.monthly !== null && price.monthly > 0 && (
-                    <span className="text-[#536B83] text-sm mb-1">/mes</span>
+                    <span className="text-[#64748B] text-sm mb-1 font-bold">/mes</span>
                   )}
                 </div>
                 {annual && price.monthly !== null && price.monthly > 0 && (
-                  <p className="text-xs text-[#536B83] mt-1 font-medium">
+                  <p className="text-xs text-[#9C7316] mt-1 font-bold">
                     Facturado anualmente · Ahorra ${((price.monthly - price.annual!) * 12 / 1000).toFixed(0)}K COP
                   </p>
                 )}
               </div>
 
-              <ul className="space-y-3 flex-1 mb-8 pt-4 border-t border-[#E5EDF5]">
+              <ul className="space-y-3 flex-1 mb-8 pt-4 border-t border-[#E2E8F0]">
                 {features.map((f) => (
-                  <li key={f} className="flex items-start gap-2.5 text-sm text-[#142D49]">
-                    <CheckCircle2 className={`w-4 h-4 shrink-0 mt-0.5 ${popular ? 'text-[#176FC1]' : 'text-[#39BDEB]'}`} strokeWidth={2.5} />
+                  <li key={f} className="flex items-start gap-2.5 text-sm text-[#1E293B] font-medium">
+                    <CheckCircle2 className={`w-4 h-4 shrink-0 mt-0.5 ${popular ? 'text-[#C99E32]' : 'text-[#0038DF]'}`} strokeWidth={2.5} />
                     <span>{f}</span>
                   </li>
                 ))}
@@ -199,10 +200,10 @@ export default function PricingView({ onNavigate }: PricingProps) {
 
               <button
                 onClick={() => handlePlanClick(name)}
-                className={`group w-full py-3.5 rounded-2xl font-bold text-sm transition-all duration-300 btn-magnetic flex items-center justify-center gap-2 ${
+                className={`w-full py-3.5 text-sm font-bold flex items-center justify-center gap-2 cursor-pointer transition-all ${
                   popular
-                    ? 'bg-[#176FC1] hover:bg-[#142D49] text-white shadow-md hover:shadow-lg'
-                    : 'bg-[#F3F8FD] hover:bg-[#E5EDF5] border border-[#E5EDF5] text-[#142D49]'
+                    ? 'btn-gold-cta btn-gold-pill'
+                    : 'rounded-full bg-[#F8FAFC] hover:bg-[#F1F5F9] border border-[#E2E8F0] hover:border-[#C99E32] text-[#0038DF]'
                 }`}
               >
                 <span>{cta}</span>

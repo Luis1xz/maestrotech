@@ -2,21 +2,15 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { motion, useScroll, useTransform, useSpring } from 'framer-motion'
-import { ArrowRight, Play, ChevronDown, Zap, Shield, TrendingUp, LayoutDashboard, BookOpen, Sparkles } from 'lucide-react'
+import { ArrowRight, BookOpen, Shield, Sparkles, LayoutDashboard, Award, CheckCircle2, ChevronDown, Check } from 'lucide-react'
 import Link from 'next/link'
 import { UserRole, canAccessAdmin, canAccessTeacher } from '@/types/database'
 
 const STATS = [
-  { value: '48,000+', label: 'Docentes preparados', color: 'text-[#176FC1]' },
-  { value: '94%', label: 'Tasa de aprobación', color: 'text-[#176FC1]' },
-  { value: '32', label: 'Departamentos', color: 'text-[#142D49]' },
-  { value: '4.9★', label: 'Valoración promedio', color: 'text-[#E9A83A]' },
-]
-
-const BADGES = [
-  { icon: Zap, label: 'IA Adaptativa', bg: 'bg-[#176FC1]', text: 'text-white' },
-  { icon: Shield, label: 'Normativa MEN', bg: 'bg-[#142D49]', text: 'text-white' },
-  { icon: TrendingUp, label: 'Resultados probados', bg: 'bg-[#E9A83A]', text: 'text-white' },
+  { value: '140h', label: 'Formación Certificada', color: 'text-[#0038DF]' },
+  { value: '13', label: 'Módulos Temáticos', color: 'text-[#9C7316]' },
+  { value: '100%', label: 'Alineado CNSC / MEN', color: 'text-[#0038DF]' },
+  { value: '32', label: 'Departamentos', color: 'text-[#1E293B]' },
 ]
 
 interface HeroProps {
@@ -30,230 +24,217 @@ interface HeroProps {
 export default function HeroSection({ onNavigate, onOpenAuth, isAuthenticated, role, userName }: HeroProps) {
   const ref = useRef<HTMLDivElement>(null)
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end start'] })
-  const y = useTransform(scrollYProgress, [0, 1], [0, 160])
-  const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0])
-  const scale = useTransform(scrollYProgress, [0, 0.5], [1, 0.94])
+  const y = useTransform(scrollYProgress, [0, 1], [0, 80])
+  const opacity = useTransform(scrollYProgress, [0, 0.6], [1, 0])
   const smoothY = useSpring(y, { damping: 20, stiffness: 100 })
-
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 })
-
-  useEffect(() => {
-    const handleMouse = (e: MouseEvent) => {
-      const x = (e.clientX / window.innerWidth - 0.5) * 20
-      const y = (e.clientY / window.innerHeight - 0.5) * 20
-      setMousePos({ x, y })
-    }
-    window.addEventListener('mousemove', handleMouse)
-    return () => window.removeEventListener('mousemove', handleMouse)
-  }, [])
 
   return (
     <section
       ref={ref}
-      className="relative min-h-screen flex items-center justify-center overflow-hidden bg-[#F3F8FD] pt-20 pb-16"
+      className="relative min-h-[92vh] flex flex-col justify-center overflow-hidden bg-white border-b border-[#E2E8F0]"
     >
-      {/* Ambient orbs */}
-      <motion.div
-        animate={{ x: mousePos.x * 0.5, y: mousePos.y * 0.5 }}
-        transition={{ type: 'spring', damping: 30, stiffness: 80 }}
-        className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full bg-[#176FC1]/10 blur-3xl pointer-events-none"
-      />
-      <motion.div
-        animate={{ x: mousePos.x * -0.3, y: mousePos.y * -0.3 }}
-        transition={{ type: 'spring', damping: 30, stiffness: 60 }}
-        className="absolute bottom-1/4 right-1/4 w-80 h-80 rounded-full bg-[#39BDEB]/15 blur-3xl pointer-events-none"
-      />
-      <motion.div
-        animate={{ x: mousePos.x * 0.2, y: mousePos.y * 0.4 }}
-        transition={{ type: 'spring', damping: 40, stiffness: 70 }}
-        className="absolute top-1/2 right-1/3 w-64 h-64 rounded-full bg-[#E9A83A]/8 blur-3xl pointer-events-none"
-      />
+      {/* Layout asimétrico 70% / 30% con línea divisoria dorada de 4px */}
+      <div className="relative w-full flex-1 flex flex-col lg:flex-row">
+        
+        {/* ========================================================
+            COLUMNA IZQUIERDA (70%): Contenido Institucional Limpio
+            ======================================================== */}
+        <div className="w-full lg:w-[68%] xl:w-[70%] bg-white px-6 sm:px-10 md:px-16 lg:px-20 py-16 lg:py-24 flex flex-col justify-center relative z-10">
+          
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="max-w-3xl"
+          >
+            {/* Eyebrow Badge en píldora con borde fino dorado 1px solid #C99E32 */}
+            <div className="mb-6">
+              <span className="eyebrow-white-pill shadow-xs">
+                <span className="w-2 h-2 rounded-full bg-[#0038DF] animate-pulse" />
+                CONCURSO DOCENTE 2917–3006
+              </span>
+            </div>
 
-      {/* Main content */}
-      <motion.div
-        style={{ y: smoothY, opacity, scale }}
-        className="relative z-10 max-w-5xl mx-auto px-6 text-center"
-      >
-        {/* Top badge */}
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-[#E5EDF5] text-xs sm:text-sm font-semibold text-[#536B83] shadow-xs mb-8"
-        >
-          <span className="w-2 h-2 rounded-full bg-[#0045E6] animate-pulse" />
-          {isAuthenticated
-            ? `Sesión Activa · Legado Docente · ${
-                role === 'admin'
-                  ? 'Superusuario'
-                  : role === 'instructor'
-                  ? 'Docente Formador'
-                  : 'Aspirante'
-              }`
-            : 'CONCURSO DOCENTE 2917–3006 · CONVOCATORIA OFICIAL'}
-          <span className="text-[#E5A83B] font-bold">★</span>
-        </motion.div>
+            {/* Titular H1 Extra-Bold (800) en Azul Rey (#0038DF) y Subtítulo en Dorado Ocre (#9C7316) */}
+            <h1 className="title-h1 text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold text-[#0038DF] mb-2">
+              El concurso tiene reglas.
+            </h1>
+            <h2 className="title-h1 text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold text-[#9C7316] mb-5">
+              ¿Las conoces?
+            </h2>
 
-        {/* Headline */}
-        <motion.h1
-          initial={{ opacity: 0, y: 32 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
-          className="font-display font-bold text-5xl sm:text-6xl md:text-7xl lg:text-8xl leading-[0.98] tracking-tight text-balance mb-6"
-        >
-          {isAuthenticated ? (
-            <>
-              <span className="text-[#142D49]">Bienvenido a</span>
-              <br />
-              <span className="text-[#0045E6]">LEGADO DOCENTE</span>
-            </>
-          ) : (
-            <>
-              <span className="text-[#142D49]">El concurso tiene reglas.</span>
-              <br />
-              <span className="text-[#0045E6]">¿Las conoces?</span>
-            </>
-          )}
-        </motion.h1>
+            {/* Línea divisoria corta con acabado dorado metálico redondeado */}
+            <div className="gold-divider mb-8" />
 
-        {/* Subtitle */}
-        <motion.p
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.25, ease: [0.22, 1, 0.36, 1] }}
-          className="text-lg md:text-xl text-[#536B83] max-w-2xl mx-auto leading-relaxed text-balance mb-10"
-        >
-          {isAuthenticated
-            ? 'Tu centro integral de formación pedagógica. Gestiona tus 140 horas de curso, practica con simulacros de concurso docente y deja huella en la educación.'
-            : 'Prepárate con método, fuentes oficiales y una comunidad de colegas. LEGADO DOCENTE «Aprende, comparte, deja huella». Curso integral de 140 horas y caracterización inteligente.'}
-        </motion.p>
+            {/* Párrafo de lectura en azul pizarra oscuro (#1E293B) */}
+            <p className="text-[#1E293B] text-lg sm:text-xl md:text-2xl font-normal leading-relaxed max-w-2xl mb-10 text-pretty">
+              Prepárate con método, fuentes oficiales y una comunidad de colegas. El programa oficial de cualificación docente de <strong className="font-bold text-[#0038DF]">140 horas</strong> para asegurar tu nombramiento en propiedad.
+            </p>
 
-        {/* Action buttons */}
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.35, ease: [0.22, 1, 0.36, 1] }}
-          className="flex flex-wrap items-center justify-center gap-3.5 mb-16"
-        >
-          {isAuthenticated ? (
-            <>
-              <button
-                onClick={() => onNavigate('dashboard')}
-                className="group relative px-6 py-3.5 rounded-2xl bg-[#0045E6] hover:bg-[#142D49] text-white text-sm font-semibold shadow-md hover:shadow-lg transition-all duration-300 btn-magnetic flex items-center gap-2 cursor-pointer"
-              >
-                <LayoutDashboard className="w-4 h-4" />
-                <span>Ir a mi Aula Virtual</span>
-                <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
-              </button>
-
+            {/* Acciones principales / Botón CTA Oro Metálico tipo Banner de 2 líneas */}
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5 mb-10">
               <button
                 onClick={() => onNavigate('courses')}
-                className="group px-6 py-3.5 rounded-2xl bg-white hover:bg-[#F3F8FD] text-[#142D49] border border-[#E5EDF5] hover:border-[#0045E6]/40 text-sm font-semibold shadow-xs transition-all duration-300 btn-magnetic flex items-center gap-2 cursor-pointer"
+                className="btn-gold-cta btn-gold-banner px-8 py-4 text-left cursor-pointer flex items-center justify-between gap-6 group w-full sm:w-auto"
               >
-                <BookOpen className="w-4 h-4 text-[#0045E6]" />
-                <span>Ver Curso 140 Horas</span>
-              </button>
-
-              {canAccessTeacher(role) && (
-                <Link
-                  href="/teacher"
-                  className="px-5 py-3.5 rounded-2xl bg-white border border-[#E5EDF5] hover:border-[#176FC1] text-[#176FC1] text-sm font-semibold transition-all duration-300 flex items-center gap-2 shadow-xs"
-                >
-                  <BookOpen className="w-4 h-4" />
-                  <span>Panel Docente</span>
-                </Link>
-              )}
-
-              {canAccessAdmin(role) && (
-                <Link
-                  href="/admin"
-                  className="px-5 py-3.5 rounded-2xl bg-white border border-[#E5EDF5] hover:border-[#142D49] text-[#142D49] text-sm font-semibold transition-all duration-300 flex items-center gap-2 shadow-xs"
-                >
-                  <Shield className="w-4 h-4 text-[#176FC1]" />
-                  <span>Panel Superusuario</span>
-                </Link>
-              )}
-            </>
-          ) : (
-            <>
-              <button
-                onClick={() => onNavigate('courses')}
-                className="group relative px-7 py-4 rounded-2xl bg-[#0045E6] hover:bg-[#142D49] text-white text-base font-bold shadow-lg hover:shadow-xl transition-all duration-300 btn-magnetic flex items-center gap-2.5 cursor-pointer"
-              >
-                <span>Curso 140 Horas · Matrícula Abierta</span>
-                <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
+                <div>
+                  <span className="block text-xs font-bold uppercase tracking-wider text-[#1A1A1A]/80">
+                    Curso de lanzamiento
+                  </span>
+                  <span className="block text-xl sm:text-2xl font-extrabold text-[#1A1A1A] tracking-tight">
+                    Matrícula abierta
+                  </span>
+                </div>
+                <div className="w-10 h-10 rounded-full bg-white/30 flex items-center justify-center shrink-0 group-hover:translate-x-1 transition-transform">
+                  <ArrowRight className="w-5 h-5 text-[#1A1A1A]" strokeWidth={2.5} />
+                </div>
               </button>
 
               <button
                 onClick={() => onOpenAuth?.('signup')}
-                className="group px-7 py-4 rounded-2xl bg-white hover:bg-[#F3F8FD] text-[#142D49] border border-[#E5EDF5] hover:border-[#0045E6]/40 text-base font-bold shadow-xs hover:shadow-md transition-all duration-300 btn-magnetic flex items-center gap-2.5 cursor-pointer"
+                className="group flex items-center gap-2 text-sm sm:text-base font-bold text-[#0038DF] hover:text-[#002299] transition-colors py-2 px-3 cursor-pointer"
               >
-                <Sparkles className="w-4 h-4 text-[#E5A83B]" />
-                <span>Diagnóstico Gratis (5 Etapas)</span>
+                <Sparkles className="w-4 h-4 text-[#C99E32]" />
+                <span className="underline decoration-[#C99E32] decoration-2 underline-offset-4">
+                  Diagnóstico gratis · enlace en la biografía
+                </span>
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </button>
-            </>
-          )}
-        </motion.div>
-
-        {/* Feature badges */}
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
-          className="flex flex-wrap items-center justify-center gap-3 mb-20"
-        >
-          {BADGES.map(({ icon: Icon, label, bg, text }) => (
-            <div
-              key={label}
-              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white border border-[#E5EDF5] text-xs sm:text-sm font-medium text-[#142D49] shadow-xs"
-            >
-              <div className={`w-5 h-5 rounded-lg ${bg} flex items-center justify-center`}>
-                <Icon className={`w-3 h-3 ${text}`} strokeWidth={2.5} />
-              </div>
-              {label}
             </div>
-          ))}
-        </motion.div>
 
-        {/* Stats */}
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.6, ease: [0.22, 1, 0.36, 1] }}
-          className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-3xl mx-auto"
-        >
-          {STATS.map(({ value, label, color }, i) => (
-            <motion.div
-              key={label}
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.65 + i * 0.08, ease: [0.22, 1, 0.36, 1] }}
-              className="bg-white rounded-2xl p-5 border border-[#E5EDF5] hover:border-[#176FC1]/30 transition-all duration-300 shadow-xs hover:shadow-md"
+            {/* Accesos rápidos de usuario autenticado si aplica */}
+            {isAuthenticated && (
+              <div className="p-4 rounded-2xl bg-[#F8FAFC] border border-[#E2E8F0] mb-8 flex flex-wrap items-center gap-3">
+                <span className="text-xs font-semibold text-[#64748B]">Accesos directos:</span>
+                <button
+                  onClick={() => onNavigate('dashboard')}
+                  className="px-4 py-2 rounded-xl bg-[#0038DF] text-white text-xs font-bold hover:bg-[#002299] transition-colors flex items-center gap-1.5"
+                >
+                  <LayoutDashboard className="w-3.5 h-3.5" /> Mi Aula Virtual
+                </button>
+                {canAccessTeacher(role) && (
+                  <Link
+                    href="/teacher"
+                    className="px-4 py-2 rounded-xl bg-white border border-[#E2E8F0] hover:border-[#0038DF] text-[#0038DF] text-xs font-bold transition-colors flex items-center gap-1.5"
+                  >
+                    <BookOpen className="w-3.5 h-3.5" /> Panel Docente
+                  </Link>
+                )}
+                {canAccessAdmin(role) && (
+                  <Link
+                    href="/admin"
+                    className="px-4 py-2 rounded-xl bg-white border border-[#E2E8F0] hover:border-[#1E293B] text-[#1E293B] text-xs font-bold transition-colors flex items-center gap-1.5"
+                  >
+                    <Shield className="w-3.5 h-3.5 text-[#0038DF]" /> Panel Superusuario
+                  </Link>
+                )}
+              </div>
+            )}
+
+            {/* Estadísticas de prestigio */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-6 border-t border-[#E2E8F0]">
+              {STATS.map(({ value, label, color }) => (
+                <div key={label} className="p-2">
+                  <div className={`text-2xl sm:text-3xl font-extrabold ${color} tracking-tight`}>
+                    {value}
+                  </div>
+                  <div className="text-xs font-semibold text-[#64748B] mt-0.5">
+                    {label}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+          </motion.div>
+        </div>
+
+        {/* ========================================================
+            LÍNEA VERTICAL DORADA DE 4PX DE SEPARACIÓN
+            ======================================================== */}
+        <div className="w-full h-1 lg:w-1 lg:h-auto bg-gradient-to-r lg:bg-gradient-to-b from-[#9C7316] via-[#E6C565] to-[#8F6812] shrink-0" />
+
+        {/* ========================================================
+            COLUMNA DERECHA (30%): Bloque Azul Rey con Aros Dorados
+            ======================================================== */}
+        <div className="w-full lg:w-[32%] xl:w-[30%] bg-royal-depth p-8 lg:p-12 relative overflow-hidden flex flex-col justify-between text-white shrink-0 min-h-[380px] lg:min-h-full">
+          
+          {/* Aros geométricos dorados grandes cortados en esquinas (border: 12px solid #C99E32) */}
+          <div
+            className="absolute -top-24 -right-24 w-80 h-80 rounded-full pointer-events-none"
+            style={{ border: '12px solid #C99E32', opacity: 0.95 }}
+          />
+          <div
+            className="absolute -bottom-28 -left-28 w-96 h-96 rounded-full pointer-events-none"
+            style={{ border: '12px solid #C99E32', opacity: 0.9 }}
+          />
+
+          {/* Contenido destacado de la columna azul */}
+          <div className="relative z-10 space-y-4">
+            <span className="eyebrow-blue block">
+              ESTRUCTURA OFICIAL
+            </span>
+            <h3 className="text-2xl sm:text-3xl font-extrabold text-white leading-tight tracking-tight">
+              140 Horas Certificables
+            </h3>
+            <p className="text-sm text-white/85 leading-relaxed">
+              Basado en las directrices de la CNSC y el Decreto Ley 1278. 3 núcleos fundamentales para tu éxito:
+            </p>
+          </div>
+
+          {/* Tarjeta contenedora blanca con borde dorado de 2px y sombra profunda */}
+          <div className="relative z-10 card-gold-on-blue p-6 my-6 text-[#1E293B]">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-xl bg-gold-metallic flex items-center justify-center text-[#1A1A1A] font-extrabold shadow-sm">
+                <Award className="w-5 h-5 text-[#1A1A1A]" />
+              </div>
+              <div>
+                <h4 className="font-extrabold text-sm text-[#0038DF] uppercase tracking-wide">
+                  Programa Insignia
+                </h4>
+                <p className="text-xs text-[#64748B]">Ingreso a la Carrera Docente</p>
+              </div>
+            </div>
+
+            <ul className="space-y-2 text-xs font-semibold text-[#1E293B] mb-5">
+              <li className="flex items-start gap-2">
+                <div className="w-4 h-4 rounded-full bg-[#0038DF] text-white flex items-center justify-center shrink-0 mt-0.5">
+                  <Check className="w-2.5 h-2.5" strokeWidth={3} />
+                </div>
+                <span>Núcleo Común: Aptitudes y Pedagógico</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <div className="w-4 h-4 rounded-full bg-[#0038DF] text-white flex items-center justify-center shrink-0 mt-0.5">
+                  <Check className="w-2.5 h-2.5" strokeWidth={3} />
+                </div>
+                <span>Simulacros Oficiales con Casos CNSC</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <div className="w-4 h-4 rounded-full bg-[#0038DF] text-white flex items-center justify-center shrink-0 mt-0.5">
+                  <Check className="w-2.5 h-2.5" strokeWidth={3} />
+                </div>
+                <span>Componente Disciplinar Especializado</span>
+              </li>
+            </ul>
+
+            <button
+              onClick={() => onNavigate('courses')}
+              className="w-full py-2.5 px-4 rounded-xl bg-[#0038DF] hover:bg-[#002299] text-white text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer shadow-sm"
             >
-              <div className={`text-2xl sm:text-3xl font-bold font-display ${color}`}>{value}</div>
-              <div className="text-xs text-[#536B83] mt-1 font-medium">{label}</div>
-            </motion.div>
-          ))}
-        </motion.div>
-      </motion.div>
+              <span>Ver Plan de Estudio</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </button>
+          </div>
 
-      {/* Scroll indicator */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1.2, duration: 0.6 }}
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
-      >
-        <span className="text-xs text-muted-foreground/60 font-medium tracking-widest uppercase">
-          Explorar
-        </span>
-        <motion.div
-          animate={{ y: [0, 8, 0] }}
-          transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-        >
-          <ChevronDown className="w-5 h-5 text-muted-foreground/50" />
-        </motion.div>
-      </motion.div>
+          {/* Slogan en cursiva dorada */}
+          <div className="relative z-10 pt-2 border-t border-white/15 text-center lg:text-left">
+            <p className="text-xs italic text-[#E6C565] font-medium tracking-wide">
+              «Aprende, comparte, deja huella»
+            </p>
+          </div>
+
+        </div>
+
+      </div>
     </section>
   )
 }

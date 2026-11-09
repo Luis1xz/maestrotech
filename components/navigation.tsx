@@ -92,26 +92,29 @@ export default function Navigation({ onNavigate, currentView, onOpenAuth }: NavP
         initial={{ y: -100, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
           scrolled || isDashboard
-            ? 'bg-white/95 backdrop-blur-md border-b border-[#E5EDF5] shadow-[0_2px_12px_rgba(20,45,73,0.04)]'
-            : 'bg-transparent'
+            ? 'bg-white/98 backdrop-blur-md border-b border-[#E2E8F0] shadow-sm'
+            : 'bg-white/90 backdrop-blur-sm border-b border-[#E2E8F0]'
         }`}
       >
+        {/* Línea superior dorada de prestigio */}
+        <div className="w-full h-[3px] bg-gradient-to-r from-[#9C7316] via-[#E6C565] to-[#8F6812]" />
+
         <nav className="max-w-7xl mx-auto px-6 lg:px-8 h-16 flex items-center justify-between">
           {/* Logo */}
           <button
             onClick={() => onNavigate('home')}
             className="flex items-center gap-2.5 group text-left cursor-pointer"
           >
-            <div className="w-9 h-9 rounded-xl overflow-hidden ring-1 ring-[#E5EDF5] shadow-xs group-hover:scale-105 group-hover:ring-[#0045E6]/40 transition-all duration-300 shrink-0 bg-white p-0.5">
+            <div className="w-9 h-9 rounded-full overflow-hidden ring-1 ring-[#C99E32] shadow-xs group-hover:scale-105 transition-all duration-300 shrink-0 bg-white p-0.5">
               <img src="/logo-icon.png" alt="Legado Docente" className="w-full h-full object-contain" />
             </div>
             <div>
-              <span className="text-base font-bold tracking-tight text-[#0045E6] font-display block leading-none">
+              <span className="text-base font-extrabold tracking-tight text-[#0038DF] font-display block leading-none">
                 LEGADO DOCENTE
               </span>
-              <span className="text-[9px] text-[#536B83] italic tracking-tight hidden sm:block">
+              <span className="text-[10px] text-[#64748B] italic tracking-tight hidden sm:block mt-0.5 font-medium">
                 «Aprende, comparte, deja huella»
               </span>
             </div>
@@ -123,16 +126,16 @@ export default function Navigation({ onNavigate, currentView, onOpenAuth }: NavP
               <button
                 key={link.view}
                 onClick={() => onNavigate(link.view)}
-                className={`relative px-3.5 py-2 rounded-xl text-sm font-medium transition-all duration-200 btn-magnetic ${
+                className={`relative px-3.5 py-2 rounded-xl text-sm font-bold transition-all duration-200 cursor-pointer ${
                   currentView === link.view
-                    ? 'text-[#176FC1] font-semibold'
-                    : 'text-[#536B83] hover:text-[#142D49] hover:bg-[#F3F8FD]'
+                    ? 'text-[#0038DF]'
+                    : 'text-[#1E293B] hover:text-[#0038DF] hover:bg-[#F8FAFC]'
                 }`}
               >
                 {currentView === link.view && (
                   <motion.span
                     layoutId="nav-indicator"
-                    className="absolute inset-0 bg-[#F3F8FD] border border-[#E5EDF5] rounded-xl shadow-xs"
+                    className="absolute inset-0 bg-[#F1F5F9] border border-[#E2E8F0] rounded-xl shadow-xs"
                     transition={{ type: 'spring', bounce: 0.2, duration: 0.4 }}
                   />
                 )}
@@ -144,9 +147,9 @@ export default function Navigation({ onNavigate, currentView, onOpenAuth }: NavP
             {canAccessAdmin(role) && (
               <Link
                 href="/admin"
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#142D49]/10 hover:bg-[#142D49]/15 text-[#142D49] border border-[#142D49]/20 text-xs font-semibold transition-colors ml-1"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#0038DF]/10 hover:bg-[#0038DF]/15 text-[#0038DF] border border-[#0038DF]/20 text-xs font-bold transition-colors ml-1"
               >
-                <Shield className="w-3.5 h-3.5 text-[#176FC1]" />
+                <Shield className="w-3.5 h-3.5 text-[#0038DF]" />
                 <span>Superusuario</span>
               </Link>
             )}
@@ -154,7 +157,7 @@ export default function Navigation({ onNavigate, currentView, onOpenAuth }: NavP
             {canAccessTeacher(role) && (
               <Link
                 href="/teacher"
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#176FC1]/10 hover:bg-[#176FC1]/15 text-[#176FC1] border border-[#176FC1]/20 text-xs font-semibold transition-colors ml-1"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#9C7316]/10 hover:bg-[#9C7316]/15 text-[#9C7316] border border-[#9C7316]/20 text-xs font-bold transition-colors ml-1"
               >
                 <BookOpen className="w-3.5 h-3.5" />
                 <span>Panel Docente</span>
@@ -271,13 +274,13 @@ export default function Navigation({ onNavigate, currentView, onOpenAuth }: NavP
               <>
                 <button
                   onClick={() => onOpenAuth?.('signin')}
-                  className="text-sm font-medium text-[#536B83] hover:text-[#142D49] transition-colors duration-200 btn-magnetic px-3 py-2"
+                  className="text-xs sm:text-sm font-bold text-[#0038DF] hover:text-[#002299] transition-colors duration-200 px-3 py-2 cursor-pointer"
                 >
                   Iniciar sesión
                 </button>
                 <button
                   onClick={() => onOpenAuth?.('signup')}
-                  className="px-4.5 py-2 rounded-xl bg-[#176FC1] hover:bg-[#142D49] text-white text-sm font-semibold shadow-xs hover:shadow-md transition-all duration-300 btn-magnetic"
+                  className="btn-gold-cta btn-gold-pill px-5 py-2.5 text-xs font-bold text-[#1A1A1A] cursor-pointer"
                 >
                   Comenzar gratis
                 </button>

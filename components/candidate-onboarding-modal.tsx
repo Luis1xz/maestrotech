@@ -385,24 +385,24 @@ export default function CandidateOnboardingModal({
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.96, y: 15 }}
           transition={{ duration: 0.25 }}
-          className="relative w-full max-w-3xl my-auto rounded-3xl bg-white border border-[#E5EDF5] shadow-2xl p-6 sm:p-9 text-[#142D49] max-h-[94vh] overflow-y-auto"
+          className="relative w-full max-w-3xl my-auto rounded-3xl bg-white border-2 border-[#C99E32] shadow-2xl p-6 sm:p-9 text-[#1E293B] max-h-[94vh] overflow-y-auto"
         >
           {/* Header con marca Legado Docente */}
-          <div className="flex items-center justify-between pb-4 border-b border-[#E5EDF5] mb-5">
+          <div className="flex items-center justify-between pb-4 border-b border-[#E2E8F0] mb-5">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl overflow-hidden ring-1 ring-[#E5EDF5] shadow-xs shrink-0 bg-white">
-                <img src="/logo-icon.png" alt="Legado Docente" className="w-full h-full object-contain p-0.5" />
+              <div className="w-10 h-10 rounded-full overflow-hidden ring-1 ring-[#C99E32] shadow-xs shrink-0 bg-white p-0.5">
+                <img src="/logo-icon.png" alt="Legado Docente" className="w-full h-full object-contain" />
               </div>
               <div>
                 <div className="flex items-center gap-1.5">
-                  <span className="font-display font-bold text-base sm:text-lg text-[#0045E6] tracking-tight">
+                  <span className="font-display font-extrabold text-base sm:text-lg text-[#0038DF] tracking-tight">
                     LEGADO DOCENTE
                   </span>
-                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#E5A83B]/15 text-[#C89228] font-bold uppercase tracking-wider">
-                    Registro Inteligente
+                  <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-gold-metallic text-[#1A1A1A] font-extrabold uppercase tracking-wider">
+                    Caracterización Inteligente
                   </span>
                 </div>
-                <p className="text-[11px] text-[#536B83] italic">
+                <p className="text-[11px] text-[#64748B] italic">
                   «Aprende, comparte, deja huella»
                 </p>
               </div>
@@ -410,7 +410,7 @@ export default function CandidateOnboardingModal({
 
             <button
               onClick={onClose}
-              className="p-2 rounded-xl text-[#536B83] hover:text-[#142D49] hover:bg-[#F3F8FD] transition-colors"
+              className="p-2 rounded-xl text-[#64748B] hover:text-[#1E293B] hover:bg-[#F1F5F9] transition-colors cursor-pointer"
               aria-label="Cerrar"
             >
               <X className="w-5 h-5" />
@@ -420,8 +420,8 @@ export default function CandidateOnboardingModal({
           {/* Barra de progreso (para etapas 1 a 5) */}
           {step <= 5 && (
             <div className="mb-6 space-y-2">
-              <div className="flex items-center justify-between text-xs font-semibold">
-                <span className="text-[#0045E6]">
+              <div className="flex items-center justify-between text-xs font-bold">
+                <span className="text-[#0038DF]">
                   Etapa {step} de 5: {
                     step === 1 ? 'Información Personal y Cuenta' :
                     step === 2 ? 'Aspiración al Concurso' :
@@ -430,11 +430,11 @@ export default function CandidateOnboardingModal({
                     'Diagnóstico y Necesidades'
                   }
                 </span>
-                <span className="text-[#536B83] font-mono">{progressPercent}% completado</span>
+                <span className="text-[#9C7316] font-mono">{progressPercent}% completado</span>
               </div>
-              <div className="w-full h-2 rounded-full bg-[#F3F8FD] border border-[#E5EDF5] overflow-hidden">
+              <div className="w-full h-2.5 rounded-full bg-[#F1F5F9] border border-[#E2E8F0] overflow-hidden">
                 <motion.div
-                  className="h-full bg-gradient-to-r from-[#0045E6] to-[#E5A83B] rounded-full"
+                  className="h-full bg-gradient-to-r from-[#0038DF] via-[#C99E32] to-[#E6C565] rounded-full"
                   initial={{ width: 0 }}
                   animate={{ width: `${progressPercent}%` }}
                   transition={{ duration: 0.3 }}
@@ -1455,18 +1455,18 @@ export default function CandidateOnboardingModal({
               </div>
 
               {/* Sección: Tu Ruta de Preparación */}
-              <div className="p-5 rounded-3xl bg-gradient-to-br from-[#0045E6] to-[#142D49] text-white shadow-xl space-y-4">
+              <div className="p-6 rounded-3xl bg-royal-depth text-white shadow-xl space-y-4 border-2 border-[#C99E32]">
                 <div className="flex items-center gap-2">
-                  <span className="px-3 py-1 rounded-full bg-[#E5A83B] text-[#142D49] text-xs font-bold uppercase tracking-wider">
+                  <span className="px-3 py-1 rounded-full bg-gold-metallic text-[#1A1A1A] text-xs font-extrabold uppercase tracking-wider shadow-sm">
                     Tu Ruta de Preparación Recomendada
                   </span>
                 </div>
                 <div>
-                  <h3 className="font-display font-bold text-lg sm:text-xl">
+                  <h3 className="title-h1 text-xl sm:text-2xl font-extrabold text-white">
                     CURSO DE PREPARACIÓN INGRESO A LA CARRERA DOCENTE — 140 HORAS
                   </h3>
-                  <p className="text-xs text-white/80 mt-1 leading-relaxed">
-                    Legado Docente «Aprende, comparte, deja huella». Con 13 módulos completos (Módulo 0 al Módulo 12), simulacros reales tipo CNSC y acompañamiento en tus áreas prioritarias.
+                  <p className="text-xs text-white/90 mt-1.5 leading-relaxed">
+                    Legado Docente «Aprende, comparte, deja huella». 13 módulos completos (Módulo 0 al Módulo 12), simulacros tipo CNSC y fortalecimiento en tus áreas prioritarias.
                   </p>
                 </div>
                 <div className="pt-2 flex flex-col sm:flex-row gap-3">
@@ -1475,14 +1475,14 @@ export default function CandidateOnboardingModal({
                       onSuccess?.()
                       onClose()
                     }}
-                    className="flex-1 py-3 px-5 rounded-2xl bg-[#E5A83B] hover:bg-[#D49E30] text-[#142D49] text-xs sm:text-sm font-bold shadow-md transition-all flex items-center justify-center gap-2"
+                    className="flex-1 py-3 px-5 btn-gold-cta btn-gold-pill text-xs sm:text-sm font-bold flex items-center justify-center gap-2 cursor-pointer"
                   >
                     <span>Ingresar a mi Aula Virtual</span>
                     <ArrowRight className="w-4 h-4" />
                   </button>
                   <button
                     onClick={onClose}
-                    className="py-3 px-5 rounded-2xl bg-white/10 hover:bg-white/20 text-white text-xs sm:text-sm font-semibold transition-all border border-white/20"
+                    className="py-3 px-5 rounded-full bg-white/10 hover:bg-white/20 text-white text-xs sm:text-sm font-bold transition-all border border-white/20 cursor-pointer"
                   >
                     Explorar el Catálogo
                   </button>
@@ -1493,13 +1493,13 @@ export default function CandidateOnboardingModal({
 
           {/* Botones de navegación inferior (etapas 1 a 5) */}
           {step <= 5 && (
-            <div className="mt-7 pt-4 border-t border-[#E5EDF5] flex items-center justify-between gap-3">
+            <div className="mt-7 pt-4 border-t border-[#E2E8F0] flex items-center justify-between gap-3">
               {step > 1 ? (
                 <button
                   type="button"
                   onClick={handlePrevStep}
                   disabled={loading}
-                  className="px-4 py-2.5 rounded-xl border border-[#E5EDF5] text-xs font-bold text-[#536B83] hover:text-[#142D49] hover:bg-[#F8FAFC] transition-colors flex items-center gap-1.5"
+                  className="px-4 py-2.5 rounded-xl border border-[#E2E8F0] text-xs font-bold text-[#64748B] hover:text-[#0038DF] hover:bg-[#F8FAFC] transition-colors flex items-center gap-1.5 cursor-pointer"
                 >
                   <ArrowLeft className="w-3.5 h-3.5" />
                   <span>Anterior</span>
@@ -1512,7 +1512,7 @@ export default function CandidateOnboardingModal({
                 type="button"
                 onClick={handleNextStep}
                 disabled={loading}
-                className="px-6 py-2.5 rounded-xl bg-[#0045E6] hover:bg-[#142D49] text-white text-xs font-bold shadow-md hover:shadow-lg transition-all flex items-center gap-2 disabled:opacity-50"
+                className="btn-gold-cta btn-gold-pill px-7 py-3 text-xs font-bold text-[#1A1A1A] flex items-center gap-2 disabled:opacity-50 cursor-pointer"
               >
                 {loading ? (
                   <span>Guardando diagnóstico...</span>

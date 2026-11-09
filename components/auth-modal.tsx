@@ -110,15 +110,15 @@ export default function AuthModal({
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 16 }}
           transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
-          className="relative w-full max-w-md rounded-3xl bg-white border border-[#E5EDF5] shadow-2xl p-7 overflow-hidden max-h-[92vh] overflow-y-auto text-[#142D49]"
+          className="relative w-full max-w-md rounded-3xl bg-white border-2 border-[#C99E32] shadow-2xl p-7 overflow-hidden max-h-[92vh] overflow-y-auto text-[#1E293B]"
         >
           {/* Ambient Glow */}
-          <div className="absolute top-0 right-0 w-48 h-48 bg-[#0045E6]/5 rounded-full blur-2xl pointer-events-none" />
+          <div className="absolute top-0 right-0 w-48 h-48 bg-[#0038DF]/5 rounded-full blur-2xl pointer-events-none" />
 
           {/* Close button */}
           <button
             onClick={onClose}
-            className="absolute top-5 right-5 p-2 rounded-xl text-[#536B83] hover:text-[#142D49] hover:bg-[#F3F8FD] transition-colors"
+            className="absolute top-5 right-5 p-2 rounded-xl text-[#64748B] hover:text-[#1E293B] hover:bg-[#F1F5F9] transition-colors cursor-pointer"
             aria-label="Cerrar"
           >
             <X className="w-5 h-5" />
@@ -126,31 +126,31 @@ export default function AuthModal({
 
           {/* Logo & Header */}
           <div className="flex items-center gap-2.5 mb-2">
-            <div className="w-10 h-10 rounded-xl overflow-hidden ring-1 ring-[#E5EDF5] shadow-xs shrink-0 bg-white p-0.5">
+            <div className="w-10 h-10 rounded-full overflow-hidden ring-1 ring-[#C99E32] shadow-xs shrink-0 bg-white p-0.5">
               <img src="/logo-icon.png" alt="Legado Docente Logo" className="w-full h-full object-contain" />
             </div>
             <div>
-              <span className="font-bold text-lg font-display text-[#0045E6]">LEGADO DOCENTE</span>
-              <p className="text-[10px] text-[#536B83] italic">«Aprende, comparte, deja huella»</p>
+              <span className="font-extrabold text-lg font-display text-[#0038DF]">LEGADO DOCENTE</span>
+              <p className="text-[10px] text-[#9C7316] italic font-medium">«Aprende, comparte, deja huella»</p>
             </div>
           </div>
 
-          <h2 className="font-display font-bold text-2xl text-[#142D49] mb-1">
+          <h2 className="title-h1 font-extrabold text-2xl text-[#0038DF] mb-1">
             Bienvenido a tu Aula Virtual
           </h2>
-          <p className="text-xs text-[#536B83] mb-4">
+          <p className="text-xs text-[#1E293B]/80 mb-4">
             Ingresa tus credenciales para acceder a tus cursos y simulacros de concurso.
           </p>
 
           {/* Tabs */}
-          <div className="grid grid-cols-2 p-1 rounded-2xl bg-[#F3F8FD] border border-[#E5EDF5] mb-4">
+          <div className="grid grid-cols-2 p-1 rounded-2xl bg-[#F8FAFC] border border-[#E2E8F0] mb-4">
             <button
               type="button"
               onClick={() => {
                 setMode('signin')
                 setErrorMsg(null)
               }}
-              className="py-2 text-xs font-semibold rounded-xl bg-white text-[#0045E6] shadow-xs"
+              className="py-2 text-xs font-bold rounded-xl bg-white text-[#0038DF] shadow-xs cursor-pointer"
             >
               Iniciar sesión
             </button>
@@ -160,10 +160,10 @@ export default function AuthModal({
                 setMode('signup')
                 setErrorMsg(null)
               }}
-              className="py-2 text-xs font-semibold rounded-xl text-[#536B83] hover:text-[#142D49] flex items-center justify-center gap-1"
+              className="py-2 text-xs font-bold rounded-xl text-[#64748B] hover:text-[#0038DF] flex items-center justify-center gap-1 cursor-pointer"
             >
               <span>Registrarme</span>
-              <span className="w-1.5 h-1.5 rounded-full bg-[#E5A83B]" />
+              <span className="w-1.5 h-1.5 rounded-full bg-[#C99E32]" />
             </button>
           </div>
 
@@ -271,10 +271,10 @@ export default function AuthModal({
             <button
               type="submit"
               disabled={loading}
-              className="w-full mt-2 py-3 rounded-xl bg-[#0045E6] hover:bg-[#142D49] text-white font-bold text-xs shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+              className="w-full mt-2 py-3 btn-gold-cta btn-gold-pill text-xs font-bold text-[#1A1A1A] flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
             >
               {loading ? (
-                <div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+                <div className="w-4 h-4 border-2 border-[#1A1A1A]/40 border-t-[#1A1A1A] rounded-full animate-spin" />
               ) : (
                 <>
                   <span>Ingresar a Legado Docente</span>

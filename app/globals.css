@@ -5,15 +5,18 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  /* === MAESTRO — Official Brand Palette 2026 === */
-  --color-brand-blue: #176FC1;
-  --color-brand-blue-deep: #142D49;
-  --color-brand-cyan: #39BDEB;
-  --color-brand-gold: #E9A83A;
-  --color-brand-bg: #F3F8FD;
-  --color-brand-white: #FFFFFF;
-  --color-brand-border: #E5EDF5;
-  --color-brand-muted: #536B83;
+  /* === LEGADO DOCENTE — Official Design System 2026 === */
+  --color-primary-royal: #0038DF;
+  --color-primary-royal-deep: #002299;
+  --color-accent-gold-dark: #9C7316;
+  --color-accent-gold-base: #C99E32;
+  --color-accent-gold-light: #E6C565;
+  --color-accent-gold-ochre: #C1962C;
+  --color-accent-gold-deep: #8F6812;
+  --color-reading-slate: #1E293B;
+  --color-reading-muted: #64748B;
+  --color-card-border-gold: #C99E32;
+  --color-quiz-border: #E2E8F0;
 
   /* Semantic tokens */
   --color-background: var(--background);
@@ -48,71 +51,65 @@
   --color-chart-2: var(--chart-2);
   --color-chart-1: var(--chart-1);
 
-  --radius-sm: calc(var(--radius) * 0.6);
-  --radius-md: calc(var(--radius) * 0.8);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) * 1.4);
-  --radius-2xl: calc(var(--radius) * 1.8);
-  --radius-3xl: calc(var(--radius) * 2.2);
-  --radius-4xl: calc(var(--radius) * 2.8);
+  --radius-sm: 8px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 16px;
+  --radius-2xl: 20px;
+  --radius-3xl: 24px;
+  --radius-full: 9999px;
 
   /* Typography */
-  --font-sans: 'Inter', 'Inter Fallback', system-ui, sans-serif;
-  --font-display: 'Plus Jakarta Sans', 'Plus Jakarta Sans Fallback', sans-serif;
+  --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-display: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
   --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
 }
 
 /* ==============================
-   LIGHT THEME — Official MaestroTech (Default)
-   70% Blancos/Claros, 20% Azules/Celestes, 10% Dorados
+   LEGADO DOCENTE DESIGN SYSTEM
    ============================== */
 :root {
   color-scheme: light;
-  --background: #F3F8FD;
-  --foreground: #142D49;
+  --background: #FFFFFF;
+  --foreground: #1E293B;
   --card: #FFFFFF;
-  --card-foreground: #142D49;
+  --card-foreground: #1E293B;
   --popover: #FFFFFF;
-  --popover-foreground: #142D49;
-  --primary: #176FC1;
+  --popover-foreground: #1E293B;
+  --primary: #0038DF;
   --primary-foreground: #FFFFFF;
-  --secondary: #E5EDF5;
-  --secondary-foreground: #142D49;
-  --muted: #F3F8FD;
-  --muted-foreground: #536B83;
-  --accent: #39BDEB;
-  --accent-foreground: #142D49;
+  --secondary: #F8FAFC;
+  --secondary-foreground: #1E293B;
+  --muted: #F1F5F9;
+  --muted-foreground: #64748B;
+  --accent: #C99E32;
+  --accent-foreground: #1A1A1A;
   --destructive: #EF4444;
-  --border: #E5EDF5;
-  --input: #E5EDF5;
-  --ring: #176FC1;
+  --border: #E2E8F0;
+  --input: #E2E8F0;
+  --ring: #0038DF;
   --radius: 0.875rem;
 
-  --chart-1: #176FC1;
-  --chart-2: #39BDEB;
-  --chart-3: #E9A83A;
-  --chart-4: #142D49;
-  --chart-5: #536B83;
+  --chart-1: #0038DF;
+  --chart-2: #C99E32;
+  --chart-3: #E6C565;
+  --chart-4: #002299;
+  --chart-5: #1E293B;
 
   --sidebar: #FFFFFF;
-  --sidebar-foreground: #142D49;
-  --sidebar-primary: #176FC1;
+  --sidebar-foreground: #1E293B;
+  --sidebar-primary: #0038DF;
   --sidebar-primary-foreground: #FFFFFF;
-  --sidebar-accent: #F3F8FD;
-  --sidebar-accent-foreground: #176FC1;
-  --sidebar-border: #E5EDF5;
-  --sidebar-ring: #176FC1;
+  --sidebar-accent: #F8FAFC;
+  --sidebar-accent-foreground: #0038DF;
+  --sidebar-border: #E2E8F0;
+  --sidebar-ring: #0038DF;
 
-  /* Custom brand variables */
-  --glow-blue: rgba(23, 111, 193, 0.12);
-  --glow-cyan: rgba(57, 189, 235, 0.15);
-  --glow-gold: rgba(233, 168, 58, 0.16);
-  --glass-bg: rgba(255, 255, 255, 0.88);
-  --glass-border: #E5EDF5;
-  --glass-shadow: 0 4px 24px rgba(20, 45, 73, 0.05);
-  --aurora-1: rgba(23, 111, 193, 0.04);
-  --aurora-2: rgba(57, 189, 235, 0.05);
-  --aurora-3: rgba(233, 168, 58, 0.03);
+  /* Custom gold & royal gradients */
+  --gradient-gold-metallic: linear-gradient(135deg, #9C7316 0%, #C99E32 28%, #E6C565 52%, #C1962C 76%, #8F6812 100%);
+  --gradient-royal-depth: radial-gradient(circle at 50% 30%, #0038DF 0%, #002299 100%);
+  --shadow-gold-cta: 0 8px 20px rgba(0, 0, 0, 0.22);
+  --shadow-blue-card: 0 20px 40px rgba(0, 20, 100, 0.25);
 }
 
 /* Fallback theme for dark mode if requested, maintaining brand consistency */
@@ -204,9 +201,122 @@
 }
 
 /* ==============================
-   UTILITY CLASSES
+   UTILITY CLASSES & DESIGN SYSTEM TOKENS
    ============================== */
 @layer utilities {
+  /* Radial depth for Royal Blue backgrounds */
+  .bg-royal-depth {
+    background: radial-gradient(circle at 50% 30%, #0038DF 0%, #002299 100%);
+  }
+
+  /* Brushed Metallic Gold Gradient */
+  .bg-gold-metallic {
+    background: linear-gradient(135deg, #9C7316 0%, #C99E32 28%, #E6C565 52%, #C1962C 76%, #8F6812 100%);
+  }
+
+  .text-gold-metallic {
+    background: linear-gradient(135deg, #9C7316 0%, #C99E32 28%, #E6C565 52%, #C1962C 76%, #8F6812 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* CTA Button — Brushed Metallic Gold */
+  .btn-gold-cta {
+    background: linear-gradient(135deg, #9C7316 0%, #C99E32 28%, #E6C565 52%, #C1962C 76%, #8F6812 100%);
+    color: #1A1A1A;
+    font-weight: 700;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.22), inset 0 1px 1px rgba(255, 255, 255, 0.4);
+    transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+
+  .btn-gold-cta:hover {
+    filter: brightness(1.08);
+    transform: translateY(-2px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.28), inset 0 1px 1px rgba(255, 255, 255, 0.6);
+  }
+
+  .btn-gold-cta:active {
+    transform: translateY(0);
+    filter: brightness(0.98);
+  }
+
+  /* Pill button variant for short actions */
+  .btn-gold-pill {
+    border-radius: 9999px;
+  }
+
+  /* Banner button variant for two lines */
+  .btn-gold-banner {
+    border-radius: 14px;
+  }
+
+  /* Container Cards */
+  .card-gold {
+    background-color: #FFFFFF;
+    border-radius: 16px;
+    border: 2px solid #C99E32;
+  }
+
+  .card-gold-on-blue {
+    background-color: #FFFFFF;
+    border-radius: 16px;
+    border: 2px solid #C99E32;
+    box-shadow: 0 20px 40px rgba(0, 20, 100, 0.25);
+  }
+
+  /* Quiz Style Selection Buttons */
+  .quiz-option-btn {
+    background-color: #FFFFFF;
+    border: 1.5px solid #E2E8F0;
+    border-radius: 10px;
+    text-align: left;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease;
+  }
+
+  .quiz-option-btn:hover {
+    border-color: #C99E32;
+    box-shadow: 0 4px 14px rgba(201, 158, 50, 0.15);
+  }
+
+  /* Short decorative gold divider */
+  .gold-divider {
+    height: 4px;
+    width: 56px;
+    border-radius: 9999px;
+    background: linear-gradient(135deg, #9C7316 0%, #C99E32 28%, #E6C565 52%, #C1962C 76%, #8F6812 100%);
+  }
+
+  /* Eyebrows / Badges */
+  .eyebrow-white-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.35rem 1rem;
+    border-radius: 9999px;
+    border: 1px solid #C99E32;
+    background-color: #FFFFFF;
+    color: #9C7316;
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .eyebrow-blue {
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #E6C565;
+  }
+
+  /* Typography shortcuts */
+  .title-h1 {
+    font-weight: 800;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+  }
   /* Glass morphism */
   .glass {
     background: var(--glass-bg);

@@ -228,10 +228,10 @@ export default function Dashboard({ onNavigate, onOpenAuth, onSelectCourse }: Da
         {/* Logo */}
         <div className="flex items-center justify-between px-6 py-5 border-b border-[#E5EDF5]">
           <button onClick={() => onNavigate('home')} className="flex items-center gap-2.5 group">
-            <div className="w-8 h-8 rounded-xl overflow-hidden ring-1 ring-[#E5EDF5] shadow-2xs group-hover:scale-105 transition-all duration-300 shrink-0 bg-white p-0.5">
+            <div className="w-8 h-8 rounded-full overflow-hidden ring-1 ring-[#C99E32] shadow-2xs group-hover:scale-105 transition-all duration-300 shrink-0 bg-white p-0.5">
               <img src="/logo-icon.png" alt="Legado Docente" className="w-full h-full object-contain" />
             </div>
-            <span className="font-bold font-display text-[#142D49]">Legado Docente</span>
+            <span className="font-extrabold font-display text-[#0038DF]">Legado Docente</span>
           </button>
           <button
             onClick={() => setSidebarOpen(false)}
@@ -253,36 +253,36 @@ export default function Dashboard({ onNavigate, onOpenAuth, onSelectCourse }: Da
                     className="w-10 h-10 rounded-2xl object-cover border border-[#E5EDF5]"
                   />
                 ) : (
-                  <div className="w-10 h-10 rounded-2xl bg-[#176FC1] text-white flex items-center justify-center text-xs font-bold shrink-0">
+                  <div className="w-10 h-10 rounded-2xl bg-[#0038DF] text-white flex items-center justify-center text-xs font-bold shrink-0">
                     {userInitials}
                   </div>
                 )}
                 <div className="min-w-0">
-                  <p className="text-sm font-bold text-[#142D49] truncate">{displayName}</p>
+                  <p className="text-sm font-bold text-[#1E293B] truncate">{displayName}</p>
                   <p className="text-[11px] font-semibold truncate">
                     {role === 'admin' ? (
-                      <span className="text-[#142D49]">Superusuario Admin</span>
+                      <span className="text-[#0038DF] font-bold">Superusuario Admin</span>
                     ) : role === 'instructor' ? (
-                      <span className="text-[#176FC1]">Docente Formador</span>
+                      <span className="text-[#9C7316] font-bold">Docente Formador</span>
                     ) : (
-                      <span className="text-[#176FC1]">Estudiante Matriculado</span>
+                      <span className="text-[#0038DF] font-bold">Estudiante Matriculado</span>
                     )}
                   </p>
                 </div>
               </div>
-              <div className="mt-4 flex items-center justify-between text-xs pt-3 border-t border-[#E5EDF5]">
-                <span className="text-[#536B83]">Cursos matriculados</span>
-                <span className="font-bold text-[#176FC1]">{enrollments.length} activos</span>
+              <div className="mt-4 flex items-center justify-between text-xs pt-3 border-t border-[#E2E8F0]">
+                <span className="text-[#64748B]">Cursos matriculados</span>
+                <span className="font-bold text-[#0038DF]">{enrollments.length} activos</span>
               </div>
             </>
           ) : (
             <div className="text-center py-2">
-              <p className="text-xs text-[#536B83] mb-3">
+              <p className="text-xs text-[#64748B] mb-3">
                 Inicia sesión para ver tus cursos matriculados
               </p>
               <button
                 onClick={onOpenAuth}
-                className="w-full py-2 rounded-xl bg-[#176FC1] text-white text-xs font-semibold shadow-xs"
+                className="w-full py-2 btn-gold-cta btn-gold-pill text-xs font-bold text-[#1A1A1A] cursor-pointer"
               >
                 Iniciar sesión
               </button>
@@ -296,10 +296,10 @@ export default function Dashboard({ onNavigate, onOpenAuth, onSelectCourse }: Da
             <button
               key={view}
               onClick={() => navigate(view)}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all duration-200 cursor-pointer ${
                 activeView === view
-                  ? 'bg-[#F3F8FD] text-[#176FC1] font-bold border-r-2 border-[#176FC1]'
-                  : 'text-[#536B83] hover:bg-[#F3F8FD] hover:text-[#142D49]'
+                  ? 'bg-[#F1F5F9] text-[#0038DF] border-r-4 border-[#C99E32]'
+                  : 'text-[#64748B] hover:bg-[#F8FAFC] hover:text-[#0038DF]'
               }`}
             >
               <Icon className="w-4.5 h-4.5 shrink-0" strokeWidth={activeView === view ? 2.2 : 1.8} />

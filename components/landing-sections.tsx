@@ -68,32 +68,33 @@ function FadeIn({ children, delay = 0, className = '' }: { children: React.React
 
 export function FeaturesSection() {
   return (
-    <section className="relative py-28 px-6 overflow-hidden bg-[#F3F8FD]">
+    <section className="relative py-28 px-6 overflow-hidden bg-white">
       <div className="max-w-7xl mx-auto">
         <FadeIn className="text-center mb-20">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-[#E5EDF5] text-[#176FC1] text-xs sm:text-sm font-semibold mb-6 shadow-2xs">
-            <Lightbulb className="w-4 h-4 text-[#E9A83A]" />
-            Diseñado para el docente colombiano
+          <div className="mb-4">
+            <span className="eyebrow-white-pill shadow-xs">
+              <Lightbulb className="w-4 h-4 text-[#C99E32]" />
+              Diseñado para el Docente Colombiano
+            </span>
           </div>
-          <h2 className="font-display font-bold text-4xl md:text-6xl text-[#142D49] text-balance mb-6">
-            Una plataforma pedagógica
-            <br />
-            <span className="gradient-text">diseñada para tu ascenso</span>
+          <h2 className="title-h1 text-4xl md:text-5xl lg:text-6xl text-[#0038DF] text-balance mb-3">
+            Una plataforma pedagógica de alto prestigio
           </h2>
-          <p className="text-base sm:text-lg text-[#536B83] max-w-2xl mx-auto leading-relaxed">
-            No es otro software genérico. Es un ecosistema EdTech premium construido específicamente para el sistema educativo de Colombia.
+          <div className="gold-divider mx-auto mb-6" />
+          <p className="text-base sm:text-lg text-[#1E293B] max-w-2xl mx-auto leading-relaxed">
+            Un ecosistema formativo premium construido específicamente bajo el marco del Decreto 1278, la CNSC y las directrices del Ministerio de Educación Nacional.
           </p>
         </FadeIn>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {FEATURES.map(({ icon: Icon, title, description, iconBg }, i) => (
             <FadeIn key={title} delay={i * 0.08}>
-              <div className="group relative h-full p-8 rounded-3xl bg-white border border-[#E5EDF5] hover:border-[#176FC1]/40 transition-all duration-300 shadow-xs hover:shadow-lg card-lift overflow-hidden">
-                <div className={`w-12 h-12 rounded-2xl ${iconBg} flex items-center justify-center mb-5`}>
+              <div className="group relative h-full p-8 rounded-2xl bg-white border border-[#E2E8F0] hover:border-[#C99E32] transition-all duration-300 shadow-sm hover:shadow-xl overflow-hidden">
+                <div className="w-12 h-12 rounded-2xl bg-[#0038DF]/10 text-[#0038DF] flex items-center justify-center mb-5 group-hover:bg-gold-metallic group-hover:text-[#1A1A1A] transition-colors">
                   <Icon className="w-6 h-6" strokeWidth={2} />
                 </div>
-                <h3 className="font-display font-bold text-lg text-[#142D49] mb-3">{title}</h3>
-                <p className="text-sm text-[#536B83] leading-relaxed">{description}</p>
+                <h3 className="title-h1 text-xl font-extrabold text-[#0038DF] mb-3">{title}</h3>
+                <p className="text-sm text-[#1E293B]/80 leading-relaxed">{description}</p>
               </div>
             </FadeIn>
           ))}
@@ -123,37 +124,38 @@ export function ExamPreviewSection({ onNavigate }: { onNavigate: (v: string) => 
         <div className="grid lg:grid-cols-2 gap-16 items-center">
           {/* Text */}
           <FadeIn>
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#F3F8FD] border border-[#E5EDF5] text-[#176FC1] text-xs sm:text-sm font-semibold mb-6 shadow-2xs">
-              <Target className="w-4 h-4 text-[#176FC1]" />
-              Simulador de Exámenes CNSC
+            <div className="mb-4">
+              <span className="eyebrow-white-pill shadow-xs">
+                <Target className="w-4 h-4 text-[#C99E32]" />
+                Simulador de Exámenes CNSC
+              </span>
             </div>
-            <h2 className="font-display font-bold text-4xl md:text-5xl text-[#142D49] text-balance mb-6">
-              Entrena con casos reales
-              <br />
-              <span className="gradient-text">idénticos al día de la prueba.</span>
+            <h2 className="title-h1 text-4xl md:text-5xl font-extrabold text-[#0038DF] text-balance mb-3">
+              Entrena con casos reales idénticos a la prueba.
             </h2>
-            <p className="text-base sm:text-lg text-[#536B83] leading-relaxed mb-8">
+            <div className="gold-divider mb-6" />
+            <p className="text-base sm:text-lg text-[#1E293B] leading-relaxed mb-8">
               Preguntas de juicio situacional con temporizador oficial, retroalimentación formativa inmediata y orientación pedagógica guiada.
             </p>
             <ul className="space-y-3 mb-10">
               {[
-                'Modalidad examen cronometrado con temporizador',
+                'Modalidad examen cronometrado con temporizador real',
                 'Retroalimentación con justificación pedagógica y Decreto 1290',
-                'Radar de competencias y puntos de refuerzo',
+                'Radar de competencias y puntos prioritarios de refuerzo',
                 'Historial de evolución y reconocimiento formativo',
               ].map((item) => (
-                <li key={item} className="flex items-start gap-3 text-sm text-[#142D49]">
-                  <CheckCircle2 className="w-5 h-5 text-[#176FC1] shrink-0 mt-0.5" strokeWidth={2.2} />
+                <li key={item} className="flex items-start gap-3 text-sm text-[#1E293B] font-medium">
+                  <CheckCircle2 className="w-5 h-5 text-[#0038DF] shrink-0 mt-0.5" strokeWidth={2.2} />
                   <span>{item}</span>
                 </li>
               ))}
             </ul>
             <button
               onClick={() => onNavigate('exam')}
-              className="group inline-flex items-center gap-2 px-6 py-3.5 rounded-2xl bg-[#176FC1] hover:bg-[#142D49] text-white font-semibold shadow-md hover:shadow-lg transition-all duration-300 btn-magnetic"
+              className="btn-gold-cta btn-gold-pill inline-flex items-center gap-2 px-8 py-3.5 text-sm font-bold text-[#1A1A1A] cursor-pointer"
             >
-              Iniciar simulacro ahora
-              <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+              <span>Iniciar simulacro ahora</span>
+              <ArrowRight className="w-4 h-4" />
             </button>
           </FadeIn>
 
@@ -164,23 +166,23 @@ export function ExamPreviewSection({ onNavigate }: { onNavigate: (v: string) => 
             transition={{ duration: 0.8, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
             className="float"
           >
-            <div className="relative p-8 rounded-3xl bg-white border border-[#E5EDF5] shadow-xl">
+            <div className="relative p-8 rounded-2xl bg-white border-2 border-[#C99E32] shadow-xl">
               {/* Header */}
               <div className="flex items-center justify-between mb-6">
                 <div>
-                  <p className="text-xs text-[#536B83] uppercase tracking-widest font-semibold mb-1">Simulacro en progreso</p>
-                  <p className="font-display font-bold text-[#142D49]">Concurso Méritos Docente 2026</p>
+                  <p className="text-xs text-[#9C7316] uppercase tracking-widest font-extrabold mb-1">Simulacro en progreso</p>
+                  <p className="title-h1 font-extrabold text-base text-[#0038DF]">Concurso Méritos Docente 2026</p>
                 </div>
-                <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[#F3F8FD] border border-[#E5EDF5]">
-                  <Clock className="w-4 h-4 text-[#176FC1]" />
-                  <span className="text-sm font-mono font-bold text-[#142D49]">42:15</span>
+                <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0]">
+                  <Clock className="w-4 h-4 text-[#0038DF]" />
+                  <span className="text-sm font-mono font-bold text-[#1E293B]">42:15</span>
                 </div>
               </div>
 
               {/* Question */}
-              <div className="p-5 rounded-2xl bg-[#F3F8FD] border border-[#E5EDF5] mb-6">
-                <p className="text-xs text-[#176FC1] font-bold uppercase tracking-wide mb-2">Pregunta 18 / 60</p>
-                <p className="text-sm font-semibold text-[#142D49] leading-relaxed">
+              <div className="p-5 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0] mb-6">
+                <p className="text-xs text-[#0038DF] font-extrabold uppercase tracking-wide mb-2">Pregunta 18 / 60</p>
+                <p className="text-sm font-bold text-[#1E293B] leading-relaxed">
                   De acuerdo con el Decreto 1290 y el modelo constructivista, ¿cuál es el principio orientador de la evaluación en el aula?
                 </p>
               </div>
@@ -197,16 +199,16 @@ export function ExamPreviewSection({ onNavigate }: { onNavigate: (v: string) => 
                     key={label}
                     className={`flex items-center gap-3 p-3.5 rounded-xl border text-sm transition-all ${
                       selected
-                        ? 'border-[#176FC1] bg-[#F3F8FD] text-[#142D49] font-semibold'
-                        : 'border-[#E5EDF5] bg-white text-[#536B83] hover:border-[#176FC1]/30'
+                        ? 'border-2 border-[#C99E32] bg-[#FFFBEB] text-[#1E293B] font-bold shadow-xs'
+                        : 'border-[#E2E8F0] bg-white text-[#1E293B] hover:border-[#C99E32]'
                     }`}
                   >
-                    <span className={`w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold shrink-0 ${
-                      selected ? 'bg-[#176FC1] text-white' : 'bg-[#F3F8FD] text-[#536B83] border border-[#E5EDF5]'
+                    <span className={`w-7 h-7 rounded-lg flex items-center justify-center text-xs font-extrabold shrink-0 ${
+                      selected ? 'bg-[#0038DF] text-white' : 'bg-[#F1F5F9] text-[#0038DF]'
                     }`}>
                       {label}
                     </span>
-                    <span>{text}</span>
+                    <span className="leading-snug">{text}</span>
                   </div>
                 ))}
               </div>
@@ -417,40 +419,61 @@ export function PathsSection({ onNavigate }: { onNavigate: (v: string) => void }
 }
 
 /* =====================
-   CTA SECTION
+   CTA SECTION (Full-bleed Royal Blue con Aros Dorados)
    ===================== */
 export function CTASection({ onNavigate }: { onNavigate: (v: string) => void }) {
   return (
-    <section className="relative py-28 px-6 overflow-hidden bg-[#F3F8FD]">
-      <div className="relative max-w-4xl mx-auto text-center">
+    <section className="relative py-28 px-6 overflow-hidden bg-royal-depth text-white">
+      {/* Aros geométricos decorativos dorados en esquinas (border: 12px solid #C99E32) */}
+      <div
+        className="absolute -top-28 -right-28 w-96 h-96 rounded-full pointer-events-none"
+        style={{ border: '12px solid #C99E32', opacity: 0.85 }}
+      />
+      <div
+        className="absolute -bottom-32 -left-32 w-[420px] h-[420px] rounded-full pointer-events-none"
+        style={{ border: '12px solid #C99E32', opacity: 0.75 }}
+      />
+
+      <div className="relative z-10 max-w-4xl mx-auto text-center">
         <FadeIn>
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-[#E5EDF5] text-[#176FC1] text-xs sm:text-sm font-semibold mb-8 shadow-2xs">
-            <Sparkles className="w-4 h-4 text-[#39BDEB]" />
-            Preparación continua sin ataduras
+          <div className="mb-4">
+            <span className="eyebrow-blue inline-flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-[#E6C565]" />
+              Preparación Oficial para la Carrera Docente
+            </span>
           </div>
-          <h2 className="font-display font-bold text-4xl sm:text-5xl md:text-6xl text-[#142D49] text-balance mb-6">
-            Tu carrera docente
+
+          <h2 className="title-h1 text-4xl sm:text-5xl md:text-6xl font-extrabold text-white text-balance mb-4">
+            Tu vocación docente
             <br />
-            <span className="gradient-text">merece el mejor respaldo.</span>
+            <span className="text-[#E6C565]">merece el máximo prestigio.</span>
           </h2>
-          <p className="text-base sm:text-lg text-[#536B83] max-w-2xl mx-auto leading-relaxed mb-10">
-            Únete a la comunidad de más de 48,000 docentes en toda Colombia que se preparan con rigor pedagógico y tecnología.
+
+          <div className="gold-divider mx-auto mb-8" />
+
+          <p className="text-base sm:text-xl text-white/90 max-w-2xl mx-auto leading-relaxed mb-10 text-pretty">
+            Únete a Legado Docente y prepárate con el programa oficial de 140 horas, simulacros ilimitados de juicio situacional y acompañamiento permanente.
           </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-5">
             <button
-              onClick={() => onNavigate('dashboard')}
-              className="px-8 py-4 rounded-2xl bg-[#176FC1] hover:bg-[#142D49] text-white text-base font-bold shadow-md hover:shadow-xl transition-all duration-300 btn-magnetic flex items-center justify-center gap-2"
+              onClick={() => onNavigate('courses')}
+              className="btn-gold-cta btn-gold-pill px-8 py-4 text-sm sm:text-base font-bold text-[#1A1A1A] flex items-center justify-center gap-2 cursor-pointer shadow-xl w-full sm:w-auto"
             >
-              <span>Comenzar ahora gratis</span>
+              <span>Matricularme en el Curso de 140 Horas</span>
               <ArrowRight className="w-4 h-4" />
             </button>
             <button
               onClick={() => onNavigate('pricing')}
-              className="px-8 py-4 rounded-2xl bg-white border border-[#E5EDF5] hover:border-[#176FC1] text-[#142D49] text-base font-semibold transition-all duration-300 btn-magnetic shadow-xs"
+              className="px-7 py-4 rounded-full bg-white/10 hover:bg-white/20 text-white text-sm sm:text-base font-bold transition-all border border-white/25 cursor-pointer w-full sm:w-auto"
             >
-              Ver planes y precios
+              Ver Planes y Diagnóstico
             </button>
           </div>
+
+          <p className="mt-8 text-xs italic text-[#E6C565] font-medium tracking-wide">
+            «Aprende, comparte, deja huella»
+          </p>
         </FadeIn>
       </div>
     </section>
