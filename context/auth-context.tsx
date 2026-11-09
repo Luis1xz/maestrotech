@@ -147,17 +147,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const emailHint = u?.email || ''
         const { data, error } = await getProfile(userId, emailHint)
 
-        const cleanEmail = emailHint.toLowerCase().trim()
-        const isSuperuser =
-          cleanEmail.startsWith('patriciajhon') ||
-          cleanEmail === 'patricia@legadodocente.co' ||
-          cleanEmail.startsWith('luisalfonso') ||
-          cleanEmail === 'admin@legadodocente.co'
-
         if (data) {
-          if (isSuperuser && data.role !== 'admin') {
-            data.role = 'admin'
-          }
           setProfile(data)
           loadedUserIdRef.current = userId
         } else if (!error) {
@@ -172,7 +162,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           const googleAvatar =
             u?.user_metadata?.avatar_url || u?.user_metadata?.picture || null
 
-          const targetRole: UserRole = isSuperuser ? 'admin' : 'student'
+          const targetRole: UserRole = (u?.user_metadata?.role || u?.app_metadata?.role || 'student') as UserRole
 
           const { data: created } = await ensureProfile(userId, {
             email: emailHint,
@@ -183,14 +173,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             role: targetRole,
           })
           if (created) {
-            if (isSuperuser && created.role !== 'admin') {
-              created.role = 'admin'
-            }
             setProfile(created)
             loadedUserIdRef.current = userId
           }
         } else {
-          const metaRole = (isSuperuser ? 'admin' : (u?.user_metadata?.role || u?.app_metadata?.role || 'student')) as UserRole
+          const metaRole = (u?.user_metadata?.role || u?.app_metadata?.role || 'student') as UserRole
           setProfile((prev) =>
             prev || {
               id: userId,
@@ -465,9 +452,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const fullName = `${firstName} ${lastName}`.trim()
 
     try {
-      let userId: string = crypto.randomUUID()
-      let hasLiveSession = false
-
       if (isConfigured) {
         const client = getSupabase()
         const { data, error } = await client.auth.signUp({
@@ -482,48 +466,68 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           },
         })
 
-        const isAlreadyRegistered = Boolean(error?.message?.toLowerCase().includes('already registered'))
-        const isRateLimit = Boolean(error?.message?.toLowerCase().includes('rate limit'))
-
-        // Si es un error real distinto de "ya registrado" o "límite de emails SMTP", devolver error
-        if (error && !isAlreadyRegistered && !isRateLimit) {
+        if (error) {
           return { error: new Error(error.message) }
         }
 
-        if (data?.user?.id) {
-          userId = data.user.id
+        if (!data?.user?.id) {
+          return { error: new Error('No se pudo crear la cuenta en la base de datos de Supabase.') }
         }
-        if (data?.session && data?.user) {
-          hasLiveSession = true
+
+        const userId = data.user.id
+
+        // Guardar el perfil en public.profiles con rol inicial de aspirante ('student')
+        await ensureProfile(userId, {
+          email: cleanEmail,
+          full_name: fullName,
+          first_name: firstName,
+          last_name: lastName,
+          role: 'student',
+        })
+
+        if (data.session && data.user) {
           setUser(data.user)
           userRef.current = data.user
           setSession(data.session)
+          await loadUserProfile(userId, data.user)
+        } else {
+          // Intentar iniciar sesión si la confirmación de email está desactivada en Supabase
+          const { data: loginData } = await client.auth.signInWithPassword({
+            email: cleanEmail,
+            password,
+          })
+          if (loginData?.session && loginData?.user) {
+            setUser(loginData.user)
+            userRef.current = loginData.user
+            setSession(loginData.session)
+            await loadUserProfile(loginData.user.id, loginData.user)
+          }
         }
-      }
 
-      const { data: ensured } = await ensureProfile(userId, {
-        email: cleanEmail,
-        full_name: fullName,
-        first_name: firstName,
-        last_name: lastName,
-        role: 'student',
-      })
+        return { error: null }
+      } else {
+        // Modo offline / sin configuración de Supabase
+        const localUserId = crypto.randomUUID()
+        const { data: ensured } = await ensureProfile(localUserId, {
+          email: cleanEmail,
+          full_name: fullName,
+          first_name: firstName,
+          last_name: lastName,
+          role: 'student',
+        })
 
-      if (!hasLiveSession) {
         activateCustomSession({
-          id: ensured?.id || userId,
+          id: ensured?.id || localUserId,
           email: cleanEmail,
           full_name: ensured?.full_name || fullName,
           first_name: firstName,
           last_name: lastName,
-          role: ensured?.role || 'student',
+          role: 'student',
           avatar_url: null,
         })
-      } else {
-        await loadUserProfile(userId)
-      }
 
-      return { error: null }
+        return { error: null }
+      }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Error al registrar usuario'
       return { error: new Error(msg) }

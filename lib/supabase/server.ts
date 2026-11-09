@@ -2,25 +2,6 @@ import { createClient, SupabaseClient } from '@supabase/supabase-js'
 import { Profile } from '@/types/database'
 import { readStore } from '@/lib/platform-store-server'
 
-const SUPERADMIN_EMAILS = new Set([
-  'luisalfonso1818@gmail.com',
-  'luisalfonso@legadodocente.co',
-  'patriciajhon@gmail.com',
-  'patriciajhon@legadodocente.co',
-  'patricia@legadodocente.co',
-  'admin@legadodocente.co',
-])
-
-export function isSuperadminEmail(email: string): boolean {
-  const clean = (email || '').trim().toLowerCase()
-  return (
-    SUPERADMIN_EMAILS.has(clean) ||
-    clean.startsWith('patriciajhon') ||
-    clean.startsWith('luisalfonso') ||
-    clean.includes('patriciajhon')
-  )
-}
-
 /**
  * Cliente exclusivo de servidor con privilegios administrativos (service_role).
  * ADVERTENCIA DE SEGURIDAD:
@@ -69,10 +50,7 @@ export async function verifyAdminRequest(authHeader: string | null): Promise<{
   if (token.startsWith('custom-session:')) {
     const customUserId = token.replace('custom-session:', '').trim()
     const storeUser = store.users.find((u) => u.id === customUserId)
-    if (
-      storeUser &&
-      (storeUser.role === 'admin' || SUPERADMIN_EMAILS.has((storeUser.email || '').toLowerCase()))
-    ) {
+    if (storeUser && storeUser.role === 'admin') {
       return {
         authorized: true,
         userId: storeUser.id,
@@ -117,13 +95,13 @@ export async function verifyAdminRequest(authHeader: string | null): Promise<{
     return { authorized: false, error: 'Sesión no válida o expirada' }
   }
 
-  // 2. Verificar si es superadmin por email o en platform-store
+  // 2. Verificar si es admin en platform-store
   const emailLower = (user.email || '').toLowerCase()
   const storeUser = store.users.find(
     (u) => u.id === user.id || (u.email || '').toLowerCase() === emailLower
   )
 
-  if (isSuperadminEmail(emailLower) || storeUser?.role === 'admin') {
+  if (storeUser?.role === 'admin') {
     return {
       authorized: true,
       userId: user.id,

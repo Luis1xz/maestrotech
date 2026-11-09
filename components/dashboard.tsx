@@ -131,7 +131,10 @@ export default function Dashboard({
   ])
 
   const loadDashboardData = useCallback(async () => {
-    if (!user) {
+    if (!user?.id) {
+      setEnrollments([])
+      setStats(null)
+      setCertificates([])
       setLoading(false)
       return
     }
@@ -140,7 +143,7 @@ export default function Dashboard({
     setError(null)
 
     try {
-      const userId = user?.id || 'b5ccdb90-a6c0-4b99-add5-c93fac47ee84'
+      const userId = user.id
       const [enrollRes, statsRes, certsRes] = await Promise.all([
         getUserEnrollments(userId),
         getUserGlobalProgress(userId),

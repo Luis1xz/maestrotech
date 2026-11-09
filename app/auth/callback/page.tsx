@@ -100,14 +100,9 @@ function AuthCallbackContent() {
           email.split('@')[0] ||
           'Docente'
 
-        // Superusuarios oficiales: patriciajhon y luisalfonso
-        const isSuperuser =
-          email.startsWith('patriciajhon') ||
-          email === 'patricia@legadodocente.co' ||
-          email.startsWith('luisalfonso') ||
-          email === 'admin@legadodocente.co'
-
-        const targetRole = isSuperuser ? 'admin' : 'student'
+        // Todos los nuevos registros mediante Google ingresan como aspirantes ('student')
+        // Los roles de docente o administrador son asignados por los administradores en la base de datos
+        const targetRole = 'student'
 
         await ensureProfile(user.id, {
           email,

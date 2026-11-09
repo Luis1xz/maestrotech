@@ -20,6 +20,7 @@ import {
   Filter,
   Flame,
   Check,
+  AlertCircle,
 } from 'lucide-react'
 import { Course } from '@/types/database'
 import { EnrollmentWithCourse, enrollInCourse } from '@/services/enrollments'
@@ -335,8 +336,9 @@ export default function DashboardCoursesPanel({
                   Matrícula Activa
                 </span>
               ) : (
-                <span className="px-3 py-1 rounded-full bg-amber-500/25 border border-amber-400/40 text-amber-200 text-xs font-bold">
-                  Acceso Habilitado
+                <span className="px-3 py-1 rounded-full bg-amber-500/25 border border-amber-400/40 text-amber-200 text-xs font-bold inline-flex items-center gap-1.5">
+                  <AlertCircle className="w-3.5 h-3.5 text-amber-300" />
+                  No Matriculado
                 </span>
               )}
             </div>
@@ -358,7 +360,7 @@ export default function DashboardCoursesPanel({
                 className="btn-gold-cta btn-gold-pill px-8 py-3.5 text-sm font-extrabold flex items-center gap-3 group cursor-pointer shadow-lg"
               >
                 <Play className="w-4 h-4 fill-current text-[#1A1A1A] group-hover:scale-110 transition-transform" />
-                <span>Ingresar al Aula de Clases (140h)</span>
+                <span>{isEnrolledInFlagship ? 'Continuar Mi Formación (140h)' : 'Ver Temario y Clases (140h)'}</span>
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </button>
 

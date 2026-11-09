@@ -3,25 +3,6 @@ import { Profile, UserRole } from '@/types/database'
 import { DEMO_PROFILE } from './demo-data'
 import { fetchPlatformState, mutatePlatformState } from '@/lib/platform-state-client'
 
-const SUPERADMIN_EMAILS = new Set([
-  'luisalfonso1818@gmail.com',
-  'luisalfonso@legadodocente.co',
-  'patriciajhon@gmail.com',
-  'patriciajhon@legadodocente.co',
-  'patricia@legadodocente.co',
-  'admin@legadodocente.co',
-])
-
-export function isSuperuserEmail(email: string): boolean {
-  const clean = (email || '').trim().toLowerCase()
-  return (
-    SUPERADMIN_EMAILS.has(clean) ||
-    clean.startsWith('patriciajhon') ||
-    clean.startsWith('luisalfonso') ||
-    clean.includes('patriciajhon')
-  )
-}
-
 export async function getProfile(
   userId: string,
   emailHint?: string
@@ -54,9 +35,6 @@ export async function getProfile(
     if (stateUser || dbProfile) {
       let resolvedRole: UserRole = stateUser?.role || dbProfile?.role || 'student'
       if (!stateUser?.role_updated_at && dbProfile?.role === 'admin') {
-        resolvedRole = 'admin'
-      }
-      if (cleanEmail && isSuperuserEmail(cleanEmail)) {
         resolvedRole = 'admin'
       }
 
@@ -181,9 +159,6 @@ export async function ensureProfile(
     )
 
     let resolvedRole: UserRole = stateUser?.role || initialData.role || 'student'
-    if (cleanEmail && isSuperuserEmail(cleanEmail)) {
-      resolvedRole = 'admin'
-    }
 
     const fullName =
       stateUser?.full_name ||
@@ -206,9 +181,6 @@ export async function ensureProfile(
               resolvedRole = existing.role
             }
           } else if (existing.role === 'admin' && !stateUser?.role_updated_at) {
-            resolvedRole = 'admin'
-          }
-          if (cleanEmail && isSuperuserEmail(cleanEmail)) {
             resolvedRole = 'admin'
           }
           if (existing.role !== resolvedRole) {
