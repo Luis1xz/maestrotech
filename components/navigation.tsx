@@ -102,14 +102,19 @@ export default function Navigation({ onNavigate, currentView, onOpenAuth }: NavP
           {/* Logo */}
           <button
             onClick={() => onNavigate('home')}
-            className="flex items-center gap-2.5 group"
+            className="flex items-center gap-2.5 group text-left cursor-pointer"
           >
-            <div className="w-8 h-8 rounded-xl overflow-hidden ring-1 ring-[#E5EDF5] shadow-sm group-hover:scale-105 group-hover:ring-[#176FC1]/50 transition-all duration-300 shrink-0 bg-white p-0.5">
-              <img src="/logo.png" alt="Maestro Logo" className="w-full h-full object-contain" />
+            <div className="w-9 h-9 rounded-xl overflow-hidden ring-1 ring-[#E5EDF5] shadow-xs group-hover:scale-105 group-hover:ring-[#0045E6]/40 transition-all duration-300 shrink-0 bg-white p-0.5">
+              <img src="/logo-icon.png" alt="Legado Docente" className="w-full h-full object-contain" />
             </div>
-            <span className="text-base font-bold tracking-tight text-[#142D49] font-display">
-              MaestroTech
-            </span>
+            <div>
+              <span className="text-base font-bold tracking-tight text-[#0045E6] font-display block leading-none">
+                LEGADO DOCENTE
+              </span>
+              <span className="text-[9px] text-[#536B83] italic tracking-tight hidden sm:block">
+                «Aprende, comparte, deja huella»
+              </span>
+            </div>
           </button>
 
           {/* Desktop nav */}

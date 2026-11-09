@@ -191,14 +191,14 @@ export default function Dashboard({ onNavigate, onOpenAuth, onSelectCourse }: Da
   }
 
   const displayName =
-    profile?.full_name || (user?.email ? user.email.split('@')[0] : 'Estudiante MaestroTech')
+    profile?.full_name || (user?.email ? user.email.split('@')[0] : 'Docente Legado Docente')
   const userInitials =
     displayName
       .split(' ')
       .filter(Boolean)
       .slice(0, 2)
       .map((n) => n[0].toUpperCase())
-      .join('') || 'MT'
+      .join('') || 'LD'
   const userAvatar = getAvatarUrl(profile?.avatar_url)
 
   const filteredEnrollments = enrollments.filter((enr) => {
@@ -229,9 +229,9 @@ export default function Dashboard({ onNavigate, onOpenAuth, onSelectCourse }: Da
         <div className="flex items-center justify-between px-6 py-5 border-b border-[#E5EDF5]">
           <button onClick={() => onNavigate('home')} className="flex items-center gap-2.5 group">
             <div className="w-8 h-8 rounded-xl overflow-hidden ring-1 ring-[#E5EDF5] shadow-2xs group-hover:scale-105 transition-all duration-300 shrink-0 bg-white p-0.5">
-              <img src="/logo.png" alt="Maestro Logo" className="w-full h-full object-contain" />
+              <img src="/logo-icon.png" alt="Legado Docente" className="w-full h-full object-contain" />
             </div>
-            <span className="font-bold font-display text-[#142D49]">MaestroTech</span>
+            <span className="font-bold font-display text-[#142D49]">Legado Docente</span>
           </button>
           <button
             onClick={() => setSidebarOpen(false)}
@@ -679,7 +679,7 @@ export default function Dashboard({ onNavigate, onOpenAuth, onSelectCourse }: Da
                         Aún no tienes cursos matriculados
                       </p>
                       <p className="text-[11px] text-[#536B83] max-w-md mx-auto leading-relaxed">
-                        La inscripción a los programas de MaestroTech es activada por pasarela de pago o manualmente por un Administrador (<span className="text-[#142D49] font-mono">{user?.email}</span>).
+                        La inscripción a los programas de Legado Docente es activada por pasarela de pago o manualmente por un Administrador (<span className="text-[#142D49] font-mono">{user?.email}</span>).
                       </p>
                       <button
                         onClick={() => onNavigate('courses')}
@@ -920,7 +920,7 @@ export default function Dashboard({ onNavigate, onOpenAuth, onSelectCourse }: Da
                         </div>
                         <div className="min-w-0">
                           <p className="text-xs font-bold text-[#142D49] truncate">
-                            {cert.course?.title || 'Certificación Docente MaestroTech'}
+                            {cert.course?.title || 'Certificación Docente Legado Docente'}
                           </p>
                           <p className="text-[10px] font-mono text-amber-500">
                             Código: {cert.certificate_number}
@@ -979,7 +979,7 @@ export default function Dashboard({ onNavigate, onOpenAuth, onSelectCourse }: Da
 
               <div className="space-y-1">
                 <p className="text-[11px] font-bold uppercase tracking-widest text-amber-500">
-                  Certificación Académica Verificada • MaestroTech Colombia
+                  Certificación Académica Verificada • Legado Docente Colombia
                 </p>
                 <h2 className="font-display font-bold text-2xl sm:text-3xl text-foreground">
                   Certificado de Formación Docente
@@ -993,7 +993,7 @@ export default function Dashboard({ onNavigate, onOpenAuth, onSelectCourse }: Da
                   Por haber cursado el programa de cualificación docente:
                 </p>
                 <p className="font-display font-bold text-base text-foreground">
-                  {selectedCert.course?.title || 'Programa Oficial MaestroTech'}
+                  {selectedCert.course?.title || 'Programa Oficial Legado Docente'}
                 </p>
                 <div className="flex flex-wrap items-center justify-center gap-4 pt-2 text-[11px] text-muted-foreground font-mono">
                   <span>Código: {selectedCert.certificate_number}</span>

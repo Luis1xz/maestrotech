@@ -36,38 +36,28 @@ function mergeCourses(dbCourses: Course[], storeCourses: Course[], deletedIds: s
 
   for (const dbc of dbCourses) {
     if (deletedIds.includes(dbc.id)) continue
-    const existing = map.get(dbc.id) || Array.from(map.values()).find((c) => c.slug === dbc.slug)
+    // Si es un curso legacy de prueba, no sobreescribir el catálogo oficial
+    if (dbc.id !== '2aac8ece-e71b-4c7c-99be-9b4fe37879da' && dbc.slug !== 'curso-preparacion-ingreso-carrera-docente-140h') {
+      continue
+    }
+
+    const existing = map.get(dbc.id) || Array.from(map.values()).find((c) => c.slug === dbc.slug || c.id === '2aac8ece-e71b-4c7c-99be-9b4fe37879da')
     if (existing) {
-      // Si en BD el curso tiene un título de prueba como 'fdhdfhg666', usar el título enriquecido del store
-      const useStoreTitle = dbc.title === 'fdhdfhg666' && existing.title !== 'fdhdfhg666'
-      map.set(dbc.id, {
+      map.set(existing.id, {
         ...existing,
         ...dbc,
-        title: useStoreTitle ? existing.title : dbc.title || existing.title,
-        description:
-          dbc.description === 'rrtsth' && existing.description !== 'rrtsth'
-            ? existing.description
-            : dbc.description || existing.description,
-        short_description:
-          dbc.short_description === 'rrtsth' && existing.short_description !== 'rrtsth'
-            ? existing.short_description
-            : dbc.short_description || existing.short_description,
-        thumbnail_url: dbc.thumbnail_url || existing.thumbnail_url,
-        category: dbc.category || existing.category || 'Pedagogía',
-        level: dbc.level || existing.level || 'Intermedio',
-        instructor_id: dbc.instructor_id || existing.instructor_id,
-        instructor_name: dbc.instructor_name || existing.instructor_name || 'Docente MaestroTech',
-        instructor_role: dbc.instructor_role || existing.instructor_role || 'Especialista Pedagógico',
-        duration_hours: dbc.duration_hours ?? existing.duration_hours ?? 8,
-        published: existing.published !== undefined ? existing.published : dbc.published,
-      })
-    } else {
-      map.set(dbc.id, {
-        ...dbc,
-        category: dbc.category || 'Pedagogía',
-        level: dbc.level || 'Intermedio',
-        instructor_name: dbc.instructor_name || 'Docente MaestroTech',
-        duration_hours: dbc.duration_hours ?? 6,
+        id: existing.id,
+        title: existing.title,
+        slug: existing.slug,
+        description: existing.description,
+        short_description: existing.short_description,
+        thumbnail_url: existing.thumbnail_url || dbc.thumbnail_url,
+        category: existing.category,
+        level: existing.level,
+        instructor_name: existing.instructor_name,
+        instructor_role: existing.instructor_role,
+        duration_hours: 140,
+        published: true,
       })
     }
   }
@@ -114,8 +104,11 @@ export async function getCourses(options?: {
       result = result.filter((c) => c.featured)
     }
     if (options?.category && options.category !== 'Todos') {
+      const searchCat = options.category.toLowerCase()
       result = result.filter(
-        (c) => c.category?.toLowerCase() === options.category?.toLowerCase()
+        (c) =>
+          c.category?.toLowerCase().includes(searchCat) ||
+          searchCat.includes(c.category?.toLowerCase() || '')
       )
     }
 

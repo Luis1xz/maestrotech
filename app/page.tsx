@@ -33,7 +33,7 @@ type View =
 
 function MainApp() {
   const [view, setView] = useState<View>('home')
-  const [selectedCourseSlug, setSelectedCourseSlug] = useState('pedagogia-critica-y-constructivismo')
+  const [selectedCourseSlug, setSelectedCourseSlug] = useState('curso-preparacion-ingreso-carrera-docente-140h')
   const [authModalOpen, setAuthModalOpen] = useState(false)
   const [authModalMode, setAuthModalMode] = useState<'signin' | 'signup'>('signin')
   const [pendingViewAfterAuth, setPendingViewAfterAuth] = useState<View | null>(null)
@@ -112,7 +112,7 @@ function MainApp() {
       <div className="min-h-screen bg-[#F3F8FD] flex flex-col items-center justify-center">
         <div className="w-10 h-10 border-2 border-[#176FC1] border-t-transparent rounded-full animate-spin mb-4" />
         <span className="font-display font-bold text-[#142D49] text-sm tracking-tight animate-pulse">
-          MaestroTech
+          Legado Docente
         </span>
       </div>
     )
@@ -254,6 +254,7 @@ function MainApp() {
       <main>
         <HeroSection
           onNavigate={navigate}
+          onOpenAuth={openAuth}
           isAuthenticated={isAuthenticated}
           role={role}
           userName={profile?.full_name || user?.email?.split('@')[0]}

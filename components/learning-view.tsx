@@ -466,7 +466,7 @@ export default function LearningView({
               </h3>
               <p className="text-xs text-[#536B83] max-w-md mb-5 leading-relaxed">
                 Para acceder a las videoclases, guías PDF descargables, simulacros y certificado de{' '}
-                <strong className="text-[#142D49]">{course.title}</strong>, un Administrador de MaestroTech debe activar tu matrícula manualmente en el sistema.
+                <strong className="text-[#142D49]">{course.title}</strong>, un Administrador de Legado Docente debe activar tu matrícula manualmente en el sistema.
               </p>
               {!isAuthenticated ? (
                 <button
@@ -804,7 +804,7 @@ export default function LearningView({
 
               <div className="space-y-1">
                 <p className="text-[11px] font-bold uppercase tracking-widest text-[#E9A83A]">
-                  Certificación Académica Verificada • MaestroTech Colombia
+                  Certificación Académica Verificada • Legado Docente Colombia
                 </p>
                 <h2 className="font-display font-bold text-2xl sm:text-3xl text-[#142D49]">
                   Certificado de Formación Docente
@@ -814,7 +814,7 @@ export default function LearningView({
               <div className="p-6 rounded-2xl bg-[#F3F8FD] border border-[#E5EDF5] space-y-3">
                 <p className="text-xs text-[#536B83]">Se otorga el presente certificado a:</p>
                 <p className="font-display font-bold text-xl text-[#176FC1]">
-                  {profile?.full_name || user?.email || 'Estudiante MaestroTech'}
+                  {profile?.full_name || user?.email || 'Docente Legado Docente'}
                 </p>
                 <p className="text-xs text-[#536B83]">
                   Por cursar y aprobar satisfactoriamente el programa de actualización pedagógica:

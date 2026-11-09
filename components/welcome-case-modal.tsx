@@ -27,44 +27,44 @@ interface WelcomeCaseModalProps {
 
 const WELCOME_CASE = {
   id: 'case_bienvenida_1',
-  missionTitle: 'Misión Pedagógica de Bienvenida',
-  contextBadge: 'Caso Situacional Real · Aula y Convivencia',
+  missionTitle: 'Pon a prueba lo que sabes',
+  contextBadge: '¿Cuánto sabes del concurso docente? · Pregunta 1 de 10',
   situation:
-    'Estás a cargo de un grado 9° en una institución educativa. Camilo, un estudiante con gran potencial de liderazgo en talleres grupales, ha dejado de entregar tareas individuales durante las últimas 3 semanas y muestra desinterés cuando se trabaja en clase magistral.',
+    'El Concurso de Méritos Docente en Colombia se rige por normas estrictas de publicidad, mérito e igualdad establecidas en el Decreto Ley 1278 de 2002 y la Ley 909 de 2004.',
   question:
-    'De acuerdo con el enfoque de evaluación formativa del Ministerio de Educación Nacional (Decreto 1290) y el modelo constructivista, ¿cuál es la primera acción pedagógica acertada que debes emprender?',
+    '¿Por dónde se publican oficialmente las citaciones a pruebas y los resultados definitivos del concurso docente en Colombia?',
   options: [
     {
       id: 'A',
-      text: 'Citar inmediatamente a su acudiente y registrar una falta disciplinaria en el observador escolar por bajo rendimiento.',
+      text: 'Grupos de WhatsApp de docentes y sindicatos.',
       isCorrect: false,
       feedback:
-        'Sancionar o judicializar el desinterés suele generar mayor distanciamiento. En la pedagogía actual, primero indagamos las causas pedagógicas y emocionales antes de escalar a procesos disciplinarios.',
-      hint: 'Busca la opción que dialogue con el estudiante para adaptar la estrategia pedagógica a su estilo de aprendizaje.',
+        'Aunque en redes y grupos circula información rápida, no constituyen canales legales ni oficiales de notificación del Estado.',
+      hint: 'Recuerda que la CNSC tiene una plataforma digital obligatoria para todos los procesos de mérito.',
     },
     {
       id: 'B',
-      text: 'Dialogar en privado con Camilo para conocer sus motivaciones, vincular sus tareas con proyectos prácticos y acordar metas de aprendizaje concertadas.',
+      text: 'SIMO (Sistema de Apoyo para la Igualdad, el Mérito y la Oportunidad) y www.cnsc.gov.co',
       isCorrect: true,
       feedback:
-        '¡Magistral! La evaluación formativa (Decreto 1290) se centra en la autorregulación y el diálogo. Al aprovechar su liderazgo práctico para resignificar las tareas individuales, garantizas un aprendizaje significativo y previenes la deserción escolar.',
+        '¡Felicidades! 🎉 Tu respuesta es 100% correcta. El portal oficial de la Comisión Nacional del Servicio Civil (CNSC) y el aplicativo SIMO son los únicos medios legales donde se publican las citaciones y listas de elegibles oficiales.',
       hint: '',
     },
     {
       id: 'C',
-      text: 'Eximir a Camilo de entregar tareas individuales para evitarle frustración, permitiéndole solo trabajar en proyectos grupales.',
+      text: 'Las redes sociales no oficiales de la CNSC.',
       isCorrect: false,
       feedback:
-        'Aunque adaptar el currículo es valioso, eximirlo sin un plan de nivelación no desarrolla su autonomía ni sus competencias individuales requeridas por los estándares del MEN.',
-      hint: 'El objetivo formativo es potenciar su autonomía individual apoyándonos en su fortaleza de liderazgo grupal.',
+        'Las redes sociales son informativas pero no tienen validez jurídica para fijar términos de reclamaciones o citaciones a exámenes.',
+      hint: 'Busca el aplicativo web oficial donde inscribes tu hoja de vida.',
     },
     {
       id: 'D',
-      text: 'Asignarle el doble de guías teóricas para que las desarrolle en casa y compense las notas pendientes del periodo.',
+      text: 'El correo personal de la secretaría de educación de tu municipio.',
       isCorrect: false,
       feedback:
-        'Sobrecargar de guías teóricas a un estudiante que rechaza la metodología magistral solo incrementará su rechazo y el riesgo de deserción.',
-      hint: 'Recuerda que la cantidad de tareas no garantiza calidad en el aprendizaje constructivista.',
+        'Las secretarías certifican vacantes, pero la administración del concurso de ingreso la realiza directamente la CNSC a nivel nacional.',
+      hint: 'La entidad rectora del concurso es la CNSC a través de su plataforma nacional.',
     },
   ],
 }
@@ -292,23 +292,27 @@ export default function WelcomeCaseModal({
             </div>
           )}
 
-          <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
+          <div className="flex flex-col items-center sm:items-end w-full sm:w-auto gap-1">
             <button
               onClick={handleFinish}
-              className={`w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl text-xs sm:text-sm font-bold shadow-md transition-all ${
+              className={`w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full text-xs sm:text-sm font-bold shadow-md transition-all cursor-pointer ${
                 answered
-                  ? 'bg-[#176FC1] hover:bg-[#142D49] text-white'
-                  : 'bg-[#F3F8FD] border border-[#E5EDF5] text-[#142D49] hover:bg-[#E5EDF5]'
+                  ? 'bg-gradient-to-r from-[#E5A83B] to-[#D4AF37] hover:from-[#D49E30] hover:to-[#C49126] text-[#142D49]'
+                  : 'bg-[#0045E6] hover:bg-[#142D49] text-white'
               }`}
             >
               {answered ? (
                 <>
-                  Descubre tu potencial y continúa aprendiendo <ArrowRight className="w-4 h-4" />
+                  <span>Toca el enlace y continúa aprendiendo</span>
+                  <ArrowRight className="w-4 h-4" />
                 </>
               ) : (
-                'Explorar la plataforma primero'
+                'Explorar Legado Docente'
               )}
             </button>
+            <span className="text-[10px] text-[#536B83] italic tracking-tight">
+              Aprende, comparte, deja huella
+            </span>
           </div>
         </div>
       </motion.div>

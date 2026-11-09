@@ -246,7 +246,7 @@ const TESTIMONIALS = [
   {
     name: 'María Fernanda López',
     role: 'Docente de Matemáticas · Bogotá',
-    content: 'Pasé de 58 a 89 puntos en el simulacro. El simulador de MaestroTech es idéntico a las preguntas del concurso. Aprobé el concurso de méritos con nombramiento en propiedad.',
+    content: 'Pasé de 58 a 89 puntos en el simulacro. El simulador de Legado Docente es idéntico a las preguntas del concurso. Aprobé el concurso de méritos con nombramiento en propiedad.',
     rating: 5,
     avatar: 'MF',
     avatarBg: 'bg-[#176FC1]',

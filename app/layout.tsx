@@ -15,19 +15,28 @@ const plusJakarta = Plus_Jakarta_Sans({
 })
 
 export const metadata: Metadata = {
-  title: 'MaestroTech — La plataforma del docente colombiano',
+  title: 'Legado Docente — «Aprende, comparte, deja huella»',
   description:
-    'MaestroTech es la plataforma educativa más avanzada para docentes colombianos. Prepárate para concursos de méritos, ascensos, traslados y desarrollo profesional continuo.',
-  keywords: ['MaestroTech', 'docentes Colombia', 'concurso méritos', 'ascenso docente', 'evaluación docente'],
+    'Legado Docente es la plataforma oficial de preparación para el Concurso de Méritos Docente en Colombia. Curso integral de 140 horas, simulacros oficiales y caracterización inteligente.',
+  keywords: [
+    'Legado Docente',
+    'Aprende comparte deja huella',
+    'Concurso Docente 2917-3006',
+    'concurso méritos docente',
+    'Decreto Ley 1278',
+    'CNSC',
+    'SIMO',
+    'evaluación docente',
+  ],
   openGraph: {
-    title: 'MaestroTech — La plataforma del docente colombiano',
-    description: 'El futuro del desarrollo profesional docente empieza aquí con MaestroTech.',
+    title: 'Legado Docente — «Aprende, comparte, deja huella»',
+    description: 'Prepárate con método, fuentes oficiales y una comunidad de colegas. Curso oficial de 140 horas.',
     type: 'website',
   },
   icons: {
-    icon: '/logo.png',
-    shortcut: '/logo.png',
-    apple: '/apple-icon.png',
+    icon: '/logo-icon.png',
+    shortcut: '/logo-icon.png',
+    apple: '/logo-icon.png',
   },
   verification: {
     google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || undefined,

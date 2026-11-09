@@ -12,7 +12,7 @@ interface CoursesViewProps {
   onNavigate: (view: string) => void
 }
 
-const CATEGORIES = ['Todos', 'Pedagogía', 'Legislación', 'Evaluación', 'Directivos']
+const CATEGORIES = ['Todos', 'Concurso Docente', 'Aptitudes Básicas', 'Pedagogía', 'Simulacros']
 
 export default function CoursesView({ onSelectCourse, onNavigate }: CoursesViewProps) {
   const [selectedCategory, setSelectedCategory] = useState('Todos')
@@ -38,7 +38,7 @@ export default function CoursesView({ onSelectCourse, onNavigate }: CoursesViewP
             <span className="bg-gradient-to-r from-[#176FC1] via-[#39BDEB] to-[#176FC1] bg-clip-text text-transparent">transformar tu carrera</span>
           </h1>
           <p className="text-[#536B83] text-base sm:text-lg max-w-2xl mx-auto">
-            Alineados con el marco del Ministerio de Educación Nacional, el Decreto 1278 y las pruebas de ascenso y méritos.
+            Legado Docente «Aprende, comparte, deja huella» — Formación rigurosa de 140 horas alineada con la CNSC, el Decreto 1278 y las guías de orientación oficiales.
           </p>
 
           {isDemo && (

@@ -247,6 +247,20 @@ export async function POST(request: NextRequest) {
         break
       }
 
+      case 'upsert_candidate_profile': {
+        const candidate = payload
+        if (!state.candidate_profiles) state.candidate_profiles = []
+        const idx = state.candidate_profiles.findIndex(
+          (c) => c.user_id === candidate.user_id || c.id === candidate.id
+        )
+        if (idx >= 0) {
+          state.candidate_profiles[idx] = { ...state.candidate_profiles[idx], ...candidate }
+        } else {
+          state.candidate_profiles.unshift(candidate)
+        }
+        break
+      }
+
       default:
         return NextResponse.json({ error: `Acción desconocida: ${action}` }, { status: 400 })
     }

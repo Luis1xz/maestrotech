@@ -2,8 +2,8 @@ import Link from 'next/link'
 import { ArrowLeft, Shield, Lock, FileText, CheckCircle2, Globe, Database, UserCheck, Trash2, Mail } from 'lucide-react'
 
 export const metadata = {
-  title: 'Política de Privacidad | MaestroTech',
-  description: 'Política de Privacidad y Tratamiento de Datos Personales de MaestroTech. Cumplimiento de la Ley 1581 de 2012 y Google API Services User Data Policy.',
+  title: 'Política de Privacidad | Legado Docente',
+  description: 'Política de Privacidad y Tratamiento de Datos Personales de Legado Docente («Aprende, comparte, deja huella»). Cumplimiento de la Ley 1581 de 2012 y Google API Services User Data Policy.',
 }
 
 export default function PrivacyPage() {
@@ -14,10 +14,10 @@ export default function PrivacyPage() {
         <div className="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5 group">
             <div className="w-8 h-8 rounded-xl overflow-hidden ring-1 ring-[#E5EDF5] shadow-sm group-hover:scale-105 transition-all duration-300 shrink-0 bg-white">
-              <img src="/logo.png" alt="MaestroTech Logo" className="w-full h-full object-cover" />
+              <img src="/logo-icon.png" alt="Legado Docente Logo" className="w-full h-full object-contain" />
             </div>
             <span className="text-base font-bold tracking-tight text-[#142D49] font-display">
-              MaestroTech
+              Legado Docente
             </span>
           </Link>
           <Link
@@ -38,10 +38,10 @@ export default function PrivacyPage() {
             <span>Documento Legal Oficial / Privacy Policy</span>
           </div>
           <h1 className="text-3xl sm:text-4xl font-extrabold font-display tracking-tight text-[#142D49] mb-3">
-            Política de Privacidad de MaestroTech
+            Política de Privacidad de Legado Docente
           </h1>
           <p className="text-sm text-[#536B83]">
-            <strong>Aplicación:</strong> MaestroTech (URL oficial:{' '}
+            <strong>Aplicación:</strong> Legado Docente (URL oficial:{' '}
             <a href="https://maestrotech.vercel.app" className="text-[#176FC1] hover:underline">
               https://maestrotech.vercel.app
             </a>

@@ -20,32 +20,39 @@ export default function Footer({ onNavigate }: FooterProps) {
         <div className="grid grid-cols-2 md:grid-cols-5 gap-10 mb-16">
           {/* Brand */}
           <div className="col-span-2 md:col-span-1">
-            <button onClick={() => onNavigate('home')} className="flex items-center gap-2.5 mb-4 group">
-              <div className="w-8 h-8 rounded-xl overflow-hidden ring-1 ring-[#E5EDF5] shadow-xs group-hover:scale-105 transition-all duration-300 shrink-0 bg-white p-0.5">
-                <img src="/logo.png" alt="Maestro Logo" className="w-full h-full object-contain" />
+            <button onClick={() => onNavigate('home')} className="flex items-center gap-2.5 mb-4 group text-left">
+              <div className="w-9 h-9 rounded-xl overflow-hidden ring-1 ring-[#E5EDF5] shadow-xs group-hover:scale-105 transition-all duration-300 shrink-0 bg-white p-0.5">
+                <img src="/logo-icon.png" alt="Legado Docente Logo" className="w-full h-full object-contain" />
               </div>
-              <span className="font-bold font-display text-[#142D49]">MaestroTech</span>
+              <div>
+                <span className="font-bold font-display text-base text-[#0045E6] block leading-none">
+                  LEGADO DOCENTE
+                </span>
+                <span className="text-[10px] text-[#536B83] italic tracking-tight">
+                  «Aprende, comparte, deja huella»
+                </span>
+              </div>
             </button>
             <p className="text-sm text-[#536B83] leading-relaxed mb-4">
-              La plataforma más avanzada para el desarrollo profesional docente en Colombia.
+              La plataforma de preparación integral para el concurso docente y ascenso escalafonario en Colombia.
             </p>
             <div className="mb-5 flex flex-col gap-1.5">
               <a
-                href="/logo.png"
-                download="maestro-icono.png"
-                className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#E9A83A] hover:text-[#D89222] transition-colors"
-                title="Descargar isotipo oficial en alta resolución"
+                href="/legado-icon.png"
+                download="legado-docente-icono.png"
+                className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#E5A83B] hover:text-[#C89228] transition-colors"
+                title="Descargar isotipo circular oficial en alta resolución"
               >
-                <span>Descargar Isotipo (HD)</span>
-                <span className="text-[10px] bg-[#E9A83A]/10 px-1.5 py-0.5 rounded-full font-mono text-[#E9A83A]">PNG</span>
+                <span>Descargar Isotipo Circular (HD)</span>
+                <span className="text-[10px] bg-[#E5A83B]/10 px-1.5 py-0.5 rounded-full font-mono text-[#E5A83B]">PNG</span>
               </a>
               <a
-                href="/logo-horizontal.png"
-                download="maestro-logo-horizontal.png"
-                className="inline-flex items-center gap-1.5 text-xs font-medium text-[#536B83] hover:text-[#176FC1] transition-colors"
-                title="Descargar logotipo horizontal completo"
+                href="/legado-logo-full.png"
+                download="legado-docente-logo-completo.png"
+                className="inline-flex items-center gap-1.5 text-xs font-medium text-[#536B83] hover:text-[#0045E6] transition-colors"
+                title="Descargar logotipo completo oficial"
               >
-                <span>Logo Horizontal Completo</span>
+                <span>Logo Oficial Completo</span>
                 <span className="text-[10px] bg-[#F3F8FD] px-1.5 py-0.5 rounded-full font-mono text-[#536B83] border border-[#E5EDF5]">PNG</span>
               </a>
             </div>

@@ -21,12 +21,13 @@ const BADGES = [
 
 interface HeroProps {
   onNavigate: (view: string) => void
+  onOpenAuth?: (mode?: 'signin' | 'signup') => void
   isAuthenticated?: boolean
   role?: UserRole | null
   userName?: string
 }
 
-export default function HeroSection({ onNavigate, isAuthenticated, role, userName }: HeroProps) {
+export default function HeroSection({ onNavigate, onOpenAuth, isAuthenticated, role, userName }: HeroProps) {
   const ref = useRef<HTMLDivElement>(null)
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end start'] })
   const y = useTransform(scrollYProgress, [0, 1], [0, 160])
@@ -80,17 +81,17 @@ export default function HeroSection({ onNavigate, isAuthenticated, role, userNam
           transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
           className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-[#E5EDF5] text-xs sm:text-sm font-semibold text-[#536B83] shadow-xs mb-8"
         >
-          <span className="w-2 h-2 rounded-full bg-[#176FC1] animate-pulse" />
+          <span className="w-2 h-2 rounded-full bg-[#0045E6] animate-pulse" />
           {isAuthenticated
-            ? `Sesión Activa · ${
+            ? `Sesión Activa · Legado Docente · ${
                 role === 'admin'
                   ? 'Superusuario'
                   : role === 'instructor'
                   ? 'Docente Formador'
-                  : 'Estudiante'
+                  : 'Aspirante'
               }`
-            : 'Plataforma oficial para la preparación docente en Colombia'}
-          <span className="text-[#39BDEB]">→</span>
+            : 'CONCURSO DOCENTE 2917–3006 · CONVOCATORIA OFICIAL'}
+          <span className="text-[#E5A83B] font-bold">★</span>
         </motion.div>
 
         {/* Headline */}
@@ -102,17 +103,15 @@ export default function HeroSection({ onNavigate, isAuthenticated, role, userNam
         >
           {isAuthenticated ? (
             <>
-              <span className="text-[#142D49]">Bienvenido de nuevo,</span>
+              <span className="text-[#142D49]">Bienvenido a</span>
               <br />
-              <span className="gradient-text">{userName || 'Docente'}</span>
+              <span className="text-[#0045E6]">LEGADO DOCENTE</span>
             </>
           ) : (
             <>
-              <span className="text-[#142D49]">El futuro del</span>
+              <span className="text-[#142D49]">El concurso tiene reglas.</span>
               <br />
-              <span className="gradient-text">desarrollo docente</span>
-              <br />
-              <span className="text-[#142D49]">empieza aquí.</span>
+              <span className="text-[#0045E6]">¿Las conoces?</span>
             </>
           )}
         </motion.h1>
@@ -125,8 +124,8 @@ export default function HeroSection({ onNavigate, isAuthenticated, role, userNam
           className="text-lg md:text-xl text-[#536B83] max-w-2xl mx-auto leading-relaxed text-balance mb-10"
         >
           {isAuthenticated
-            ? 'Tu centro integral de formación pedagógica. Gestiona tus cursos, practica con simulacros de concurso docente y continúa con tu progreso profesional.'
-            : 'La plataforma más avanzada para prepararte en concursos de méritos, ascensos salariales y traslados. Formación pedagógica guiada con acompañamiento inteligente.'}
+            ? 'Tu centro integral de formación pedagógica. Gestiona tus 140 horas de curso, practica con simulacros de concurso docente y deja huella en la educación.'
+            : 'Prepárate con método, fuentes oficiales y una comunidad de colegas. LEGADO DOCENTE «Aprende, comparte, deja huella». Curso integral de 140 horas y caracterización inteligente.'}
         </motion.p>
 
         {/* Action buttons */}
@@ -140,11 +139,19 @@ export default function HeroSection({ onNavigate, isAuthenticated, role, userNam
             <>
               <button
                 onClick={() => onNavigate('dashboard')}
-                className="group relative px-6 py-3.5 rounded-2xl bg-[#176FC1] hover:bg-[#142D49] text-white text-sm font-semibold shadow-md hover:shadow-lg transition-all duration-300 btn-magnetic flex items-center gap-2"
+                className="group relative px-6 py-3.5 rounded-2xl bg-[#0045E6] hover:bg-[#142D49] text-white text-sm font-semibold shadow-md hover:shadow-lg transition-all duration-300 btn-magnetic flex items-center gap-2 cursor-pointer"
               >
                 <LayoutDashboard className="w-4 h-4" />
-                <span>Ir a mi Dashboard</span>
+                <span>Ir a mi Aula Virtual</span>
                 <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
+              </button>
+
+              <button
+                onClick={() => onNavigate('courses')}
+                className="group px-6 py-3.5 rounded-2xl bg-white hover:bg-[#F3F8FD] text-[#142D49] border border-[#E5EDF5] hover:border-[#0045E6]/40 text-sm font-semibold shadow-xs transition-all duration-300 btn-magnetic flex items-center gap-2 cursor-pointer"
+              >
+                <BookOpen className="w-4 h-4 text-[#0045E6]" />
+                <span>Ver Curso 140 Horas</span>
               </button>
 
               {canAccessTeacher(role) && (
@@ -166,34 +173,23 @@ export default function HeroSection({ onNavigate, isAuthenticated, role, userNam
                   <span>Panel Superusuario</span>
                 </Link>
               )}
-
-              <button
-                onClick={() => onNavigate('courses')}
-                className="px-5 py-3.5 rounded-2xl bg-white border border-[#E5EDF5] hover:border-[#176FC1]/50 text-[#142D49] text-sm font-semibold transition-all duration-300 flex items-center gap-2 shadow-xs"
-              >
-                <Sparkles className="w-4 h-4 text-[#39BDEB]" />
-                <span>Explorar Cursos</span>
-              </button>
             </>
           ) : (
             <>
               <button
-                onClick={() => onNavigate('dashboard')}
-                className="group relative px-8 py-4 rounded-2xl bg-[#176FC1] hover:bg-[#142D49] text-white text-base font-semibold shadow-md hover:shadow-xl hover:shadow-[#176FC1]/20 transition-all duration-300 btn-magnetic"
+                onClick={() => onNavigate('courses')}
+                className="group relative px-7 py-4 rounded-2xl bg-[#0045E6] hover:bg-[#142D49] text-white text-base font-bold shadow-lg hover:shadow-xl transition-all duration-300 btn-magnetic flex items-center gap-2.5 cursor-pointer"
               >
-                <span className="relative z-10 flex items-center gap-2">
-                  Comenzar ahora — gratis
-                  <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
-                </span>
+                <span>Curso 140 Horas · Matrícula Abierta</span>
+                <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
               </button>
+
               <button
-                onClick={() => onNavigate('exam')}
-                className="group flex items-center gap-3 px-8 py-4 rounded-2xl bg-white border border-[#E5EDF5] hover:border-[#176FC1] text-[#142D49] text-base font-semibold transition-all duration-300 btn-magnetic shadow-xs hover:shadow-md"
+                onClick={() => onOpenAuth?.('signup')}
+                className="group px-7 py-4 rounded-2xl bg-white hover:bg-[#F3F8FD] text-[#142D49] border border-[#E5EDF5] hover:border-[#0045E6]/40 text-base font-bold shadow-xs hover:shadow-md transition-all duration-300 btn-magnetic flex items-center gap-2.5 cursor-pointer"
               >
-                <span className="w-9 h-9 rounded-xl bg-[#F3F8FD] border border-[#E5EDF5] flex items-center justify-center group-hover:bg-[#176FC1]/10 transition-all duration-300">
-                  <Play className="w-4 h-4 text-[#176FC1]" fill="currentColor" />
-                </span>
-                Ver simulador de examen
+                <Sparkles className="w-4 h-4 text-[#E5A83B]" />
+                <span>Diagnóstico Gratis (5 Etapas)</span>
               </button>
             </>
           )}

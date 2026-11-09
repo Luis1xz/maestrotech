@@ -230,7 +230,7 @@ function PagoConfirmadoContent() {
           </h1>
           <p className="text-[#536B83] text-xs sm:text-sm max-w-lg mx-auto leading-relaxed">
             {isVerified
-              ? 'Hemos validado tu pago seguro. Tu cuenta ahora cuenta con acceso completo a los programas oficiales de MaestroTech.'
+              ? 'Hemos validado tu pago seguro. Tu cuenta ahora cuenta con acceso completo a los programas oficiales de Legado Docente.'
               : 'Tu referencia se encuentra en cola de aprobación. Puedes notificar al Administrador para habilitar tus cursos sin esperas.'}
           </p>
         </div>

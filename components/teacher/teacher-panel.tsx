@@ -607,7 +607,7 @@ export default function TeacherPanel() {
             Acceso Restringido
           </h2>
           <p className="text-xs text-[#536B83] mb-6 leading-relaxed">
-            Esta sección es de uso exclusivo para docentes e instructores autorizados de MaestroTech.
+            Esta sección es de uso exclusivo para docentes e instructores autorizados de Legado Docente.
             Si eres superusuario o docente, por favor inicia sesión con tu cuenta con permisos.
           </p>
           <Link
@@ -683,9 +683,9 @@ export default function TeacherPanel() {
           <div className="flex items-center justify-between mb-8">
             <Link href="/" className="flex items-center gap-2.5 group">
               <div className="w-8 h-8 rounded-xl overflow-hidden ring-1 ring-[#E5EDF5] shadow-xs group-hover:scale-105 transition-all duration-300 shrink-0 bg-white">
-                <img src="/logo.png" alt="Maestro Logo" className="w-full h-full object-cover" />
+                <img src="/logo-icon.png" alt="Legado Docente Logo" className="w-full h-full object-cover" />
               </div>
-              <span className="font-bold font-display text-[#142D49] text-sm">MaestroTech</span>
+              <span className="font-bold font-display text-[#142D49] text-sm">Legado Docente</span>
             </Link>
             <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
               Docente
@@ -2052,7 +2052,7 @@ export default function TeacherPanel() {
                             {enr.student_email}
                           </p>
                           <p className="text-[11px] text-[#176FC1] font-semibold mt-1 truncate">
-                            📚 {enr.course?.title || 'Curso Oficial MaestroTech'}
+                            📚 {enr.course?.title || 'Curso Oficial Legado Docente'}
                           </p>
                         </div>
                       </div>

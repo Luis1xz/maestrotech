@@ -174,6 +174,7 @@ function mergeStates(
       (c) => !deletedUsers.has(c.user_id)
     ),
     users: mergeById(local.users, server.users, deletedUsers),
+    candidate_profiles: mergeById(local.candidate_profiles, server.candidate_profiles, deletedUsers),
     exam_questions: mergeById(local.exam_questions, server.exam_questions, deleted),
     deletedCourseIds: Array.from(deleted),
     deletedUserIds: Array.from(deletedUsers),
@@ -425,6 +426,20 @@ function applyMutationToState(state: PlatformStateData, action: string, payload:
         state.enrollments = state.enrollments.filter((e) => e.user_id !== id)
         state.lesson_progress = state.lesson_progress.filter((p) => p.user_id !== id)
         state.certificates = state.certificates.filter((c) => c.user_id !== id)
+      }
+      break
+    }
+
+    case 'upsert_candidate_profile': {
+      const candidate = payload
+      if (!state.candidate_profiles) state.candidate_profiles = []
+      const idx = state.candidate_profiles.findIndex(
+        (c) => c.user_id === candidate.user_id || c.id === candidate.id
+      )
+      if (idx >= 0) {
+        state.candidate_profiles[idx] = { ...state.candidate_profiles[idx], ...candidate }
+      } else {
+        state.candidate_profiles.unshift(candidate)
       }
       break
     }

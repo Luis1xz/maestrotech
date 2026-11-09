@@ -350,15 +350,15 @@ export default function VideoPlayer({
             <Sparkles className="w-3.5 h-3.5 text-[#39BDEB]" />
           </div>
           <span className="text-xs font-semibold text-white/95 tracking-wide truncate max-w-md">
-            {title || 'Clase de MaestroTech'}
+            {title || 'Clase de Legado Docente'}
           </span>
         </div>
         <span className="text-xs px-2.5 py-0.5 rounded-full bg-white/15 text-white font-mono">
           {videoProvider === 'supabase'
             ? 'Supabase Video Stream'
             : resolvedVideoUrl
-            ? 'HD Video MaestroTech'
-            : 'Reproductor MaestroTech'}
+            ? 'HD Video Legado Docente'
+            : 'Reproductor Legado Docente'}
         </span>
       </div>
 
