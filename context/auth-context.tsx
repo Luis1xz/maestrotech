@@ -482,7 +482,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           },
         })
 
-        if (error && !error.message.toLowerCase().includes('already registered')) {
+        const isAlreadyRegistered = Boolean(error?.message?.toLowerCase().includes('already registered'))
+        const isRateLimit = Boolean(error?.message?.toLowerCase().includes('rate limit'))
+
+        // Si es un error real distinto de "ya registrado" o "límite de emails SMTP", devolver error
+        if (error && !isAlreadyRegistered && !isRateLimit) {
           return { error: new Error(error.message) }
         }
 

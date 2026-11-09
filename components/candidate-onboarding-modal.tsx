@@ -276,14 +276,17 @@ export default function CandidateOnboardingModal({
           lastName: lastName.trim(),
         })
 
-        if (authRes.error && !authRes.error.message.toLowerCase().includes('already registered')) {
+        const isAlreadyReg = Boolean(authRes.error?.message?.toLowerCase().includes('already registered'))
+        const isRateLim = Boolean(authRes.error?.message?.toLowerCase().includes('rate limit'))
+
+        if (authRes.error && !isAlreadyReg && !isRateLim) {
           setErrorMsg(authRes.error.message || 'Error al crear la cuenta en la plataforma.')
           setLoading(false)
           return
         }
 
-        // Si ya existía, intentar sesión rápida
-        if (authRes.error && authRes.error.message.toLowerCase().includes('already registered')) {
+        // Si ya existía o hubo limitador de correo, intentar sesión rápida
+        if (authRes.error && (isAlreadyReg || isRateLim)) {
           await signIn({ email: email.trim().toLowerCase(), password })
         }
       }
