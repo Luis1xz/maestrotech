@@ -1,14 +1,17 @@
 'use client'
 
-import React, { createContext, useContext, useEffect, useState, useCallback } from 'react'
+import React, { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react'
 import type { User, Session } from '@supabase/supabase-js'
 import { getSupabase, isSupabaseConfigured } from '@/lib/supabase/client'
 import { Profile, UserRole } from '@/types/database'
 import { getProfile, ensureProfile } from '@/services/profiles'
 import { DEMO_PROFILE } from '@/services/demo-data'
-import { fetchPlatformState } from '@/lib/platform-state-client'
 
-const CUSTOM_SESSION_STORAGE_KEY = 'legadodocente_custom_session_v2'
+const LEGACY_STORAGE_KEYS = [
+  'legadodocente_custom_session_v2',
+  'legadodocente_custom_session',
+  'maestrotech_custom_session',
+]
 
 export interface SignUpParams {
   email: string
@@ -33,63 +36,11 @@ export interface AuthContextType {
   signIn: (params: SignInParams) => Promise<{ error: Error | null }>
   signUp: (params: SignUpParams) => Promise<{ error: Error | null }>
   signInWithGoogle: () => Promise<{ error: Error | null }>
-  quickSignInAs: (email: string) => Promise<{ error: Error | null }>
   signOut: () => Promise<void>
   refreshProfile: () => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
-
-function buildSyntheticSessionAndUser(params: {
-  id: string
-  email: string
-  full_name: string
-  first_name?: string | null
-  last_name?: string | null
-  role: UserRole
-  avatar_url?: string | null
-}): { user: User; session: Session; profile: Profile } {
-  const now = new Date().toISOString()
-  const syntheticUser: User = {
-    id: params.id,
-    aud: 'authenticated',
-    role: 'authenticated',
-    email: params.email,
-    email_confirmed_at: now,
-    app_metadata: { provider: 'email', role: params.role },
-    user_metadata: {
-      full_name: params.full_name,
-      first_name: params.first_name || '',
-      last_name: params.last_name || '',
-      role: params.role,
-      avatar_url: params.avatar_url || null,
-    },
-    identities: [],
-    created_at: now,
-    updated_at: now,
-  }
-
-  const syntheticSession: Session = {
-    access_token: `custom-session:${params.id}`,
-    refresh_token: `custom-refresh:${params.id}`,
-    expires_in: 86400 * 7,
-    expires_at: Math.floor(Date.now() / 1000) + 86400 * 7,
-    token_type: 'bearer',
-    user: syntheticUser,
-  }
-
-  const profile: Profile = {
-    id: params.id,
-    full_name: params.full_name,
-    first_name: params.first_name || null,
-    last_name: params.last_name || null,
-    role: params.role,
-    avatar_url: params.avatar_url || null,
-    created_at: now,
-  }
-
-  return { user: syntheticUser, session: syntheticSession, profile }
-}
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
@@ -99,43 +50,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const isConfigured = isSupabaseConfigured()
 
-  const userRef = React.useRef<User | null>(null)
+  const userRef = useRef<User | null>(null)
   userRef.current = user
 
-  const loadedUserIdRef = React.useRef<string | null>(null)
-  const isFetchingProfileRef = React.useRef<boolean>(false)
-
-  const activateCustomSession = useCallback(
-    (params: {
-      id: string
-      email: string
-      full_name: string
-      first_name?: string | null
-      last_name?: string | null
-      role: UserRole
-      avatar_url?: string | null
-    }) => {
-      const built = buildSyntheticSessionAndUser(params)
-      setUser(built.user)
-      userRef.current = built.user
-      setSession(built.session)
-      setProfile(built.profile)
-      loadedUserIdRef.current = built.user.id
-      if (typeof window !== 'undefined') {
-        try {
-          window.localStorage.setItem(CUSTOM_SESSION_STORAGE_KEY, JSON.stringify(params))
-        } catch {
-          // Ignore storage error
-        }
-      }
-    },
-    []
-  )
+  const loadedUserIdRef = useRef<string | null>(null)
+  const isFetchingProfileRef = useRef<boolean>(false)
 
   const loadUserProfile = useCallback(
     async (userId: string, currentUser?: User | null) => {
       if (!isConfigured) {
         setProfile(DEMO_PROFILE)
+        return
+      }
+
+      if (loadedUserIdRef.current === userId && profile) {
         return
       }
 
@@ -200,47 +128,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         isFetchingProfileRef.current = false
       }
     },
-    [isConfigured]
+    [isConfigured, profile]
   )
 
   useEffect(() => {
     let isMounted = true
 
-    const restoreSavedCustomSession = (): boolean => {
-      if (typeof window === 'undefined') return false
-      try {
-        const raw = window.localStorage.getItem(CUSTOM_SESSION_STORAGE_KEY)
-        if (!raw) return false
-        const parsed = JSON.parse(raw)
-        if (parsed && parsed.id && parsed.email) {
-          activateCustomSession(parsed)
-          // Sincronizar rol con platform-state en segundo plano por si un Superusuario lo promovió
-          fetchPlatformState()
-            .then((state) => {
-              if (!isMounted || !state?.users) return
-              const cleanEmail = (parsed.email || '').trim().toLowerCase()
-              const stateUser = state.users.find(
-                (u) => u.id === parsed.id || (cleanEmail && (u.email || '').toLowerCase() === cleanEmail)
-              )
-              if (stateUser && stateUser.role && stateUser.role !== parsed.role) {
-                activateCustomSession({
-                  ...parsed,
-                  role: stateUser.role,
-                  full_name: stateUser.full_name || parsed.full_name,
-                })
-              }
-            })
-            .catch(() => {})
-          return true
-        }
-      } catch {
-        // Ignore
+    // Limpiar rigurosamente cualquier sesión antigua o simulada de localStorage
+    if (typeof window !== 'undefined') {
+      for (const k of LEGACY_STORAGE_KEYS) {
+        window.localStorage.removeItem(k)
       }
-      return false
     }
 
     if (!isConfigured) {
-      restoreSavedCustomSession()
       setIsLoading(false)
       return
     }
@@ -250,9 +151,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const syncSession = async (currentSession: Session | null) => {
       if (!isMounted) return
       if (currentSession?.user) {
-        if (typeof window !== 'undefined') {
-          window.localStorage.removeItem(CUSTOM_SESSION_STORAGE_KEY)
-        }
         setSession((prev) =>
           prev?.access_token === currentSession.access_token ? prev : currentSession
         )
@@ -264,14 +162,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           await loadUserProfile(currentSession.user.id, currentSession.user)
         }
       } else {
-        // Si no hay sesión de Supabase, comprobar si hay una sesión activa de plataforma en localStorage
-        const restored = restoreSavedCustomSession()
-        if (!restored) {
-          setSession(null)
-          setUser(null)
-          setProfile(null)
-          loadedUserIdRef.current = null
-        }
+        setSession(null)
+        setUser(null)
+        setProfile(null)
+        userRef.current = null
+        loadedUserIdRef.current = null
       }
 
       if (isMounted) {
@@ -279,16 +174,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     }
 
+    // 1. Obtener la sesión real persistida en Supabase
     client.auth
       .getSession()
       .then(({ data: { session: initialSession } }) => {
         syncSession(initialSession)
       })
       .catch(() => {
-        restoreSavedCustomSession()
-        if (isMounted) setIsLoading(false)
+        if (isMounted) {
+          setSession(null)
+          setUser(null)
+          setProfile(null)
+          setIsLoading(false)
+        }
       })
 
+    // 2. Suscribirse a cambios reales de Supabase Auth
     const {
       data: { subscription },
     } = client.auth.onAuthStateChange(async (event, newSession) => {
@@ -296,7 +197,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       if (event === 'SIGNED_OUT') {
         if (typeof window !== 'undefined') {
-          window.localStorage.removeItem(CUSTOM_SESSION_STORAGE_KEY)
+          for (const k of LEGACY_STORAGE_KEYS) {
+            window.localStorage.removeItem(k)
+          }
         }
         setSession(null)
         setUser(null)
@@ -322,7 +225,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       isMounted = false
       subscription.unsubscribe()
     }
-  }, [isConfigured, loadUserProfile, activateCustomSession])
+  }, [isConfigured, loadUserProfile])
 
   const refreshProfile = useCallback(async () => {
     if (userRef.current) {
@@ -331,117 +234,42 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [loadUserProfile])
 
-  const quickSignInAs = async (email: string): Promise<{ error: Error | null }> => {
-    try {
-      const cleanEmail = email.trim().toLowerCase()
-      const state = await fetchPlatformState()
-      const storeUser = (state?.users || []).find(
-        (u) => (u.email || '').toLowerCase() === cleanEmail
-      )
-
-      if (storeUser) {
-        activateCustomSession({
-          id: storeUser.id,
-          email: storeUser.email || cleanEmail,
-          full_name: storeUser.full_name || 'Docente Legado Docente',
-          first_name: storeUser.first_name,
-          last_name: storeUser.last_name,
-          role: storeUser.role,
-          avatar_url: storeUser.avatar_url,
-        })
-        return { error: null }
-      }
-
-      return { error: new Error('Cuenta no encontrada en la plataforma') }
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Error al iniciar sesión rápida'
-      return { error: new Error(msg) }
-    }
-  }
-
+  // Inicio de sesión 100% auténtico contra Supabase Auth (verifica contraseña real)
   const signIn = async ({ email, password }: SignInParams): Promise<{ error: Error | null }> => {
     const cleanEmail = email.trim().toLowerCase()
 
     try {
-      // 1. Verificar si la cuenta existe en nuestro almacén sincronizado de plataforma
-      const state = await fetchPlatformState()
-      const storeUser = (state?.users || []).find(
-        (u) => (u.email || '').toLowerCase() === cleanEmail
-      )
+      if (!isConfigured) {
+        return { error: new Error('La conexión a la base de datos no está configurada.') }
+      }
 
-      if (isConfigured) {
-        const client = getSupabase()
-        const { data, error } = await client.auth.signInWithPassword({
-          email: cleanEmail,
-          password,
-        })
+      const client = getSupabase()
+      const { data, error } = await client.auth.signInWithPassword({
+        email: cleanEmail,
+        password,
+      })
 
-        if (!error && data.user) {
-          setUser(data.user)
-          userRef.current = data.user
-          setSession(data.session)
-          loadedUserIdRef.current = null
-          await loadUserProfile(data.user.id, data.user)
-          return { error: null }
-        }
+      if (error) {
+        return { error: new Error(error.message) }
+      }
 
-        // Si Supabase devuelve "Email not confirmed" o si el usuario está registrado en platform-state
-        if (storeUser) {
-          activateCustomSession({
-            id: storeUser.id,
-            email: storeUser.email || cleanEmail,
-            full_name: storeUser.full_name || 'Docente Legado Docente',
-            first_name: storeUser.first_name,
-            last_name: storeUser.last_name,
-            role: storeUser.role,
-            avatar_url: storeUser.avatar_url,
-          })
-          return { error: null }
-        }
-
-        if (error && error.message.toLowerCase().includes('email not confirmed')) {
-          // Permitir ingreso inmediato aunque el correo no haya sido confirmado por SMTP
-          const fallbackId = crypto.randomUUID()
-          const created = await ensureProfile(fallbackId, {
-            email: cleanEmail,
-            full_name: cleanEmail.split('@')[0],
-            role: 'student',
-          })
-          activateCustomSession({
-            id: created.data?.id || fallbackId,
-            email: cleanEmail,
-            full_name: created.data?.full_name || cleanEmail.split('@')[0],
-            first_name: created.data?.first_name,
-            last_name: created.data?.last_name,
-            role: created.data?.role || 'student',
-            avatar_url: null,
-          })
-          return { error: null }
-        }
-
-        if (error) {
-          return { error: new Error(error.message) }
-        }
-      } else if (storeUser) {
-        activateCustomSession({
-          id: storeUser.id,
-          email: storeUser.email || cleanEmail,
-          full_name: storeUser.full_name || 'Docente Legado Docente',
-          first_name: storeUser.first_name,
-          last_name: storeUser.last_name,
-          role: storeUser.role,
-          avatar_url: storeUser.avatar_url,
-        })
+      if (data.user && data.session) {
+        setUser(data.user)
+        userRef.current = data.user
+        setSession(data.session)
+        loadedUserIdRef.current = null
+        await loadUserProfile(data.user.id, data.user)
         return { error: null }
       }
 
-      return { error: null }
+      return { error: new Error('No se pudo iniciar sesión. Verifica tu usuario y contraseña.') }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Error al iniciar sesión'
       return { error: new Error(msg) }
     }
   }
 
+  // Registro 100% auténtico en Supabase Auth
   const signUp = async ({
     email,
     password,
@@ -452,92 +280,73 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const fullName = `${firstName} ${lastName}`.trim()
 
     try {
-      if (isConfigured) {
-        const client = getSupabase()
-        const { data, error } = await client.auth.signUp({
+      if (!isConfigured) {
+        return { error: new Error('La conexión a la base de datos no está configurada.') }
+      }
+
+      const client = getSupabase()
+      const { data, error } = await client.auth.signUp({
+        email: cleanEmail,
+        password,
+        options: {
+          data: {
+            full_name: fullName,
+            first_name: firstName,
+            last_name: lastName,
+          },
+        },
+      })
+
+      if (error) {
+        return { error: new Error(error.message) }
+      }
+
+      if (!data?.user?.id) {
+        return { error: new Error('No fue posible crear la cuenta en la base de datos.') }
+      }
+
+      const userId = data.user.id
+
+      // Asegurar perfil en public.profiles con rol inicial de aspirante ('student')
+      await ensureProfile(userId, {
+        email: cleanEmail,
+        full_name: fullName,
+        first_name: firstName,
+        last_name: lastName,
+        role: 'student',
+      })
+
+      // Si Supabase devuelve sesión de inmediato (Confirm email apagado)
+      if (data.session && data.user) {
+        setUser(data.user)
+        userRef.current = data.user
+        setSession(data.session)
+        await loadUserProfile(userId, data.user)
+      } else {
+        // Intentar inicio de sesión directo
+        const { data: loginData } = await client.auth.signInWithPassword({
           email: cleanEmail,
           password,
-          options: {
-            data: {
-              full_name: fullName,
-              first_name: firstName,
-              last_name: lastName,
-            },
-          },
         })
-
-        if (error) {
-          return { error: new Error(error.message) }
+        if (loginData?.session && loginData?.user) {
+          setUser(loginData.user)
+          userRef.current = loginData.user
+          setSession(loginData.session)
+          await loadUserProfile(loginData.user.id, loginData.user)
         }
-
-        if (!data?.user?.id) {
-          return { error: new Error('No se pudo crear la cuenta en la base de datos de Supabase.') }
-        }
-
-        const userId = data.user.id
-
-        // Guardar el perfil en public.profiles con rol inicial de aspirante ('student')
-        await ensureProfile(userId, {
-          email: cleanEmail,
-          full_name: fullName,
-          first_name: firstName,
-          last_name: lastName,
-          role: 'student',
-        })
-
-        if (data.session && data.user) {
-          setUser(data.user)
-          userRef.current = data.user
-          setSession(data.session)
-          await loadUserProfile(userId, data.user)
-        } else {
-          // Intentar iniciar sesión si la confirmación de email está desactivada en Supabase
-          const { data: loginData } = await client.auth.signInWithPassword({
-            email: cleanEmail,
-            password,
-          })
-          if (loginData?.session && loginData?.user) {
-            setUser(loginData.user)
-            userRef.current = loginData.user
-            setSession(loginData.session)
-            await loadUserProfile(loginData.user.id, loginData.user)
-          }
-        }
-
-        return { error: null }
-      } else {
-        // Modo offline / sin configuración de Supabase
-        const localUserId = crypto.randomUUID()
-        const { data: ensured } = await ensureProfile(localUserId, {
-          email: cleanEmail,
-          full_name: fullName,
-          first_name: firstName,
-          last_name: lastName,
-          role: 'student',
-        })
-
-        activateCustomSession({
-          id: ensured?.id || localUserId,
-          email: cleanEmail,
-          full_name: ensured?.full_name || fullName,
-          first_name: firstName,
-          last_name: lastName,
-          role: 'student',
-          avatar_url: null,
-        })
-
-        return { error: null }
       }
+
+      return { error: null }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Error al registrar usuario'
       return { error: new Error(msg) }
     }
   }
 
+  // Conexión OAuth con Google
   const signInWithGoogle = async (): Promise<{ error: Error | null }> => {
     if (!isConfigured) {
-      setProfile(DEMO_PROFILE)
-      return { error: null }
+      return { error: new Error('Supabase no está configurado.') }
     }
 
     try {
@@ -567,9 +376,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
+  // Cierre de sesión definitivo
   const signOut = async (): Promise<void> => {
     if (typeof window !== 'undefined') {
-      window.localStorage.removeItem(CUSTOM_SESSION_STORAGE_KEY)
+      for (const k of LEGACY_STORAGE_KEYS) {
+        window.localStorage.removeItem(k)
+      }
     }
 
     if (isConfigured) {
@@ -577,7 +389,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const client = getSupabase()
         await client.auth.signOut()
       } catch (err) {
-        console.error('Error al cerrar sesión:', err)
+        console.error('Error al cerrar sesión en Supabase:', err)
       }
     }
 
@@ -607,7 +419,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         signIn,
         signUp,
         signInWithGoogle,
-        quickSignInAs,
         signOut,
         refreshProfile,
       }}

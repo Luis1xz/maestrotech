@@ -1,6 +1,5 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js'
 import { Profile } from '@/types/database'
-import { readStore } from '@/lib/platform-store-server'
 
 /**
  * Cliente exclusivo de servidor con privilegios administrativos (service_role).
@@ -44,28 +43,6 @@ export async function verifyAdminRequest(authHeader: string | null): Promise<{
   }
 
   const token = authHeader.replace('Bearer ', '').trim()
-  const store = readStore()
-
-  // 0. Soportar sesión rápida de plataforma (custom-session:<userId>)
-  if (token.startsWith('custom-session:')) {
-    const customUserId = token.replace('custom-session:', '').trim()
-    const storeUser = store.users.find((u) => u.id === customUserId)
-    if (storeUser && storeUser.role === 'admin') {
-      return {
-        authorized: true,
-        userId: storeUser.id,
-        profile: {
-          id: storeUser.id,
-          full_name: storeUser.full_name,
-          first_name: storeUser.first_name,
-          last_name: storeUser.last_name,
-          role: 'admin',
-          avatar_url: storeUser.avatar_url,
-          created_at: storeUser.created_at,
-        },
-      }
-    }
-  }
 
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.VITE_SUPABASE_URL
   const anonKey =
@@ -95,32 +72,7 @@ export async function verifyAdminRequest(authHeader: string | null): Promise<{
     return { authorized: false, error: 'Sesión no válida o expirada' }
   }
 
-  // 2. Verificar si es admin en platform-store
-  const emailLower = (user.email || '').toLowerCase()
-  const storeUser = store.users.find(
-    (u) => u.id === user.id || (u.email || '').toLowerCase() === emailLower
-  )
-
-  if (storeUser?.role === 'admin') {
-    return {
-      authorized: true,
-      userId: user.id,
-      profile: {
-        id: user.id,
-        full_name:
-          storeUser?.full_name ||
-          (user.user_metadata?.full_name as string) ||
-          emailLower.split('@')[0],
-        first_name: storeUser?.first_name || (user.user_metadata?.first_name as string) || null,
-        last_name: storeUser?.last_name || (user.user_metadata?.last_name as string) || null,
-        role: 'admin',
-        avatar_url: storeUser?.avatar_url || null,
-        created_at: user.created_at || new Date().toISOString(),
-      },
-    }
-  }
-
-  // 3. Verificar el rol en la base de datos (profiles.role = 'admin')
+  // 2. Verificar el rol en la base de datos (profiles.role = 'admin')
   const adminClient = getSupabaseAdminClient()
   const clientToQuery = adminClient || authClient
 
@@ -131,7 +83,7 @@ export async function verifyAdminRequest(authHeader: string | null): Promise<{
     .maybeSingle()
 
   if (profErr || !profile) {
-    return { authorized: false, error: 'No se encontró el perfil del usuario' }
+    return { authorized: false, error: 'No se encontró el perfil del usuario en la base de datos' }
   }
 
   if (profile.role !== 'admin') {

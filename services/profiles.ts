@@ -32,19 +32,16 @@ export async function getProfile(
       }
     }
 
-    if (stateUser || dbProfile) {
-      let resolvedRole: UserRole = stateUser?.role || dbProfile?.role || 'student'
-      if (!stateUser?.role_updated_at && dbProfile?.role === 'admin') {
-        resolvedRole = 'admin'
-      }
+    if (dbProfile || stateUser) {
+      const resolvedRole: UserRole = dbProfile?.role || stateUser?.role || 'student'
 
       const merged: Profile = {
         id: userId,
-        full_name: stateUser?.full_name || dbProfile?.full_name || 'Docente Legado Docente',
-        first_name: stateUser?.first_name || dbProfile?.first_name || null,
-        last_name: stateUser?.last_name || dbProfile?.last_name || null,
+        full_name: dbProfile?.full_name || stateUser?.full_name || 'Docente Legado Docente',
+        first_name: dbProfile?.first_name || stateUser?.first_name || null,
+        last_name: dbProfile?.last_name || stateUser?.last_name || null,
         role: resolvedRole,
-        avatar_url: stateUser?.avatar_url || dbProfile?.avatar_url || null,
+        avatar_url: dbProfile?.avatar_url || stateUser?.avatar_url || null,
         created_at: dbProfile?.created_at || stateUser?.created_at || new Date().toISOString(),
       }
 
@@ -176,19 +173,7 @@ export async function ensureProfile(
           .maybeSingle()
 
         if (existing) {
-          if (!stateUser?.role_updated_at && !stateUser?.role) {
-            if (existing.role === 'admin' || existing.role === 'instructor') {
-              resolvedRole = existing.role
-            }
-          } else if (existing.role === 'admin' && !stateUser?.role_updated_at) {
-            resolvedRole = 'admin'
-          }
-          if (existing.role !== resolvedRole) {
-            await client
-              .from('profiles')
-              .update({ role: resolvedRole, updated_at: new Date().toISOString() })
-              .eq('id', userId)
-          }
+          resolvedRole = existing.role || 'student'
         } else {
           await client.from('profiles').insert({
             id: userId,

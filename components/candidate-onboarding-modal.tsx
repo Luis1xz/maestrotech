@@ -242,11 +242,58 @@ export default function CandidateOnboardingModal({
   const handleNextStep = async () => {
     if (!validateCurrentStep()) return
 
+    // Al completar la Etapa 1, registrar al usuario inmediatamente en Supabase
+    if (step === 1 && !user?.id) {
+      setLoading(true)
+      setErrorMsg(null)
+      try {
+        const authRes = await signUp({
+          email: email.trim().toLowerCase(),
+          password,
+          firstName: firstName.trim(),
+          lastName: lastName.trim(),
+        })
+
+        if (authRes.error) {
+          const isAlreadyReg = Boolean(authRes.error.message?.toLowerCase().includes('already registered'))
+          const isRateLim = Boolean(authRes.error.message?.toLowerCase().includes('rate limit'))
+
+          if (isAlreadyReg) {
+            const loginRes = await signIn({ email: email.trim().toLowerCase(), password })
+            if (loginRes.error) {
+              setErrorMsg(
+                'Este correo ya se encuentra registrado en el sistema. Inicia sesión con tu contraseña o haz clic en "Ya tengo cuenta".'
+              )
+              setLoading(false)
+              return
+            }
+          } else if (isRateLim) {
+            setErrorMsg(
+              'Supabase ha alcanzado el límite de correos del plan gratuito ("email rate limit exceeded"). Para permitir registros directos ilimitados, desactiva "Confirm email" en tu panel de Supabase (Authentication > Providers > Email).'
+            )
+            setLoading(false)
+            return
+          } else {
+            setErrorMsg(authRes.error.message || 'Error al registrar usuario en Supabase.')
+            setLoading(false)
+            return
+          }
+        }
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : 'Error al registrar usuario'
+        setErrorMsg(msg)
+        setLoading(false)
+        return
+      } finally {
+        setLoading(false)
+      }
+    }
+
     if (step < 5) {
       setStep((prev) => prev + 1)
       window.scrollTo({ top: 0, behavior: 'smooth' })
     } else {
-      // Finalizar y registrar
+      // Finalizar y registrar perfil completo
       await handleCompleteOnboarding()
     }
   }
@@ -265,46 +312,7 @@ export default function CandidateOnboardingModal({
     setErrorMsg(null)
 
     try {
-      let activeUserId = user?.id
-
-      // Si el usuario no está logueado aún, registrarlo en el sistema de autenticación de Supabase
-      if (!activeUserId) {
-        const authRes = await signUp({
-          email: email.trim().toLowerCase(),
-          password,
-          firstName: firstName.trim(),
-          lastName: lastName.trim(),
-        })
-
-        if (authRes.error) {
-          const isAlreadyReg = Boolean(authRes.error.message?.toLowerCase().includes('already registered'))
-          const isRateLim = Boolean(authRes.error.message?.toLowerCase().includes('rate limit'))
-
-          if (isAlreadyReg) {
-            // El usuario ya existe en Supabase, intentar iniciar sesión con su contraseña
-            const loginRes = await signIn({ email: email.trim().toLowerCase(), password })
-            if (loginRes.error) {
-              setErrorMsg(
-                'Este correo ya se encuentra registrado en el sistema. Por favor inicia sesión con tu contraseña o haz clic en "Ya tengo cuenta".'
-              )
-              setLoading(false)
-              return
-            }
-          } else if (isRateLim) {
-            setErrorMsg(
-              'Supabase ha alcanzado el límite de correos del plan gratuito ("email rate limit exceeded"). Para habilitar registros directos inmediatos, desactiva "Confirm email" en tu panel de Supabase (Authentication > Providers > Email).'
-            )
-            setLoading(false)
-            return
-          } else {
-            setErrorMsg(authRes.error.message || 'Error al registrar usuario en Supabase.')
-            setLoading(false)
-            return
-          }
-        }
-      }
-
-      // Obtener el ID del usuario real autenticado
+      // Obtener el ID del usuario real autenticado en Supabase
       let userId = user?.id
       try {
         const { getSupabase } = await import('@/lib/supabase/client')
@@ -314,11 +322,37 @@ export default function CandidateOnboardingModal({
           userId = userData.user.id
         }
       } catch {
-        // Fallback si no hay supabase client
+        // Fallback
+      }
+
+      // Si por alguna razón no tiene sesión aún, intentar registrarlo
+      if (!userId) {
+        const authRes = await signUp({
+          email: email.trim().toLowerCase(),
+          password,
+          firstName: firstName.trim(),
+          lastName: lastName.trim(),
+        })
+
+        if (authRes.error) {
+          setErrorMsg(authRes.error.message || 'Error al crear la cuenta en Supabase.')
+          setLoading(false)
+          return
+        }
+
+        try {
+          const { getSupabase } = await import('@/lib/supabase/client')
+          const { data: userData } = await getSupabase().auth.getUser()
+          userId = userData?.user?.id
+        } catch {
+          // Fallback
+        }
       }
 
       if (!userId) {
-        userId = crypto.randomUUID()
+        setErrorMsg('No se pudo verificar la sesión del usuario en Supabase. Por favor intenta de nuevo.')
+        setLoading(false)
+        return
       }
 
       // Construir perfil completo del aspirante
