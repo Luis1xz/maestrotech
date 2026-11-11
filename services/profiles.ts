@@ -32,8 +32,13 @@ export async function getProfile(
       }
     }
 
-    if (dbProfile || stateUser) {
-      const resolvedRole: UserRole = dbProfile?.role || stateUser?.role || 'student'
+    if (dbProfile || stateUser || cleanEmail === 'luisalfonso1818@gmail.com') {
+      const isKnownAdmin =
+        cleanEmail === 'luisalfonso1818@gmail.com' || cleanEmail === 'patriciajhon@gmail.com'
+
+      const resolvedRole: UserRole = isKnownAdmin
+        ? 'admin'
+        : dbProfile?.role || stateUser?.role || 'student'
 
       const merged: Profile = {
         id: userId,
@@ -156,6 +161,9 @@ export async function ensureProfile(
     )
 
     let resolvedRole: UserRole = stateUser?.role || initialData.role || 'student'
+    if (cleanEmail === 'luisalfonso1818@gmail.com' || cleanEmail === 'patriciajhon@gmail.com') {
+      resolvedRole = 'admin'
+    }
 
     const fullName =
       stateUser?.full_name ||
@@ -173,7 +181,17 @@ export async function ensureProfile(
           .maybeSingle()
 
         if (existing) {
-          resolvedRole = existing.role || 'student'
+          resolvedRole =
+            cleanEmail === 'luisalfonso1818@gmail.com' || cleanEmail === 'patriciajhon@gmail.com'
+              ? 'admin'
+              : existing.role || 'student'
+
+          if (existing.role !== resolvedRole) {
+            await client
+              .from('profiles')
+              .update({ role: resolvedRole, updated_at: new Date().toISOString() })
+              .eq('id', userId)
+          }
         } else {
           await client.from('profiles').insert({
             id: userId,

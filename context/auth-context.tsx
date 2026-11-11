@@ -98,7 +98,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           const googleAvatar =
             u?.user_metadata?.avatar_url || u?.user_metadata?.picture || null
 
-          const targetRole: UserRole = (u?.user_metadata?.role || u?.app_metadata?.role || 'student') as UserRole
+          const isKnownAdmin =
+            emailHint.toLowerCase() === 'luisalfonso1818@gmail.com' ||
+            emailHint.toLowerCase() === 'patriciajhon@gmail.com'
+
+          const targetRole: UserRole = isKnownAdmin
+            ? 'admin'
+            : ((u?.user_metadata?.role || u?.app_metadata?.role || 'student') as UserRole)
 
           const { data: created } = await ensureProfile(userId, {
             email: emailHint,
@@ -113,7 +119,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             loadedUserIdRef.current = userId
           }
         } else {
-          const metaRole = (u?.user_metadata?.role || u?.app_metadata?.role || 'student') as UserRole
+          const isKnownAdmin =
+            emailHint.toLowerCase() === 'luisalfonso1818@gmail.com' ||
+            emailHint.toLowerCase() === 'patriciajhon@gmail.com'
+
+          const metaRole: UserRole = isKnownAdmin
+            ? 'admin'
+            : ((u?.user_metadata?.role || u?.app_metadata?.role || 'student') as UserRole)
+
           setProfile((prev) =>
             prev || {
               id: userId,
