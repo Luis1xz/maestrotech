@@ -27,6 +27,7 @@ import {
   Printer,
   Lightbulb,
   Sparkles,
+  Lock,
 } from 'lucide-react'
 import {
   RadarChart,
@@ -270,21 +271,40 @@ export default function Dashboard({
                 )}
                 <div className="min-w-0">
                   <p className="text-sm font-bold text-[#1E293B] truncate">{displayName}</p>
-                  <p className="text-[11px] font-semibold truncate">
+                  <div className="text-[11px] font-semibold truncate mt-0.5">
                     {role === 'admin' ? (
                       <span className="text-[#0038DF] font-bold">Superusuario Admin</span>
                     ) : role === 'instructor' ? (
                       <span className="text-[#9C7316] font-bold">Docente Formador</span>
+                    ) : enrollments.length > 0 ? (
+                      <span className="text-emerald-700 font-bold flex items-center gap-1">
+                        <CheckCircle2 className="w-3 h-3 text-emerald-600 shrink-0" />
+                        Estudiante Matriculado
+                      </span>
                     ) : (
-                      <span className="text-[#0038DF] font-bold">Estudiante Matriculado</span>
+                      <span className="text-[#64748B] font-semibold flex items-center gap-1.5">
+                        <span className="w-2 h-2 rounded-full bg-amber-500 shrink-0" />
+                        Aspirante Registrado
+                      </span>
                     )}
-                  </p>
+                  </div>
                 </div>
               </div>
               <div className="mt-4 flex items-center justify-between text-xs pt-3 border-t border-[#E2E8F0]">
                 <span className="text-[#64748B]">Cursos matriculados</span>
-                <span className="font-bold text-[#0038DF]">{enrollments.length} activos</span>
+                <span className={`font-bold ${enrollments.length > 0 ? 'text-emerald-700' : 'text-[#64748B]'}`}>
+                  {enrollments.length} activos
+                </span>
               </div>
+              {enrollments.length === 0 && (
+                <button
+                  onClick={() => onNavigate('pricing')}
+                  className="w-full mt-2.5 py-1.5 px-3 rounded-xl bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-900 text-[11px] font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs"
+                >
+                  <Lock className="w-3 h-3 text-amber-700" />
+                  <span>Activar Matrícula Oficial</span>
+                </button>
+              )}
             </>
           ) : (
             <div className="text-center py-2">
@@ -458,6 +478,7 @@ export default function Dashboard({
                       else onNavigate('learning')
                     }}
                     onNavigateToExam={() => onNavigate('exam')}
+                    onNavigateToPricing={() => onNavigate('pricing')}
                     onRefreshEnrollments={loadDashboardData}
                   />
                 </motion.div>
@@ -1006,20 +1027,32 @@ export default function Dashboard({
                             Cargando tus cursos...
                           </div>
                         ) : filteredEnrollments.length === 0 ? (
-                          <div className="text-center py-8 px-4 rounded-xl bg-[#F8FAFC] border border-dashed border-[#E2E8F0] space-y-2">
-                            <BookOpen className="w-8 h-8 text-[#C99E32] mx-auto mb-1" />
-                            <p className="text-xs font-bold text-[#1E293B]">
-                              Plan Oficial de 140 Horas Disponible
-                            </p>
-                            <p className="text-[11px] text-[#64748B] max-w-md mx-auto leading-relaxed">
-                              Accede a los 13 módulos temáticos y bancos de simulacros para tu preparación docente.
-                            </p>
-                            <button
-                              onClick={() => setActiveView('courses')}
-                              className="btn-gold-cta btn-gold-pill px-6 py-2 text-xs font-bold cursor-pointer mt-2"
-                            >
-                              Explorar Módulos de 140h
-                            </button>
+                          <div className="text-center py-8 px-4 rounded-2xl bg-amber-50/60 border-2 border-dashed border-amber-300/80 space-y-3">
+                            <div className="w-12 h-12 rounded-2xl bg-amber-100 text-amber-900 flex items-center justify-center mx-auto shadow-xs">
+                              <Lock className="w-6 h-6 text-amber-700" />
+                            </div>
+                            <div className="space-y-1">
+                              <p className="text-sm font-extrabold text-[#1E293B]">
+                                Sin matrícula activa actualmente
+                              </p>
+                              <p className="text-xs text-[#64748B] max-w-md mx-auto leading-relaxed">
+                                Tu cuenta está registrada como <strong>Aspirante</strong>. El acceso a las 140 horas de clases, grabaciones y bancos oficiales se habilita tras confirmar tu pago.
+                              </p>
+                            </div>
+                            <div className="flex flex-wrap items-center justify-center gap-2 pt-1">
+                              <button
+                                onClick={() => onNavigate('pricing')}
+                                className="btn-gold-cta btn-gold-pill px-5 py-2 text-xs font-extrabold cursor-pointer shadow-xs"
+                              >
+                                Ver Planes de Matrícula (Nequi / Bancolombia)
+                              </button>
+                              <button
+                                onClick={() => setActiveView('courses')}
+                                className="px-4 py-2 rounded-full bg-white border border-[#E2E8F0] hover:bg-[#F8FAFC] text-[#0038DF] text-xs font-bold cursor-pointer"
+                              >
+                                Ver Módulos de 140h
+                              </button>
+                            </div>
                           </div>
                         ) : (
                           <div className="space-y-3">

@@ -21,9 +21,10 @@ import {
   Flame,
   Check,
   AlertCircle,
+  Lock,
 } from 'lucide-react'
 import { Course } from '@/types/database'
-import { EnrollmentWithCourse, enrollInCourse } from '@/services/enrollments'
+import { EnrollmentWithCourse } from '@/services/enrollments'
 import { getThumbnailUrl } from '@/lib/supabase/storage'
 
 export interface OfficialModuleItem {
@@ -209,6 +210,7 @@ interface DashboardCoursesPanelProps {
   userName?: string
   onSelectCourse: (slug: string) => void
   onNavigateToExam: () => void
+  onNavigateToPricing?: () => void
   onRefreshEnrollments?: () => void
 }
 
@@ -220,12 +222,12 @@ export default function DashboardCoursesPanel({
   userName,
   onSelectCourse,
   onNavigateToExam,
+  onNavigateToPricing,
   onRefreshEnrollments,
 }: DashboardCoursesPanelProps) {
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedNucleus, setSelectedNucleus] = useState<string>('Todos')
   const [activeTab, setActiveTab] = useState<'curriculum' | 'enrolled'>('curriculum')
-  const [enrolling, setEnrolling] = useState(false)
 
   // Curso insignia
   const flagshipCourse = availableCourses.find(
@@ -264,25 +266,6 @@ export default function DashboardCoursesPanel({
       return matchesSearch && matchesNucleus
     })
   }, [searchTerm, selectedNucleus])
-
-  // Manejo de auto-inscripción rápida al curso de 140h
-  const handleAutoEnroll = async () => {
-    if (!flagshipCourse || !userId) {
-      if (flagshipCourse) onSelectCourse(flagshipCourse.slug)
-      return
-    }
-
-    setEnrolling(true)
-    try {
-      await enrollInCourse(userId, flagshipCourse.id)
-      onRefreshEnrollments?.()
-      onSelectCourse(flagshipCourse.slug)
-    } catch {
-      onSelectCourse(flagshipCourse.slug)
-    } finally {
-      setEnrolling(false)
-    }
-  }
 
   const containerVariants: Variants = {
     hidden: { opacity: 0 },
@@ -353,16 +336,30 @@ export default function DashboardCoursesPanel({
             </p>
 
             <div className="flex flex-wrap items-center gap-4 pt-2">
-              <button
-                onClick={() => {
-                  if (flagshipCourse) onSelectCourse(flagshipCourse.slug)
-                }}
-                className="btn-gold-cta btn-gold-pill px-8 py-3.5 text-sm font-extrabold flex items-center gap-3 group cursor-pointer shadow-lg"
-              >
-                <Play className="w-4 h-4 fill-current text-[#1A1A1A] group-hover:scale-110 transition-transform" />
-                <span>{isEnrolledInFlagship ? 'Continuar Mi Formación (140h)' : 'Ver Temario y Clases (140h)'}</span>
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </button>
+              {isEnrolledInFlagship ? (
+                <button
+                  onClick={() => {
+                    if (flagshipCourse) onSelectCourse(flagshipCourse.slug)
+                  }}
+                  className="btn-gold-cta btn-gold-pill px-8 py-3.5 text-sm font-extrabold flex items-center gap-3 group cursor-pointer shadow-lg"
+                >
+                  <Play className="w-4 h-4 fill-current text-[#1A1A1A] group-hover:scale-110 transition-transform" />
+                  <span>Continuar Mi Formación (140h)</span>
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                </button>
+              ) : (
+                <button
+                  onClick={() => {
+                    if (onNavigateToPricing) onNavigateToPricing()
+                    else window.location.href = '/?view=pricing'
+                  }}
+                  className="btn-gold-cta btn-gold-pill px-8 py-3.5 text-sm font-extrabold flex items-center gap-3 group cursor-pointer shadow-lg"
+                >
+                  <Lock className="w-4 h-4 text-[#1A1A1A]" />
+                  <span>Matricularme en el Curso de 140h</span>
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                </button>
+              )}
 
               <button
                 onClick={onNavigateToExam}
@@ -513,9 +510,17 @@ export default function DashboardCoursesPanel({
               <div>
                 {/* Header del Módulo */}
                 <div className="flex items-center justify-between mb-3.5">
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#0038DF]/10 border border-[#0038DF]/25 text-[#0038DF] text-xs font-extrabold uppercase tracking-wide">
-                    {item.moduleNumber}
-                  </span>
+                  <div className="flex items-center gap-1.5">
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#0038DF]/10 border border-[#0038DF]/25 text-[#0038DF] text-xs font-extrabold uppercase tracking-wide">
+                      {item.moduleNumber}
+                    </span>
+                    {!isEnrolledInFlagship && !item.hasSimulacro && (
+                      <span className="inline-flex items-center gap-1 text-[10px] font-bold text-amber-800 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">
+                        <Lock className="w-3 h-3 text-amber-600" />
+                        Bloqueado
+                      </span>
+                    )}
+                  </div>
                   <span className="inline-flex items-center gap-1 text-xs font-extrabold text-[#9C7316] bg-[#C99E32]/10 px-2.5 py-1 rounded-full border border-[#C99E32]/30 font-mono">
                     <Clock className="w-3.5 h-3.5" />
                     {item.hours} horas
@@ -563,14 +568,35 @@ export default function DashboardCoursesPanel({
                   onClick={() => {
                     if (item.hasSimulacro) {
                       onNavigateToExam()
-                    } else if (flagshipCourse) {
-                      onSelectCourse(flagshipCourse.slug)
+                    } else if (isEnrolledInFlagship) {
+                      if (flagshipCourse) onSelectCourse(flagshipCourse.slug)
+                    } else {
+                      if (onNavigateToPricing) onNavigateToPricing()
+                      else window.location.href = '/?view=pricing'
                     }
                   }}
-                  className="px-4 py-2 rounded-xl bg-[#0038DF] hover:bg-[#002299] text-white text-xs font-bold transition-all flex items-center gap-1.5 shadow-sm group-hover:scale-105 cursor-pointer"
+                  className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shadow-sm cursor-pointer ${
+                    item.hasSimulacro || isEnrolledInFlagship
+                      ? 'bg-[#0038DF] hover:bg-[#002299] text-white group-hover:scale-105'
+                      : 'bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300'
+                  }`}
                 >
-                  <span>{item.hasSimulacro ? 'Abrir Simulacro' : 'Iniciar Módulo'}</span>
-                  <ChevronRight className="w-3.5 h-3.5" />
+                  {item.hasSimulacro ? (
+                    <>
+                      <span>Abrir Simulacro</span>
+                      <ChevronRight className="w-3.5 h-3.5" />
+                    </>
+                  ) : isEnrolledInFlagship ? (
+                    <>
+                      <span>Iniciar Módulo</span>
+                      <ChevronRight className="w-3.5 h-3.5" />
+                    </>
+                  ) : (
+                    <>
+                      <Lock className="w-3.5 h-3.5 text-amber-800" />
+                      <span>Requiere Matrícula</span>
+                    </>
+                  )}
                 </button>
               </div>
             </motion.div>
@@ -589,25 +615,27 @@ export default function DashboardCoursesPanel({
           className="space-y-4"
         >
           {enrollments.length === 0 ? (
-            <div className="text-center py-12 px-6 rounded-3xl bg-white border-2 border-dashed border-[#C99E32]/40 space-y-4">
-              <div className="w-16 h-16 rounded-2xl bg-gold-metallic text-[#1A1A1A] flex items-center justify-center mx-auto shadow-md">
-                <BookOpen className="w-8 h-8" />
+            <div className="text-center py-12 px-6 rounded-3xl bg-white border-2 border-dashed border-amber-300 space-y-4 shadow-xs">
+              <div className="w-16 h-16 rounded-2xl bg-amber-100 text-amber-900 flex items-center justify-center mx-auto shadow-sm">
+                <Lock className="w-8 h-8 text-amber-700" />
               </div>
               <div className="space-y-1">
                 <h3 className="title-h1 text-xl font-extrabold text-[#0038DF]">
-                  Aún no estás matriculado formalmente
+                  Matrícula Pendiente de Pago
                 </h3>
                 <p className="text-xs sm:text-sm text-[#1E293B] max-w-lg mx-auto leading-relaxed">
-                  Puedes inscribirte de inmediato al Curso Oficial de 140 Horas de Legado Docente para habilitar el seguimiento de tus videoclases, guías en PDF y certificaciones oficiales.
+                  Aún no tienes cursos matriculados. El acceso completo a las 140 horas de clases grabadas, materiales pedagógicos y simulacros CNSC se activa automáticamente una vez tu comprobante de pago es confirmado por el área administrativa.
                 </p>
               </div>
               <button
-                onClick={handleAutoEnroll}
-                disabled={enrolling}
+                onClick={() => {
+                  if (onNavigateToPricing) onNavigateToPricing()
+                  else window.location.href = '/?view=pricing'
+                }}
                 className="btn-gold-cta btn-gold-pill px-8 py-3.5 text-xs sm:text-sm font-extrabold inline-flex items-center gap-2 cursor-pointer shadow-md"
               >
                 <Sparkles className="w-4 h-4" />
-                <span>{enrolling ? 'Activando...' : 'Habilitar Mi Matrícula en el Curso de 140h'}</span>
+                <span>Ver Planes y Realizar Matrícula (Nequi / Bancolombia)</span>
               </button>
             </div>
           ) : (
