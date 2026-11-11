@@ -71,34 +71,35 @@ export default function HeroSection({ onNavigate, onOpenAuth, isAuthenticated, r
               Prepárate con método, fuentes oficiales y una comunidad de colegas. El programa oficial de cualificación docente de <strong className="font-bold text-[#0038DF]">140 horas</strong> para asegurar tu nombramiento en propiedad.
             </p>
 
-            {/* Acciones principales / Botón CTA Oro Metálico tipo Banner de 2 líneas */}
+            {/* Acciones principales / Botón CTA Oro Metálico tipo Banner de 2 líneas con Shimmer activo */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5 mb-10">
               <button
                 onClick={() => onNavigate('courses')}
-                className="btn-gold-cta btn-gold-banner px-8 py-4 text-left cursor-pointer flex items-center justify-between gap-6 group w-full sm:w-auto"
+                className="btn-gold-cta btn-gold-banner px-8 py-4 text-left cursor-pointer flex items-center justify-between gap-6 group w-full sm:w-auto shadow-xl hover:shadow-2xl transition-all"
               >
                 <div>
-                  <span className="block text-xs font-bold uppercase tracking-wider text-[#1A1A1A]/80">
+                  <span className="block text-xs font-bold uppercase tracking-wider text-[#1A1A1A]/80 flex items-center gap-1.5">
+                    <Sparkles className="w-3.5 h-3.5 text-[#8F6812] animate-sparkle" />
                     Curso de lanzamiento
                   </span>
                   <span className="block text-xl sm:text-2xl font-extrabold text-[#1A1A1A] tracking-tight">
                     Matrícula abierta
                   </span>
                 </div>
-                <div className="w-10 h-10 rounded-full bg-white/30 flex items-center justify-center shrink-0 group-hover:translate-x-1 transition-transform">
+                <div className="w-10 h-10 rounded-full bg-white/40 backdrop-blur-xs flex items-center justify-center shrink-0 group-hover:translate-x-1.5 group-hover:bg-white/60 transition-all duration-300 shadow-xs">
                   <ArrowRight className="w-5 h-5 text-[#1A1A1A]" strokeWidth={2.5} />
                 </div>
               </button>
 
               <button
                 onClick={() => onOpenAuth?.('signup')}
-                className="group flex items-center gap-2 text-sm sm:text-base font-bold text-[#0038DF] hover:text-[#002299] transition-colors py-2 px-3 cursor-pointer"
+                className="group flex items-center gap-2 text-sm sm:text-base font-bold text-[#0038DF] hover:text-[#002299] transition-all py-2 px-3 cursor-pointer"
               >
-                <Sparkles className="w-4 h-4 text-[#C99E32]" />
-                <span className="underline decoration-[#C99E32] decoration-2 underline-offset-4">
+                <Sparkles className="w-4 h-4 text-[#C99E32] group-hover:rotate-12 group-hover:scale-125 transition-transform duration-300" />
+                <span className="underline decoration-[#C99E32] decoration-2 underline-offset-4 group-hover:decoration-[#0038DF] transition-colors">
                   Diagnóstico gratis · enlace en la biografía
                 </span>
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1.5 transition-transform duration-300" />
               </button>
             </div>
 
@@ -158,19 +159,20 @@ export default function HeroSection({ onNavigate, onOpenAuth, isAuthenticated, r
             ======================================================== */}
         <div className="w-full lg:w-[32%] xl:w-[30%] bg-royal-depth p-8 lg:p-12 relative overflow-hidden flex flex-col justify-between text-white shrink-0 min-h-[380px] lg:min-h-full">
           
-          {/* Aros geométricos dorados grandes cortados en esquinas (border: 12px solid #C99E32) */}
+          {/* Aros geométricos dorados grandes con suave flotación continua */}
           <div
-            className="absolute -top-24 -right-24 w-80 h-80 rounded-full pointer-events-none"
+            className="absolute -top-24 -right-24 w-80 h-80 rounded-full pointer-events-none float"
             style={{ border: '12px solid #C99E32', opacity: 0.95 }}
           />
           <div
-            className="absolute -bottom-28 -left-28 w-96 h-96 rounded-full pointer-events-none"
+            className="absolute -bottom-28 -left-28 w-96 h-96 rounded-full pointer-events-none float-slow"
             style={{ border: '12px solid #C99E32', opacity: 0.9 }}
           />
 
           {/* Contenido destacado de la columna azul */}
           <div className="relative z-10 space-y-4">
-            <span className="eyebrow-blue block">
+            <span className="eyebrow-blue block flex items-center gap-1.5">
+              <Sparkles className="w-3.5 h-3.5 text-[#E6C565] animate-sparkle" />
               ESTRUCTURA OFICIAL
             </span>
             <h3 className="text-2xl sm:text-3xl font-extrabold text-white leading-tight tracking-tight">
@@ -197,19 +199,19 @@ export default function HeroSection({ onNavigate, onOpenAuth, isAuthenticated, r
 
             <ul className="space-y-2 text-xs font-semibold text-[#1E293B] mb-5">
               <li className="flex items-start gap-2">
-                <div className="w-4 h-4 rounded-full bg-[#0038DF] text-white flex items-center justify-center shrink-0 mt-0.5">
+                <div className="w-4 h-4 rounded-full bg-[#0038DF] text-white flex items-center justify-center shrink-0 mt-0.5 shadow-2xs">
                   <Check className="w-2.5 h-2.5" strokeWidth={3} />
                 </div>
                 <span>Núcleo Común: Aptitudes y Pedagógico</span>
               </li>
               <li className="flex items-start gap-2">
-                <div className="w-4 h-4 rounded-full bg-[#0038DF] text-white flex items-center justify-center shrink-0 mt-0.5">
+                <div className="w-4 h-4 rounded-full bg-[#0038DF] text-white flex items-center justify-center shrink-0 mt-0.5 shadow-2xs">
                   <Check className="w-2.5 h-2.5" strokeWidth={3} />
                 </div>
                 <span>Simulacros Oficiales con Casos CNSC</span>
               </li>
               <li className="flex items-start gap-2">
-                <div className="w-4 h-4 rounded-full bg-[#0038DF] text-white flex items-center justify-center shrink-0 mt-0.5">
+                <div className="w-4 h-4 rounded-full bg-[#0038DF] text-white flex items-center justify-center shrink-0 mt-0.5 shadow-2xs">
                   <Check className="w-2.5 h-2.5" strokeWidth={3} />
                 </div>
                 <span>Componente Disciplinar Especializado</span>
@@ -218,7 +220,7 @@ export default function HeroSection({ onNavigate, onOpenAuth, isAuthenticated, r
 
             <button
               onClick={() => onNavigate('courses')}
-              className="w-full py-2.5 px-4 rounded-xl bg-[#0038DF] hover:bg-[#002299] text-white text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer shadow-sm"
+              className="w-full py-2.5 px-4 rounded-xl btn-royal-cta text-white text-xs font-bold flex items-center justify-center gap-2 cursor-pointer shadow-md"
             >
               <span>Ver Plan de Estudio</span>
               <ArrowRight className="w-3.5 h-3.5" />

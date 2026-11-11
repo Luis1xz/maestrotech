@@ -98,8 +98,10 @@ export default function Navigation({ onNavigate, currentView, onOpenAuth }: NavP
             : 'bg-white/90 backdrop-blur-sm border-b border-[#E2E8F0]'
         }`}
       >
-        {/* Línea superior dorada de prestigio */}
-        <div className="w-full h-[3px] bg-gradient-to-r from-[#9C7316] via-[#E6C565] to-[#8F6812]" />
+        {/* Línea superior dorada de prestigio con animación de flujo de luz */}
+        <div className="relative overflow-hidden w-full h-[3px] bg-gradient-to-r from-[#9C7316] via-[#E6C565] to-[#8F6812] shadow-2xs">
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/80 to-transparent w-40 animate-[shimmer_3s_linear_infinite]" />
+        </div>
 
         <nav className="max-w-7xl mx-auto px-6 lg:px-8 h-16 flex items-center justify-between">
           {/* Logo */}
@@ -280,9 +282,10 @@ export default function Navigation({ onNavigate, currentView, onOpenAuth }: NavP
                 </button>
                 <button
                   onClick={() => onOpenAuth?.('signup')}
-                  className="btn-gold-cta btn-gold-pill px-5 py-2.5 text-xs font-bold text-[#1A1A1A] cursor-pointer"
+                  className="btn-gold-cta btn-gold-pill px-5 py-2.5 text-xs font-bold text-[#1A1A1A] cursor-pointer inline-flex items-center gap-1.5 shadow-md"
                 >
-                  Comenzar gratis
+                  <Sparkles className="w-3.5 h-3.5 text-[#8F6812] animate-sparkle" />
+                  <span>Comenzar gratis</span>
                 </button>
               </>
             )}

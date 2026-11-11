@@ -221,24 +221,165 @@
     background-clip: text;
   }
 
-  /* CTA Button — Brushed Metallic Gold */
+  /* CTA Button — Brushed Metallic Gold with Live Shimmer & Specular Sheen */
   .btn-gold-cta {
+    position: relative;
+    overflow: hidden;
     background: linear-gradient(135deg, #9C7316 0%, #C99E32 28%, #E6C565 52%, #C1962C 76%, #8F6812 100%);
     color: #1A1A1A;
     font-weight: 700;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.22), inset 0 1px 1px rgba(255, 255, 255, 0.4);
-    transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+    box-shadow: 0 8px 22px rgba(156, 115, 22, 0.28), inset 0 1px 1px rgba(255, 255, 255, 0.55);
+    transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+
+  .btn-gold-cta::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -75%;
+    width: 50%;
+    height: 200%;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.05) 15%,
+      rgba(255, 255, 255, 0.7) 50%,
+      rgba(255, 255, 255, 0.05) 85%,
+      transparent 100%
+    );
+    transform: rotate(25deg);
+    pointer-events: none;
+    animation: goldShineSweep 4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
   }
 
   .btn-gold-cta:hover {
-    filter: brightness(1.08);
-    transform: translateY(-2px);
-    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.28), inset 0 1px 1px rgba(255, 255, 255, 0.6);
+    filter: brightness(1.1);
+    transform: translateY(-2px) scale(1.015);
+    box-shadow: 0 14px 28px rgba(156, 115, 22, 0.38), 0 0 20px rgba(230, 197, 101, 0.4), inset 0 1px 2px rgba(255, 255, 255, 0.7);
   }
 
   .btn-gold-cta:active {
-    transform: translateY(0);
+    transform: translateY(0) scale(0.99);
     filter: brightness(0.98);
+  }
+
+  @keyframes goldShineSweep {
+    0% {
+      left: -75%;
+      opacity: 0;
+    }
+    10% {
+      opacity: 1;
+    }
+    30% {
+      left: 140%;
+      opacity: 0.9;
+    }
+    31%, 100% {
+      left: 140%;
+      opacity: 0;
+    }
+  }
+
+  /* Purple / Royal AI glowing button with continuous sparkles and specular light */
+  .btn-purple-glow, .btn-royal-ai {
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(135deg, #0038DF 0%, #4F46E5 50%, #7C3AED 100%);
+    color: #FFFFFF;
+    font-weight: 700;
+    box-shadow: 0 8px 24px rgba(79, 70, 229, 0.35), 0 0 15px rgba(124, 58, 237, 0.25), inset 0 1px 1px rgba(255, 255, 255, 0.4);
+    transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+
+  .btn-purple-glow::after, .btn-royal-ai::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -75%;
+    width: 50%;
+    height: 200%;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.1) 15%,
+      rgba(255, 255, 255, 0.85) 50%,
+      rgba(255, 255, 255, 0.1) 85%,
+      transparent 100%
+    );
+    transform: rotate(25deg);
+    pointer-events: none;
+    animation: purpleShineSweep 3.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  }
+
+  .btn-purple-glow:hover, .btn-royal-ai:hover {
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 14px 32px rgba(124, 58, 237, 0.5), 0 0 25px rgba(167, 139, 250, 0.45), inset 0 1px 2px rgba(255, 255, 255, 0.6);
+    filter: brightness(1.1);
+  }
+
+  .btn-purple-glow:active, .btn-royal-ai:active {
+    transform: translateY(0) scale(0.99);
+  }
+
+  @keyframes purpleShineSweep {
+    0% {
+      left: -75%;
+      opacity: 0;
+    }
+    10% {
+      opacity: 1;
+    }
+    32% {
+      left: 140%;
+      opacity: 0.95;
+    }
+    33%, 100% {
+      left: 140%;
+      opacity: 0;
+    }
+  }
+
+  /* Royal Blue Primary Button with Sleek Luminous Edge */
+  .btn-royal-cta {
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(135deg, #0038DF 0%, #002299 100%);
+    color: #FFFFFF;
+    font-weight: 700;
+    box-shadow: 0 8px 20px rgba(0, 56, 223, 0.28), inset 0 1px 1px rgba(255, 255, 255, 0.3);
+    transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+
+  .btn-royal-cta::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -75%;
+    width: 45%;
+    height: 200%;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.6) 50%,
+      transparent 100%
+    );
+    transform: rotate(25deg);
+    pointer-events: none;
+    animation: royalShineSweep 4.5s ease-in-out infinite;
+  }
+
+  .btn-royal-cta:hover {
+    transform: translateY(-2px) scale(1.015);
+    box-shadow: 0 12px 28px rgba(0, 56, 223, 0.4), 0 0 18px rgba(0, 56, 223, 0.3);
+    filter: brightness(1.08);
+  }
+
+  @keyframes royalShineSweep {
+    0% { left: -75%; opacity: 0; }
+    12% { opacity: 1; }
+    30% { left: 140%; opacity: 0.85; }
+    31%, 100% { left: 140%; opacity: 0; }
   }
 
   /* Pill button variant for short actions */
@@ -251,11 +392,18 @@
     border-radius: 14px;
   }
 
-  /* Container Cards */
+  /* Container Cards with enhanced hover depth */
   .card-gold {
     background-color: #FFFFFF;
     border-radius: 16px;
     border: 2px solid #C99E32;
+    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+  }
+
+  .card-gold:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 16px 36px rgba(201, 158, 50, 0.16);
+    border-color: #E6C565;
   }
 
   .card-gold-on-blue {
@@ -263,6 +411,12 @@
     border-radius: 16px;
     border: 2px solid #C99E32;
     box-shadow: 0 20px 40px rgba(0, 20, 100, 0.25);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+  }
+
+  .card-gold-on-blue:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 24px 48px rgba(0, 20, 100, 0.32), 0 0 24px rgba(201, 158, 50, 0.25);
   }
 
   /* Quiz Style Selection Buttons */
@@ -279,12 +433,75 @@
     box-shadow: 0 4px 14px rgba(201, 158, 50, 0.15);
   }
 
-  /* Short decorative gold divider */
+  /* Short decorative gold divider with animated light stream */
   .gold-divider {
+    position: relative;
+    overflow: hidden;
     height: 4px;
-    width: 56px;
+    width: 64px;
     border-radius: 9999px;
     background: linear-gradient(135deg, #9C7316 0%, #C99E32 28%, #E6C565 52%, #C1962C 76%, #8F6812 100%);
+    box-shadow: 0 0 10px rgba(201, 158, 50, 0.4);
+  }
+
+  .gold-divider::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.85) 50%, transparent 100%);
+    animation: goldDividerFlow 3s ease-in-out infinite;
+  }
+
+  @keyframes goldDividerFlow {
+    0% { transform: translateX(-100%); }
+    50%, 100% { transform: translateX(100%); }
+  }
+
+  /* Sparkle Twinkle Animation */
+  .animate-sparkle {
+    animation: sparkleTwinkle 2.5s ease-in-out infinite;
+  }
+
+  @keyframes sparkleTwinkle {
+    0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.85; filter: drop-shadow(0 0 2px rgba(230, 197, 101, 0.4)); }
+    50% { transform: scale(1.22) rotate(12deg); opacity: 1; filter: drop-shadow(0 0 8px rgba(230, 197, 101, 0.9)); }
+  }
+
+  /* Soft Ambient Pulse for Badges & Live Status */
+  .pulse-soft {
+    animation: pulseSoft 2.2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  @keyframes pulseSoft {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.75; transform: scale(0.97); }
+  }
+
+  /* Luminous Pulsing Glow Rings */
+  .glow-ring-purple {
+    animation: glowRingPurple 3s ease-in-out infinite;
+  }
+
+  @keyframes glowRingPurple {
+    0%, 100% {
+      box-shadow: 0 8px 24px rgba(124, 58, 237, 0.25), 0 0 0 1px rgba(124, 58, 237, 0.3);
+    }
+    50% {
+      box-shadow: 0 12px 36px rgba(124, 58, 237, 0.45), 0 0 0 2px rgba(167, 139, 250, 0.7);
+    }
+  }
+
+  .glow-ring-gold {
+    animation: glowRingGold 3s ease-in-out infinite;
+  }
+
+  @keyframes glowRingGold {
+    0%, 100% {
+      box-shadow: 0 8px 24px rgba(201, 158, 50, 0.15), 0 0 0 1px rgba(201, 158, 50, 0.3);
+    }
+    50% {
+      box-shadow: 0 12px 32px rgba(201, 158, 50, 0.32), 0 0 0 2px rgba(230, 197, 101, 0.65);
+    }
   }
 
   /* Eyebrows / Badges */

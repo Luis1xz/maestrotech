@@ -927,27 +927,29 @@ export default function ExamSimulator({ onNavigate }: ExamProps) {
                     key={i}
                     initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: i * 0.05 }}
+                    whileHover={!answered ? { scale: 1.012, x: 4 } : {}}
+                    whileTap={!answered ? { scale: 0.99 } : {}}
+                    transition={{ delay: i * 0.05, duration: 0.2 }}
                     onClick={() => selectAnswer(i)}
                     disabled={answered}
-                    className={`w-full flex items-center gap-4 p-4 sm:p-5 rounded-[10px] border-[1.5px] text-left transition-all duration-200 ${
+                    className={`w-full flex items-center gap-4 p-4 sm:p-5 rounded-2xl border-[1.5px] text-left transition-all duration-200 group ${
                       !answered
-                        ? 'border-[#E2E8F0] hover:border-[#C99E32] bg-white cursor-pointer text-[#1E293B] shadow-xs'
+                        ? 'border-[#E2E8F0] hover:border-[#C99E32] hover:shadow-md bg-white cursor-pointer text-[#1E293B] shadow-2xs'
                         : isCorrect
-                          ? 'border-emerald-400 bg-emerald-50 text-emerald-950 shadow-xs'
+                          ? 'border-emerald-500 bg-emerald-50/90 text-emerald-950 shadow-sm ring-1 ring-emerald-400'
                           : isSelected && !isCorrect
-                            ? 'border-rose-400 bg-rose-50 text-rose-950 shadow-xs'
+                            ? 'border-rose-500 bg-rose-50/90 text-rose-950 shadow-sm ring-1 ring-rose-400'
                             : 'border-[#E2E8F0] bg-white text-[#64748B] opacity-60'
                     }`}
                   >
                     <span
-                      className={`w-8 h-8 rounded-lg flex items-center justify-center text-sm font-extrabold shrink-0 transition-all ${
+                      className={`w-8 h-8 rounded-xl flex items-center justify-center text-sm font-extrabold shrink-0 transition-all duration-200 shadow-2xs ${
                         !answered
-                          ? 'bg-[#0038DF]/10 text-[#0038DF]'
+                          ? 'bg-[#0038DF]/10 text-[#0038DF] group-hover:bg-[#0038DF] group-hover:text-white group-hover:shadow-xs'
                           : isCorrect
-                            ? 'bg-emerald-600 text-white'
+                            ? 'bg-emerald-600 text-white shadow-xs'
                             : isSelected
-                              ? 'bg-rose-600 text-white'
+                              ? 'bg-rose-600 text-white shadow-xs'
                               : 'bg-[#F8FAFC] text-[#64748B] border border-[#E2E8F0]'
                       }`}
                     >
@@ -963,7 +965,12 @@ export default function ExamSimulator({ onNavigate }: ExamProps) {
                         String.fromCharCode(65 + i)
                       )}
                     </span>
-                    <span className="text-sm font-medium leading-relaxed">{opt}</span>
+                    <span className="text-sm font-medium leading-relaxed flex-1">{opt}</span>
+                    {!answered && (
+                      <span className="opacity-0 group-hover:opacity-100 text-[#C99E32] transition-opacity">
+                        <Sparkles className="w-4 h-4 animate-sparkle" />
+                      </span>
+                    )}
                   </motion.button>
                 )
               })}

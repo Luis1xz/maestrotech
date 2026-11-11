@@ -225,10 +225,13 @@ export default function AIMentor({
 
         <button
           onClick={() => setMinimized(!minimized)}
-          className="flex items-center gap-2.5 px-4 py-2.5 rounded-full bg-[#0038DF] hover:bg-[#002299] text-white shadow-xl hover:scale-105 transition-all"
+          className="flex items-center gap-2.5 px-4 py-2.5 rounded-full btn-purple-glow text-white shadow-2xl hover:scale-105 transition-all cursor-pointer"
         >
           {renderAvatarGraphic()}
-          <span className="text-xs font-bold">Mentor IA</span>
+          <span className="text-xs font-bold flex items-center gap-1.5">
+            Mentor IA
+            <Sparkles className="w-3.5 h-3.5 text-[#E6C565] animate-sparkle" />
+          </span>
         </button>
       </div>
     )

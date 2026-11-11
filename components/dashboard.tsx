@@ -331,21 +331,45 @@ export default function Dashboard({
         </div>
 
         {/* Navigation items */}
-        <nav className="flex-1 px-3 py-4 overflow-y-auto no-scrollbar space-y-1">
-          {SIDEBAR_ITEMS.map(({ icon: Icon, label, view }) => (
-            <button
-              key={view}
-              onClick={() => navigate(view)}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all duration-200 cursor-pointer ${
-                activeView === view
-                  ? 'bg-[#F1F5F9] text-[#0038DF] border-r-4 border-[#C99E32]'
-                  : 'text-[#64748B] hover:bg-[#F8FAFC] hover:text-[#0038DF]'
-              }`}
-            >
-              <Icon className="w-4.5 h-4.5 shrink-0" strokeWidth={activeView === view ? 2.2 : 1.8} />
-              {label}
-            </button>
-          ))}
+        <nav className="flex-1 px-3 py-4 overflow-y-auto no-scrollbar space-y-1.5">
+          {SIDEBAR_ITEMS.map(({ icon: Icon, label, view }) => {
+            const isAi = view === 'ai'
+            const isActive = activeView === view
+            return (
+              <button
+                key={view}
+                onClick={() => navigate(view)}
+                className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-bold transition-all duration-200 cursor-pointer ${
+                  isActive
+                    ? isAi
+                      ? 'bg-gradient-to-r from-purple-50 via-indigo-50/60 to-purple-50 text-[#7C3AED] border-r-4 border-[#7C3AED] shadow-sm'
+                      : 'bg-[#F1F5F9] text-[#0038DF] border-r-4 border-[#C99E32] shadow-2xs'
+                    : isAi
+                    ? 'text-[#7C3AED] hover:bg-purple-50/70 hover:shadow-2xs'
+                    : 'text-[#64748B] hover:bg-[#F8FAFC] hover:text-[#0038DF]'
+                }`}
+              >
+                <div className="flex items-center gap-3 min-w-0">
+                  <Icon
+                    className={`w-4.5 h-4.5 shrink-0 ${
+                      isAi
+                        ? 'text-[#7C3AED] animate-sparkle'
+                        : isActive
+                        ? 'text-[#0038DF]'
+                        : 'text-[#64748B]'
+                    }`}
+                    strokeWidth={isActive ? 2.2 : 1.8}
+                  />
+                  <span className="truncate">{label}</span>
+                </div>
+                {isAi && (
+                  <span className="px-2 py-0.5 rounded-full bg-gradient-to-r from-[#7C3AED] to-[#4F46E5] text-white text-[10px] font-extrabold uppercase tracking-wider shadow-xs animate-sparkle">
+                    ✨ IA
+                  </span>
+                )}
+              </button>
+            )
+          })}
 
           {(role === 'instructor' || role === 'admin') && (
             <div className="pt-4 mt-4 border-t border-[#E2E8F0] space-y-1.5">
@@ -510,12 +534,18 @@ export default function Dashboard({
                   className="space-y-6"
                 >
                   {!isEnrolled ? (
-                    <div className="p-8 sm:p-12 rounded-3xl bg-white border-2 border-[#C99E32] shadow-xl text-center max-w-3xl mx-auto space-y-6">
-                      <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-[#0038DF] to-[#002299] text-white flex items-center justify-center mx-auto shadow-xl shadow-[#0038DF]/20">
-                        <Brain className="w-10 h-10 text-[#C99E32]" />
+                    <div className="p-8 sm:p-12 rounded-3xl bg-white border-2 border-[#C99E32] shadow-2xl text-center max-w-3xl mx-auto space-y-6 relative overflow-hidden card-gold">
+                      {/* Ambient background glow */}
+                      <div className="absolute -top-24 -right-24 w-60 h-60 bg-purple-500/10 rounded-full blur-3xl pointer-events-none" />
+                      <div className="absolute -bottom-24 -left-24 w-60 h-60 bg-[#C99E32]/10 rounded-full blur-3xl pointer-events-none" />
+
+                      <div className="relative w-20 h-20 rounded-3xl bg-gradient-to-br from-[#7C3AED] via-[#4F46E5] to-[#0038DF] text-white flex items-center justify-center mx-auto shadow-2xl shadow-purple-600/30 glow-ring-purple">
+                        <Brain className="w-10 h-10 text-[#E6C565] animate-sparkle" />
+                        <Sparkles className="w-5 h-5 text-[#E6C565] absolute -top-1 -right-1 animate-sparkle" />
                       </div>
 
-                      <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-[#9C7316] text-xs font-extrabold uppercase tracking-wider">
+                      <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-purple-50 via-amber-50/60 to-purple-50 border border-purple-200 text-[#7C3AED] text-xs font-extrabold uppercase tracking-wider shadow-2xs">
+                        <Sparkles className="w-3.5 h-3.5 text-[#C99E32] animate-sparkle" />
                         Herramienta Exclusiva para Estudiantes Matriculados
                       </div>
 
@@ -529,21 +559,21 @@ export default function Dashboard({
                       </div>
 
                       <div className="grid sm:grid-cols-3 gap-4 text-left max-w-2xl mx-auto">
-                        <div className="p-4 rounded-2xl bg-[#F8FAFC] border border-[#E2E8F0]">
-                          <Sparkles className="w-5 h-5 text-[#C99E32] mb-2" />
+                        <div className="p-4 rounded-2xl bg-[#F8FAFC] border border-[#E2E8F0] hover:border-[#7C3AED]/40 hover:shadow-md transition-all duration-300">
+                          <Sparkles className="w-5 h-5 text-[#7C3AED] mb-2 animate-sparkle" />
                           <h4 className="text-xs font-bold text-[#0038DF]">Dudas Normativas 24/7</h4>
                           <p className="text-[11px] text-[#64748B] mt-1">
                             Aclaraciones sobre estatutos, escalafón docente y gobierno escolar al instante.
                           </p>
                         </div>
-                        <div className="p-4 rounded-2xl bg-[#F8FAFC] border border-[#E2E8F0]">
+                        <div className="p-4 rounded-2xl bg-[#F8FAFC] border border-[#E2E8F0] hover:border-[#0038DF]/40 hover:shadow-md transition-all duration-300">
                           <Target className="w-5 h-5 text-[#0038DF] mb-2" />
                           <h4 className="text-xs font-bold text-[#0038DF]">Casos Situacionales</h4>
                           <p className="text-[11px] text-[#64748B] mt-1">
                             Entrenamiento guiado para responder casos de convivencia escolar (Ley 1620).
                           </p>
                         </div>
-                        <div className="p-4 rounded-2xl bg-[#F8FAFC] border border-[#E2E8F0]">
+                        <div className="p-4 rounded-2xl bg-[#F8FAFC] border border-[#E2E8F0] hover:border-[#C99E32]/40 hover:shadow-md transition-all duration-300">
                           <Award className="w-5 h-5 text-[#9C7316] mb-2" />
                           <h4 className="text-xs font-bold text-[#0038DF]">Estrategias de Descarte</h4>
                           <p className="text-[11px] text-[#64748B] mt-1">
@@ -555,14 +585,14 @@ export default function Dashboard({
                       <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
                         <button
                           onClick={() => onNavigate('pricing')}
-                          className="btn-gold-cta btn-gold-pill px-8 py-3.5 text-sm font-extrabold cursor-pointer shadow-md flex items-center gap-2"
+                          className="btn-gold-cta btn-gold-pill px-8 py-3.5 text-sm font-extrabold cursor-pointer shadow-lg flex items-center gap-2"
                         >
                           <span>Ver Planes y Realizar Matrícula</span>
                           <ChevronRight className="w-4 h-4" />
                         </button>
                         <button
                           onClick={() => onNavigate('exam')}
-                          className="px-6 py-3 rounded-full bg-[#F8FAFC] border border-[#E2E8F0] hover:border-[#0038DF] text-[#0038DF] text-xs font-bold cursor-pointer transition-all"
+                          className="px-6 py-3 rounded-full bg-[#F8FAFC] border border-[#E2E8F0] hover:border-[#0038DF] hover:bg-white text-[#0038DF] text-xs font-bold cursor-pointer transition-all shadow-2xs hover:shadow-sm"
                         >
                           Presentar Prueba Diagnóstica Gratuita
                         </button>

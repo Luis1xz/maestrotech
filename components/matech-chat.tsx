@@ -190,21 +190,25 @@ export default function MaTechChat({
         compact ? 'h-[500px]' : 'h-[650px]'
       } ${className}`}
     >
-      {/* Cabecera MaTech */}
-      <div className="px-5 py-4 bg-gradient-to-r from-[#142D49] via-[#0D1F33] to-[#142D49] text-white flex items-center justify-between shadow-xs border-b border-white/10 shrink-0">
-        <div className="flex items-center gap-3">
+      {/* Cabecera MaTech con Aura Iridiscente y Brillo */}
+      <div className="px-5 py-4 bg-gradient-to-r from-[#142D49] via-[#1E3A8A] to-[#4338CA] text-white flex items-center justify-between shadow-md border-b border-white/10 shrink-0 relative overflow-hidden">
+        {/* Glow ambient background */}
+        <div className="absolute top-0 right-1/4 w-32 h-32 bg-purple-500/20 rounded-full blur-2xl pointer-events-none" />
+
+        <div className="flex items-center gap-3 relative z-10">
           <div className="relative">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#E78B24] to-[#F59E0B] flex items-center justify-center text-white shadow-md shadow-[#E78B24]/30">
-              <Brain className="w-5 h-5 text-white" />
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#7C3AED] via-[#4F46E5] to-[#E78B24] flex items-center justify-center text-white shadow-lg shadow-purple-600/30 glow-ring-purple">
+              <Brain className="w-5 h-5 text-white animate-sparkle" />
             </div>
-            <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-400 border-2 border-[#142D49]" />
+            <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-400 border-2 border-[#142D49] shadow-xs" />
           </div>
 
           <div>
             <div className="flex items-center gap-2">
               <h3 className="font-extrabold text-sm tracking-tight text-white flex items-center gap-1.5">
                 MaTech
-                <span className="text-[10px] font-bold px-1.5 py-0.2 rounded-full bg-[#E78B24]/30 text-[#F5B563] border border-[#E78B24]/40">
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-gradient-to-r from-[#7C3AED]/40 to-[#E78B24]/40 text-[#F5B563] border border-[#F5B563]/40 flex items-center gap-1 animate-sparkle">
+                  <Sparkles className="w-2.5 h-2.5 text-[#F5B563]" />
                   Tutor RAG
                 </span>
               </h3>
@@ -216,13 +220,14 @@ export default function MaTechChat({
         </div>
 
         {/* Indicador de Cuota Diaria */}
-        <div className="hidden sm:flex flex-col items-end text-right">
+        <div className="hidden sm:flex flex-col items-end text-right relative z-10">
           {remainingDaily !== null ? (
-            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-white/10 text-slate-200 border border-white/10">
+            <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-white/15 text-white border border-white/20 shadow-2xs">
               {remainingDaily} consultas restantes hoy
             </span>
           ) : (
-            <span className="text-[10px] text-slate-400 font-medium">
+            <span className="text-[10px] text-slate-300 font-medium flex items-center gap-1">
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
               Conectado a documentos del curso
             </span>
           )}
@@ -436,14 +441,15 @@ export default function MaTechChat({
             disabled={
               !inputQuery.trim() || isGenerating || cooldownRemaining > 0
             }
-            className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#176FC1] to-[#142D49] hover:from-[#135ca2] hover:to-[#0d1f33] text-white font-bold text-xs flex items-center gap-1.5 transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-xs"
+            className="px-5 py-2.5 rounded-xl btn-purple-glow text-white font-bold text-xs flex items-center gap-2 transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-md cursor-pointer group"
           >
             {cooldownRemaining > 0 ? (
               <span className="font-mono text-xs">{cooldownRemaining}s</span>
             ) : (
               <>
-                <span className="hidden sm:inline">Preguntar</span>
-                <Send className="w-3.5 h-3.5" />
+                <Sparkles className="w-3.5 h-3.5 text-[#E6C565] animate-sparkle" />
+                <span className="hidden sm:inline">Preguntar a MaTech</span>
+                <Send className="w-3.5 h-3.5 group-hover:translate-x-1 group-hover:-translate-y-0.5 transition-transform" />
               </>
             )}
           </button>
