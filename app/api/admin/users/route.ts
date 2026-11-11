@@ -189,13 +189,50 @@ export async function POST(request: NextRequest) {
         })
 
       if (createAuthErr) {
-        return NextResponse.json(
-          { error: `Error creando usuario en Supabase Auth: ${createAuthErr.message}` },
-          { status: 400 }
-        )
-      }
+        const isDuplicate =
+          createAuthErr.message?.toLowerCase().includes('already been registered') ||
+          createAuthErr.message?.toLowerCase().includes('already exists')
 
-      if (createdAuthUser?.user) {
+        if (isDuplicate) {
+          const { data: listData } = await adminClient.auth.admin.listUsers({ page: 1, perPage: 1000 })
+          const existingAuth = listData?.users?.find(
+            (u) => (u.email || '').toLowerCase() === cleanEmail
+          )
+          if (existingAuth) {
+            newUserId = existingAuth.id
+            await adminClient.auth.admin.updateUserById(newUserId, {
+              password: temporaryPassword,
+              user_metadata: {
+                full_name: fullName,
+                first_name: firstName.trim(),
+                last_name: lastName.trim(),
+                role,
+              },
+            })
+            await adminClient.from('profiles').upsert(
+              {
+                id: newUserId,
+                full_name: fullName,
+                first_name: firstName.trim(),
+                last_name: lastName.trim(),
+                role,
+                updated_at: new Date().toISOString(),
+              },
+              { onConflict: 'id' }
+            )
+          } else {
+            return NextResponse.json(
+              { error: `Error creando usuario en Supabase Auth: ${createAuthErr.message}` },
+              { status: 400 }
+            )
+          }
+        } else {
+          return NextResponse.json(
+            { error: `Error creando usuario en Supabase Auth: ${createAuthErr.message}` },
+            { status: 400 }
+          )
+        }
+      } else if (createdAuthUser?.user) {
         newUserId = createdAuthUser.user.id
         await adminClient.from('profiles').upsert(
           {

@@ -17,8 +17,21 @@ const KNOWN_SUPERUSER_EMAILS = [
  * La variable SUPABASE_SERVICE_ROLE_KEY jamás debe llevar el prefijo NEXT_PUBLIC_.
  */
 export function getSupabaseAdminClient(): SupabaseClient | null {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.VITE_SUPABASE_URL
-  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+  const url = (
+    process.env.NEXT_PUBLIC_SUPABASE_URL ||
+    process.env.VITE_SUPABASE_URL
+  )
+    ?.trim()
+    ?.replace(/\/+$/, '')
+
+  const rawServiceKey =
+    process.env.SUPABASE_SERVICE_ROLE_KEY ||
+    process.env.SUPABASE_SERVICE_KEY ||
+    process.env.SUPABASE_SECRET_KEY ||
+    process.env.SERVICE_ROLE_KEY ||
+    process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY
+
+  const serviceKey = rawServiceKey?.trim()?.replace(/^['"]|['"]$/g, '')
 
   if (!url || !serviceKey) {
     return null
