@@ -311,9 +311,9 @@ export default function VideoPlayer({
           className="w-full h-full object-contain bg-black cursor-pointer"
         />
       ) : (
-        <div className="absolute inset-0 bg-gradient-to-br from-[#142D49] via-[#176FC1]/20 to-[#142D49] flex items-center justify-center">
-          <div className="absolute w-72 h-72 rounded-full bg-[#176FC1]/20 blur-3xl pointer-events-none" />
-          <div className="absolute w-64 h-64 rounded-full bg-[#39BDEB]/15 blur-3xl pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-br from-[#1E293B] via-[#0038DF]/20 to-[#142D49] flex items-center justify-center">
+          <div className="absolute w-72 h-72 rounded-full bg-[#0038DF]/20 blur-3xl pointer-events-none" />
+          <div className="absolute w-64 h-64 rounded-full bg-[#C99E32]/15 blur-3xl pointer-events-none" />
         </div>
       )}
 
@@ -346,8 +346,8 @@ export default function VideoPlayer({
         }`}
       >
         <div className="flex items-center gap-2">
-          <div className="w-6 h-6 rounded-lg bg-[#176FC1]/30 border border-[#39BDEB]/40 flex items-center justify-center">
-            <Sparkles className="w-3.5 h-3.5 text-[#39BDEB]" />
+          <div className="w-6 h-6 rounded-lg bg-[#0038DF]/30 border border-[#C99E32]/40 flex items-center justify-center">
+            <Sparkles className="w-3.5 h-3.5 text-[#E6C565]" />
           </div>
           <span className="text-xs font-semibold text-white/95 tracking-wide truncate max-w-md">
             {title || 'Clase de Legado Docente'}

@@ -173,19 +173,19 @@ export default function Navigation({ onNavigate, currentView, onOpenAuth }: NavP
               <div className="relative">
                 <button
                   onClick={() => setUserDropdownOpen(!userDropdownOpen)}
-                  className="flex items-center gap-2 p-1.5 pl-3 rounded-2xl bg-white border border-[#E5EDF5] hover:border-[#176FC1]/50 shadow-xs transition-colors"
+                  className="flex items-center gap-2 p-1.5 pl-3 rounded-2xl bg-white border border-[#E2E8F0] hover:border-[#0038DF]/50 shadow-xs transition-colors"
                 >
-                  <span className="text-xs font-semibold text-[#142D49] max-w-[120px] truncate">
+                  <span className="text-xs font-semibold text-[#1E293B] max-w-[120px] truncate">
                     {displayName}
                   </span>
                   {role && (
                     <span
                       className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded-md ${
                         role === 'admin'
-                          ? 'bg-[#142D49]/10 text-[#142D49] border border-[#142D49]/20'
+                          ? 'bg-[#0038DF]/10 text-[#0038DF] border border-[#0038DF]/20'
                           : role === 'instructor'
-                          ? 'bg-[#176FC1]/10 text-[#176FC1] border border-[#176FC1]/20'
-                          : 'bg-[#39BDEB]/15 text-[#142D49] border border-[#39BDEB]/30'
+                          ? 'bg-[#9C7316]/10 text-[#9C7316] border border-[#9C7316]/20'
+                          : 'bg-[#0038DF]/10 text-[#0038DF] border border-[#0038DF]/20'
                       }`}
                     >
                       {role === 'admin' ? 'Superusuario' : role === 'instructor' ? 'Docente' : 'Estudiante'}
@@ -195,14 +195,14 @@ export default function Navigation({ onNavigate, currentView, onOpenAuth }: NavP
                     <img
                       src={userAvatar}
                       alt={displayName}
-                      className="w-7 h-7 rounded-xl object-cover border border-[#E5EDF5]"
+                      className="w-7 h-7 rounded-xl object-cover border border-[#E2E8F0]"
                     />
                   ) : (
-                    <div className="w-7 h-7 rounded-xl bg-[#176FC1] text-white flex items-center justify-center text-[10px] font-bold">
+                    <div className="w-7 h-7 rounded-xl bg-[#0038DF] text-white flex items-center justify-center text-[10px] font-bold">
                       {userInitials}
                     </div>
                   )}
-                  <ChevronDown className="w-3.5 h-3.5 text-[#536B83]" />
+                  <ChevronDown className="w-3.5 h-3.5 text-[#64748B]" />
                 </button>
 
                 <AnimatePresence>
@@ -211,15 +211,15 @@ export default function Navigation({ onNavigate, currentView, onOpenAuth }: NavP
                       initial={{ opacity: 0, y: 8, scale: 0.95 }}
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, y: 8, scale: 0.95 }}
-                      className="absolute right-0 mt-2 w-56 rounded-2xl bg-white border border-[#E5EDF5] shadow-xl p-2 z-50 text-xs"
+                      className="absolute right-0 mt-2 w-56 rounded-2xl bg-white border border-[#E2E8F0] shadow-xl p-2 z-50 text-xs"
                     >
                       {canAccessAdmin(role) && (
                         <Link
                           href="/admin"
                           onClick={() => setUserDropdownOpen(false)}
-                          className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-left hover:bg-[#F3F8FD] text-[#142D49] transition-colors font-semibold"
+                          className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-left hover:bg-[#F8FAFC] text-[#0038DF] transition-colors font-semibold"
                         >
-                          <Shield className="w-4 h-4 text-[#176FC1]" />
+                          <Shield className="w-4 h-4 text-[#0038DF]" />
                           Panel Superusuario
                         </Link>
                       )}
@@ -227,43 +227,43 @@ export default function Navigation({ onNavigate, currentView, onOpenAuth }: NavP
                         <Link
                           href="/teacher"
                           onClick={() => setUserDropdownOpen(false)}
-                          className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-left hover:bg-[#F3F8FD] text-[#176FC1] transition-colors font-semibold"
+                          className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-left hover:bg-[#F8FAFC] text-[#9C7316] transition-colors font-semibold"
                         >
                           <BookOpen className="w-4 h-4" />
                           Panel Docente
                         </Link>
                       )}
                       {(canAccessAdmin(role) || canAccessTeacher(role)) && (
-                        <div className="my-1 border-t border-[#E5EDF5]" />
+                        <div className="my-1 border-t border-[#E2E8F0]" />
                       )}
                       <button
                         onClick={() => {
                           setUserDropdownOpen(false)
                           onNavigate('dashboard')
                         }}
-                        className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-left hover:bg-[#F3F8FD] text-[#142D49] transition-colors font-medium"
+                        className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-left hover:bg-[#F8FAFC] text-[#1E293B] transition-colors font-medium cursor-pointer"
                       >
-                        <LayoutDashboard className="w-4 h-4 text-[#176FC1]" />
-                        Mi Dashboard
+                        <LayoutDashboard className="w-4 h-4 text-[#0038DF]" />
+                        Mi Aula Virtual
                       </button>
                       <button
                         onClick={() => {
                           setUserDropdownOpen(false)
                           onNavigate('courses')
                         }}
-                        className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-left hover:bg-[#F3F8FD] text-[#142D49] transition-colors font-medium"
+                        className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-left hover:bg-[#F8FAFC] text-[#1E293B] transition-colors font-medium cursor-pointer"
                       >
-                        <Sparkles className="w-4 h-4 text-[#39BDEB]" />
+                        <Sparkles className="w-4 h-4 text-[#C99E32]" />
                         Catálogo de Cursos
                       </button>
-                      <div className="my-1 border-t border-[#E5EDF5]" />
+                      <div className="my-1 border-t border-[#E2E8F0]" />
                       <button
                         onClick={async () => {
                           setUserDropdownOpen(false)
                           await signOut()
                           onNavigate('home')
                         }}
-                        className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-left text-rose-500 hover:bg-rose-50 transition-colors font-medium"
+                        className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-left text-rose-500 hover:bg-rose-50 transition-colors font-medium cursor-pointer"
                       >
                         <LogOut className="w-4 h-4" />
                         Cerrar sesión
@@ -322,32 +322,32 @@ export default function Navigation({ onNavigate, currentView, onOpenAuth }: NavP
                   }}
                   className={`px-4 py-3 rounded-xl text-sm font-medium text-left transition-all duration-200 ${
                     currentView === link.view
-                      ? 'bg-[#F3F8FD] text-[#176FC1] font-semibold'
-                      : 'text-[#142D49] hover:bg-[#F3F8FD]'
+                      ? 'bg-[#F8FAFC] text-[#0038DF] font-bold border border-[#0038DF]/20'
+                      : 'text-[#1E293B] hover:bg-[#F8FAFC]'
                   }`}
                 >
                   {link.label}
                 </button>
               ))}
-              <div className="border-t border-[#E5EDF5] mt-2 pt-2 flex flex-col gap-2">
+              <div className="border-t border-[#E2E8F0] mt-2 pt-2 flex flex-col gap-2">
                 {isAuthenticated ? (
                   <>
                     {canAccessAdmin(role) && (
                       <Link
                         href="/admin"
                         onClick={() => setMobileOpen(false)}
-                        className="px-4 py-2.5 rounded-xl bg-[#142D49]/10 text-[#142D49] text-xs font-semibold text-center flex items-center justify-center gap-2"
+                        className="px-4 py-2.5 rounded-xl bg-[#0038DF]/10 text-[#0038DF] border border-[#0038DF]/20 text-xs font-bold text-center flex items-center justify-center gap-2"
                       >
-                        <Shield className="w-4 h-4 text-[#176FC1]" /> Panel Superusuario
+                        <Shield className="w-4 h-4 text-[#0038DF]" /> Panel Superusuario
                       </Link>
                     )}
                     {canAccessTeacher(role) && (
                       <Link
                         href="/teacher"
                         onClick={() => setMobileOpen(false)}
-                        className="px-4 py-2.5 rounded-xl bg-[#176FC1]/10 text-[#176FC1] text-xs font-semibold text-center flex items-center justify-center gap-2"
+                        className="px-4 py-2.5 rounded-xl bg-[#9C7316]/10 text-[#9C7316] border border-[#9C7316]/20 text-xs font-bold text-center flex items-center justify-center gap-2"
                       >
-                        <BookOpen className="w-4 h-4" /> Panel Docente
+                        <BookOpen className="w-4 h-4 text-[#9C7316]" /> Panel Docente
                       </Link>
                     )}
                     <button
@@ -355,9 +355,9 @@ export default function Navigation({ onNavigate, currentView, onOpenAuth }: NavP
                         onNavigate('dashboard')
                         setMobileOpen(false)
                       }}
-                      className="px-4 py-3 rounded-xl bg-[#176FC1] text-white text-sm font-semibold text-center"
+                      className="px-4 py-3 rounded-xl bg-[#0038DF] text-white text-sm font-bold text-center shadow-xs cursor-pointer"
                     >
-                      Ir a mi Dashboard
+                      Ir a mi Aula Virtual
                     </button>
                     <button
                       onClick={async () => {
@@ -365,7 +365,7 @@ export default function Navigation({ onNavigate, currentView, onOpenAuth }: NavP
                         setMobileOpen(false)
                         onNavigate('home')
                       }}
-                      className="px-4 py-2 text-rose-500 text-xs font-semibold text-center"
+                      className="px-4 py-2 text-rose-600 text-xs font-bold text-center cursor-pointer"
                     >
                       Cerrar sesión
                     </button>
@@ -377,7 +377,7 @@ export default function Navigation({ onNavigate, currentView, onOpenAuth }: NavP
                         onOpenAuth?.('signin')
                         setMobileOpen(false)
                       }}
-                      className="px-4 py-3 rounded-xl text-sm font-medium text-[#142D49] hover:bg-[#F3F8FD] transition-colors text-center"
+                      className="px-4 py-3 rounded-xl text-sm font-bold text-[#0038DF] hover:bg-[#F8FAFC] transition-colors text-center cursor-pointer"
                     >
                       Iniciar sesión
                     </button>
@@ -386,9 +386,10 @@ export default function Navigation({ onNavigate, currentView, onOpenAuth }: NavP
                         onOpenAuth?.('signup')
                         setMobileOpen(false)
                       }}
-                      className="px-4 py-3 rounded-xl bg-[#176FC1] text-white text-sm font-semibold text-center"
+                      className="btn-gold-cta btn-gold-pill px-4 py-3 text-sm font-extrabold text-[#1A1A1A] text-center shadow-md cursor-pointer flex items-center justify-center gap-2"
                     >
-                      Comenzar gratis
+                      <Sparkles className="w-4 h-4 text-[#8F6812] animate-sparkle" />
+                      <span>Comenzar gratis</span>
                     </button>
                   </>
                 )}

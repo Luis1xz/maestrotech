@@ -92,7 +92,7 @@ export default function HeroSection({ onNavigate, onOpenAuth, isAuthenticated, r
               </button>
 
               <button
-                onClick={() => onOpenAuth?.('signup')}
+                onClick={() => onNavigate('exam')}
                 className="group flex items-center gap-2 text-sm sm:text-base font-bold text-[#0038DF] hover:text-[#002299] transition-all py-2 px-3 cursor-pointer"
               >
                 <Sparkles className="w-4 h-4 text-[#C99E32] group-hover:rotate-12 group-hover:scale-125 transition-transform duration-300" />

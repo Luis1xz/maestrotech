@@ -346,11 +346,11 @@ export default function ExamSimulator({ onNavigate }: ExamProps) {
           className="w-full max-w-4xl mx-auto space-y-6"
         >
           <button
-            onClick={() => onNavigate('dashboard')}
+            onClick={() => onNavigate(user ? 'dashboard' : 'home')}
             className="flex items-center gap-2 text-sm text-[#64748B] hover:text-[#0038DF] transition-colors font-bold cursor-pointer"
           >
             <ArrowLeft className="w-4 h-4" />
-            Volver a Mi Aula Virtual
+            {user ? 'Volver a Mi Aula Virtual' : 'Volver al Inicio'}
           </button>
 
           <div className="text-center max-w-2xl mx-auto space-y-2">
@@ -785,11 +785,11 @@ export default function ExamSimulator({ onNavigate }: ExamProps) {
               {examMode === 'diagnostic' ? 'Repetir Diagnóstico' : 'Repetir Simulacro'}
             </button>
             <button
-              onClick={() => onNavigate('dashboard')}
+              onClick={() => onNavigate(user ? 'dashboard' : 'home')}
               className="flex items-center justify-center gap-2 py-4 rounded-2xl bg-[#0038DF] hover:bg-[#002299] text-white font-bold text-sm shadow-md transition-all cursor-pointer"
             >
               <Home className="w-4 h-4" />
-              Volver a Mi Aula Virtual
+              {user ? 'Volver a Mi Aula Virtual' : 'Volver al Inicio'}
             </button>
           </div>
         </motion.div>
@@ -806,11 +806,11 @@ export default function ExamSimulator({ onNavigate }: ExamProps) {
       <header className="sticky top-0 z-20 bg-white/95 backdrop-blur-md border-b border-[#E2E8F0] shadow-xs">
         <div className="max-w-4xl mx-auto px-6 h-16 flex items-center justify-between gap-4">
           <button
-            onClick={() => onNavigate('dashboard')}
+            onClick={() => onNavigate(user ? 'dashboard' : 'home')}
             className="flex items-center gap-2 text-sm text-[#64748B] hover:text-[#0038DF] transition-colors font-bold cursor-pointer"
           >
             <ArrowLeft className="w-4 h-4" />
-            <span className="hidden sm:block">Salir a Mi Aula</span>
+            <span className="hidden sm:block">{user ? 'Salir a Mi Aula' : 'Volver al Inicio'}</span>
           </button>
 
           <div className="flex-1 max-w-sm">

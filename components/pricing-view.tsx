@@ -220,12 +220,12 @@ export default function PricingView({ onNavigate }: PricingProps) {
           transition={{ delay: 0.5 }}
           className="mt-16 text-center"
         >
-          <p className="text-sm font-semibold text-[#536B83] mb-6">
+          <p className="text-sm font-semibold text-[#64748B] mb-6">
             Elegido por docentes y directivos de secretarías de educación en todo el país
           </p>
           <div className="flex flex-wrap items-center justify-center gap-3">
             {['Bogotá D.C.', 'Medellín', 'Cali', 'Barranquilla', 'Bucaramanga', 'Manizales', 'Pereira', 'Cartagena', 'Cúcuta'].map((city) => (
-              <span key={city} className="px-4 py-2 rounded-xl bg-white border border-[#E5EDF5] text-xs font-semibold text-[#142D49] shadow-2xs">
+              <span key={city} className="px-4 py-2 rounded-xl bg-white border border-[#E2E8F0] text-xs font-bold text-[#1E293B] shadow-2xs">
                 {city}
               </span>
             ))}

@@ -83,7 +83,7 @@ export default function LearningView({
   const [aiChat, setAiChat] = useState([
     {
       role: 'ai',
-      text: '¡Hola profe! Soy tu Tutor IA Maestro. Estoy conectado al contenido de esta lección y a las guías oficiales del curso. ¿Qué duda pedagógica o normativa deseas resolver?',
+      text: '¡Hola profe! Soy MaTech, tu Tutor IA pedagógico de Legado Docente. Estoy conectado al contenido de esta lección y a las guías oficiales del curso. ¿Qué duda pedagógica o normativa deseas resolver?',
     },
   ])
   const [note, setNote] = useState('')

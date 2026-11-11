@@ -97,6 +97,14 @@ export default function WelcomeCaseModal({
     setShowCelebration(false)
   }
 
+  const handleDismiss = () => {
+    if (typeof window !== 'undefined') {
+      window.localStorage.setItem(WELCOME_STORAGE_KEY, 'true')
+    }
+    setIsOpen(false)
+    onClose?.()
+  }
+
   const handleFinish = () => {
     if (typeof window !== 'undefined') {
       window.localStorage.setItem(WELCOME_STORAGE_KEY, 'true')
@@ -120,8 +128,8 @@ export default function WelcomeCaseModal({
 
         {/* Botón de cerrar discreto */}
         <button
-          onClick={handleFinish}
-          className="absolute top-4 right-4 z-20 w-8 h-8 rounded-full bg-black/20 hover:bg-black/40 text-white/80 hover:text-white flex items-center justify-center transition-colors"
+          onClick={handleDismiss}
+          className="absolute top-4 right-4 z-20 w-8 h-8 rounded-full bg-black/20 hover:bg-black/40 text-white/80 hover:text-white flex items-center justify-center transition-colors cursor-pointer"
           aria-label="Cerrar"
         >
           <X className="w-4 h-4" />

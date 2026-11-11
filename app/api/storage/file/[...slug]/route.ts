@@ -26,7 +26,7 @@ function buildFallbackPdf(title: string): Buffer {
   const content = `BT
 /F1 18 Tf
 50 750 Td
-(MAESTROTECH - PLATAFORMA DEL DOCENTE COLOMBIANO) Tj
+(LEGADO DOCENTE - PLATAFORMA DEL DOCENTE COLOMBIANO) Tj
 /F1 13 Tf
 0 -35 Td
 (Recurso Educativo Oficial: ${safeTitle}) Tj

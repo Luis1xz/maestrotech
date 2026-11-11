@@ -85,15 +85,15 @@ export default function CoursesView({ onSelectCourse, onNavigate }: CoursesViewP
             <div className="w-12 h-12 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center mx-auto mb-4">
               <AlertCircle className="w-6 h-6" />
             </div>
-            <h3 className="font-display font-semibold text-[#142D49] mb-2">
+            <h3 className="font-display font-semibold text-[#1E293B] mb-2">
               No pudimos cargar los cursos
             </h3>
-            <p className="text-xs text-[#536B83] mb-6 leading-relaxed">
+            <p className="text-xs text-[#64748B] mb-6 leading-relaxed">
               {error}
             </p>
             <button
               onClick={() => refetch()}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#176FC1] hover:bg-[#142D49] text-white text-xs font-semibold shadow-xs transition-colors"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#0038DF] hover:bg-[#002299] text-white text-xs font-semibold shadow-xs transition-colors cursor-pointer"
             >
               <RefreshCw className="w-3.5 h-3.5" />
               Reintentar
@@ -103,19 +103,19 @@ export default function CoursesView({ onSelectCourse, onNavigate }: CoursesViewP
 
         {/* Empty state */}
         {!loading && !error && courses.length === 0 && (
-          <div className="max-w-md mx-auto text-center p-12 rounded-3xl bg-white border border-[#E5EDF5] shadow-sm">
-            <div className="w-14 h-14 rounded-2xl bg-[#F3F8FD] flex items-center justify-center mx-auto mb-4 text-[#176FC1]">
+          <div className="max-w-md mx-auto text-center p-12 rounded-3xl bg-white border border-[#E2E8F0] shadow-sm">
+            <div className="w-14 h-14 rounded-2xl bg-[#F8FAFC] flex items-center justify-center mx-auto mb-4 text-[#0038DF]">
               <BookOpen className="w-7 h-7" />
             </div>
-            <h3 className="font-display font-semibold text-lg text-[#142D49] mb-2">
+            <h3 className="font-display font-semibold text-lg text-[#1E293B] mb-2">
               No hay cursos disponibles todavía
             </h3>
-            <p className="text-xs text-[#536B83] mb-6 leading-relaxed">
+            <p className="text-xs text-[#64748B] mb-6 leading-relaxed">
               Actualmente no se han publicado cursos en esta categoría. Puedes consultar los simulacros o volver más tarde.
             </p>
             <button
               onClick={() => onNavigate('exam')}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#176FC1] hover:bg-[#142D49] text-white text-xs font-semibold shadow-xs transition-colors"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#0038DF] hover:bg-[#002299] text-white text-xs font-semibold shadow-xs transition-colors cursor-pointer"
             >
               Ir al Simulador de Examen
             </button>

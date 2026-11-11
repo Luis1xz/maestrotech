@@ -5,7 +5,7 @@ import { Sparkles, Globe, Link, MessageSquare, Rss } from 'lucide-react'
 const LINKS = {
   Plataforma: ['Cursos', 'Simulador', 'Liderazgo', 'Comunidad', 'Blog'],
   Preparación: ['Concurso de Méritos', 'Ascenso Salarial', 'Traslados', 'Desarrollo Continuo'],
-  Empresa: ['Sobre Maestro', 'Equipo', 'Carreras', 'Prensa', 'Contacto'],
+  Empresa: ['Sobre Legado Docente', 'Equipo', 'Carreras', 'Prensa', 'Contacto'],
   Soporte: ['Centro de ayuda', 'Documentación', 'Estado del sistema', 'Privacidad', 'Términos'],
 }
 
