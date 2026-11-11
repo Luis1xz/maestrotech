@@ -30,6 +30,7 @@ import { getMaterialAccess } from '@/services/materials'
 import { issueCourseCertificate, CertificateWithCourse } from '@/services/certificates'
 import VideoPlayer from '@/components/video-player'
 import { Material } from '@/types/database'
+import MaTechChat from '@/components/matech-chat'
 
 interface LearningProps {
   onNavigate: (view: string) => void
@@ -562,78 +563,30 @@ export default function LearningView({
               </div>
             </div>
 
-            {/* AI Assistant */}
+            {/* AI Assistant MaTech (RAG Oficial) */}
             <AnimatePresence>
-              {showAI && (
+              {showAI && course && (
                 <motion.div
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: 'auto' }}
                   exit={{ opacity: 0, height: 0 }}
-                  className="overflow-hidden"
+                  className="overflow-hidden mb-6"
                 >
-                  <div className="p-6 rounded-2xl bg-white border-2 border-[#C99E32] shadow-md">
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className="w-8 h-8 rounded-xl bg-[#0038DF] flex items-center justify-center">
-                        <Brain className="w-4 h-4 text-white" />
-                      </div>
-                      <div>
-                        <p className="text-xs font-bold text-[#0038DF]">Mentor Pedagógico IA</p>
-                        <p className="text-[10px] text-[#9C7316] font-bold">
-                          Especialista en Concurso Docente CNSC y Decreto 1278
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="space-y-3 max-h-56 overflow-y-auto no-scrollbar mb-4">
-                      {aiChat.map((m, i) => (
-                        <div
-                          key={i}
-                          className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}
-                        >
-                          <div
-                            className={`max-w-[85%] px-4 py-2.5 rounded-2xl text-xs leading-relaxed ${
-                              m.role === 'user'
-                                ? 'bg-[#0038DF] text-white rounded-br-sm shadow-xs'
-                                : 'bg-[#F8FAFC] border border-[#E2E8F0] text-[#1E293B] rounded-bl-sm font-medium'
-                            }`}
-                          >
-                            {m.text}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-
-                    {/* Sugerencias */}
-                    <div className="flex flex-wrap gap-2 mb-3">
-                      {AI_SUGGESTIONS.map((s) => (
-                        <button
-                          key={s}
-                          onClick={() => sendAI(s)}
-                          className="text-[11px] px-3 py-1 rounded-lg bg-[#F8FAFC] hover:bg-[#0038DF]/10 text-[#64748B] hover:text-[#0038DF] border border-[#E2E8F0] hover:border-[#C99E32] transition-colors cursor-pointer"
-                        >
-                          {s}
-                        </button>
-                      ))}
-                    </div>
-
-                    <div className="flex gap-2">
-                      <input
-                        value={aiInput}
-                        onChange={(e) => setAiInput(e.target.value)}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter') sendAI()
-                        }}
-                        placeholder="Pregunta sobre esta lección o el Decreto 1278..."
-                        className="flex-1 px-4 py-2.5 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0] focus:border-[#0038DF] focus:outline-none text-xs text-[#1E293B] placeholder-[#64748B]"
-                      />
-                      <button
-                        onClick={() => sendAI()}
-                        className="p-2.5 rounded-xl bg-[#0038DF] hover:bg-[#002299] text-white transition-colors cursor-pointer"
-                      >
-                        <Zap className="w-4 h-4 text-[#C99E32]" />
-                      </button>
-                    </div>
-                  </div>
+                  <MaTechChat
+                    courseId={course.id}
+                    courseTitle={course.title}
+                    studentName={profile?.first_name || profile?.full_name || 'Profe'}
+                    lessonContext={
+                      activeLesson
+                        ? {
+                            id: activeLesson.id,
+                            title: activeLesson.title,
+                            moduleTitle: activeModule?.title,
+                          }
+                        : undefined
+                    }
+                    compact={true}
+                  />
                 </motion.div>
               )}
             </AnimatePresence>

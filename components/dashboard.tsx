@@ -28,6 +28,7 @@ import {
   Lightbulb,
   Sparkles,
   Lock,
+  User,
 } from 'lucide-react'
 import {
   RadarChart,
@@ -47,7 +48,9 @@ import { getUserGlobalProgress, UserGlobalProgress } from '@/services/progress'
 import { getUserCertificates, CertificateWithCourse } from '@/services/certificates'
 import { getAvatarUrl } from '@/lib/supabase/storage'
 import AIMentor from '@/components/ai-mentor'
+import MaTechChat from '@/components/matech-chat'
 import DashboardCoursesPanel from '@/components/dashboard-courses-panel'
+import ProfileModal from '@/components/profile-modal'
 import {
   getUserGamification,
   getCompetencyRadarData,
@@ -100,6 +103,8 @@ export default function Dashboard({
   const [stats, setStats] = useState<UserGlobalProgress | null>(null)
   const [certificates, setCertificates] = useState<CertificateWithCourse[]>([])
   const [selectedCert, setSelectedCert] = useState<CertificateWithCourse | null>(null)
+  const [profileModalOpen, setProfileModalOpen] = useState(false)
+  const [selectedAiCourseId, setSelectedAiCourseId] = useState<string>('')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [gamification, setGamification] = useState<UserGamificationState>(() => getUserGamification())
@@ -293,6 +298,13 @@ export default function Dashboard({
                   {enrollments.length} activos
                 </span>
               </div>
+              <button
+                onClick={() => setProfileModalOpen(true)}
+                className="w-full mt-2.5 py-1.5 px-3 rounded-xl bg-[#F8FAFC] hover:bg-[#F1F5F9] border border-[#E2E8F0] text-[#0038DF] text-[11px] font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs"
+              >
+                <User className="w-3 h-3 text-[#C99E32]" />
+                <span>Ver y Editar Mi Perfil</span>
+              </button>
               {enrollments.length === 0 && (
                 <button
                   onClick={() => onNavigate('pricing')}
@@ -433,14 +445,23 @@ export default function Dashboard({
               <span className="hidden sm:inline">Simulador CNSC</span>
             </button>
             {isAuthenticated ? (
-              <div className="flex items-center gap-3 pl-2 border-l border-[#E2E8F0]">
-                <span className="text-xs font-bold text-[#1E293B] hidden md:inline">
-                  {displayName}
-                </span>
+              <button
+                onClick={() => setProfileModalOpen(true)}
+                title="Ver y editar mi perfil"
+                className="flex items-center gap-3 pl-2 border-l border-[#E2E8F0] hover:opacity-85 transition-opacity cursor-pointer text-left"
+              >
+                <div className="hidden md:block">
+                  <span className="text-xs font-bold text-[#1E293B] block leading-tight">
+                    {displayName}
+                  </span>
+                  <span className="text-[10px] text-[#0038DF] font-semibold block">
+                    Ver perfil
+                  </span>
+                </div>
                 <div className="w-9 h-9 rounded-2xl bg-[#0038DF] text-white flex items-center justify-center text-xs font-bold shadow-xs">
                   {userInitials}
                 </div>
-              </div>
+              </button>
             ) : (
               <button
                 onClick={onOpenAuth}
@@ -548,88 +569,53 @@ export default function Dashboard({
                       </div>
                     </div>
                   ) : (
-                    <div className="p-8 rounded-3xl bg-white border-2 border-[#C99E32] shadow-xl space-y-6">
-                      <div className="flex items-center justify-between pb-6 border-b border-[#E2E8F0]">
-                        <div className="flex items-center gap-3.5">
-                          <div className="w-12 h-12 rounded-2xl bg-[#0038DF] text-white flex items-center justify-center shadow-md">
-                            <Brain className="w-6 h-6" />
+                    <div className="space-y-4">
+                      {enrollments.length > 1 && (
+                        <div className="flex items-center justify-between p-3.5 bg-white rounded-2xl border border-[#E2E8F0] shadow-xs">
+                          <div className="flex items-center gap-2">
+                            <BookOpen className="w-4 h-4 text-[#0038DF]" />
+                            <span className="text-xs font-bold text-[#1E293B]">
+                              Base de Conocimiento del Curso:
+                            </span>
                           </div>
-                          <div>
-                            <h2 className="title-h1 text-2xl font-extrabold text-[#0038DF]">
-                              Mentor Pedagógico Inteligente
-                            </h2>
-                            <p className="text-xs text-[#64748B] font-medium">
-                              Entrenado con las normas educativas colombianas: Ley 115, Decreto 1278, Decreto 1290 y casos CNSC
-                            </p>
-                          </div>
-                        </div>
-                        <div className="hidden sm:flex items-center gap-2">
-                          <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
-                          <span className="text-xs font-bold text-emerald-600">En línea y listo</span>
-                        </div>
-                      </div>
-
-                      <div>
-                        <p className="text-xs font-bold text-[#1E293B] mb-2.5 flex items-center gap-1.5">
-                          <Sparkles className="w-4 h-4 text-[#C99E32]" />
-                          Temas rápidos de consulta frecuente:
-                        </p>
-                        <div className="flex flex-wrap gap-2">
-                          {[
-                            '¿Cómo responder casos de juicio situacional docente?',
-                            'Diferencia entre Jean Piaget y Lev Vygotsky para la prueba',
-                            '¿Qué exige el Decreto 1290 en el SIEE?',
-                            'Rutas y protocolos para situaciones Tipo I, II y III (Ley 1620)',
-                            '¿Cómo se aplican el DUA y el PIAR según el Decreto 1421?',
-                          ].map((prompt) => (
-                            <button
-                              key={prompt}
-                              onClick={() => setAiMessage(prompt)}
-                              className="text-xs px-3.5 py-1.5 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0] hover:border-[#C99E32] text-[#1E293B] hover:text-[#0038DF] font-semibold transition-all cursor-pointer text-left"
-                            >
-                              {prompt}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-
-                      <div className="rounded-2xl bg-[#F8FAFC] border border-[#E2E8F0] p-6 space-y-4 min-h-[340px] max-h-[500px] overflow-y-auto">
-                        {aiHistory.map((msg, i) => (
-                          <div
-                            key={i}
-                            className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                          <select
+                            value={
+                              selectedAiCourseId ||
+                              enrollments[0]?.course_id ||
+                              'preparacion-ingreso-carrera-docente'
+                            }
+                            onChange={(e) => setSelectedAiCourseId(e.target.value)}
+                            className="text-xs font-semibold px-3 py-1.5 rounded-xl border border-slate-200 bg-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#0038DF]"
                           >
-                            <div
-                              className={`max-w-[85%] px-5 py-3 rounded-2xl text-xs sm:text-sm leading-relaxed ${
-                                msg.role === 'user'
-                                  ? 'bg-[#0038DF] text-white rounded-br-sm shadow-sm'
-                                  : 'bg-white text-[#1E293B] border border-[#E2E8F0] rounded-bl-sm font-medium shadow-xs'
-                              }`}
-                            >
-                              {msg.text}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
+                            {enrollments.map((enr) => (
+                              <option key={enr.course_id} value={enr.course_id}>
+                                {enr.course?.title || enr.course_id}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      )}
 
-                      <div className="flex gap-3">
-                        <input
-                          value={aiMessage}
-                          onChange={(e) => setAiMessage(e.target.value)}
-                          onKeyDown={(e) => {
-                            if (e.key === 'Enter') sendMessage()
-                          }}
-                          placeholder="Escribe tu consulta pedagógica o pregunta sobre la prueba docente..."
-                          className="flex-1 px-5 py-3.5 rounded-2xl bg-[#F8FAFC] border border-[#E2E8F0] focus:border-[#0038DF] focus:bg-white focus:outline-none text-xs sm:text-sm text-[#1E293B] placeholder-[#94A3B8] transition-all"
-                        />
-                        <button
-                          onClick={sendMessage}
-                          className="btn-gold-cta btn-gold-pill px-6 py-3.5 text-xs sm:text-sm font-extrabold flex items-center gap-2 cursor-pointer"
-                        >
-                          <Zap className="w-4 h-4" />
-                          <span>Consultar</span>
-                        </button>
-                      </div>
+                      <MaTechChat
+                        courseId={
+                          selectedAiCourseId ||
+                          enrollments[0]?.course_id ||
+                          'preparacion-ingreso-carrera-docente'
+                        }
+                        courseTitle={
+                          (
+                            enrollments.find(
+                              (e) =>
+                                e.course_id ===
+                                (selectedAiCourseId || enrollments[0]?.course_id)
+                            )?.course?.title ||
+                            'Curso de Preparación Ingreso a la Carrera Docente'
+                          )
+                        }
+                        studentName={
+                          profile?.first_name || profile?.full_name || 'Estudiante'
+                        }
+                      />
                     </div>
                   )}
                 </motion.div>
@@ -1537,6 +1523,13 @@ export default function Dashboard({
           </div>
         )}
       </AnimatePresence>
+
+      {/* Modal de Perfil del Estudiante */}
+      <ProfileModal
+        isOpen={profileModalOpen}
+        onClose={() => setProfileModalOpen(false)}
+        enrolledCoursesCount={enrollments.length}
+      />
     </div>
   )
 }

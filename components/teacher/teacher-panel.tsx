@@ -25,6 +25,7 @@ import {
   Play,
   UserPlus,
   GraduationCap,
+  Brain,
 } from 'lucide-react'
 import { useAuth } from '@/hooks/use-auth'
 import { canAccessTeacher, Material, Course, Module, Lesson } from '@/types/database'
@@ -54,6 +55,7 @@ import { getMaterialSignedUrl, uploadLessonVideo } from '@/lib/supabase/storage'
 import { ExamQuestionRecord } from '@/lib/platform-store'
 import FileUploader from '@/components/file-uploader'
 import Link from 'next/link'
+import TeacherMaTechSection from '@/components/teacher/teacher-matech-section'
 
 type TeacherTab =
   | 'courses'
@@ -62,6 +64,7 @@ type TeacherTab =
   | 'materials'
   | 'exams'
   | 'students'
+  | 'matech'
 
 export default function TeacherPanel() {
   const { user, profile, role, isLoading } = useAuth()
@@ -709,6 +712,7 @@ export default function TeacherPanel() {
               { id: 'materials', label: 'Subir Materiales', icon: Upload },
               { id: 'exams', label: 'Crear Exámenes', icon: Target },
               { id: 'students', label: 'Estudiantes', icon: Users },
+              { id: 'matech', label: 'Cerebro MaTech (IA)', icon: Brain },
             ].map(({ id, label, icon: Icon }) => (
               <button
                 key={id}
@@ -760,6 +764,7 @@ export default function TeacherPanel() {
                 {activeTab === 'materials' && 'Repositorio de Materiales y Guías PDF'}
                 {activeTab === 'exams' && 'Diseñador de Simulacros CNSC / MEN'}
                 {activeTab === 'students' && 'Estudiantes Matriculados y Asignación'}
+                {activeTab === 'matech' && 'Cerebro MaTech: Gestión de Documentos Académicos'}
               </h1>
               <p className="text-xs text-[#536B83] mt-1">
                 Herramientas pedagógicas oficiales conectadas en tiempo real con el catálogo y aula virtual.
@@ -2061,6 +2066,11 @@ export default function TeacherPanel() {
                 )}
               </div>
             </div>
+          )}
+
+          {/* SECCIÓN MATECH DOCENTE */}
+          {activeTab === 'matech' && (
+            <TeacherMaTechSection courses={courses} />
           )}
         </div>
       </main>

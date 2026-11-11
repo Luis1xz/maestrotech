@@ -7,7 +7,7 @@ import {
   Plus, CheckCircle2, AlertCircle, Search, Filter,
   ArrowLeft, ArrowRight, UserPlus, Sparkles, RefreshCw,
   Lock, Mail, User, Layers, FileText, ChevronRight, Check, Trash2, CreditCard, ExternalLink, CheckCircle,
-  UserCheck, GraduationCap, Compass, Briefcase, MapPin, Phone, Eye
+  UserCheck, GraduationCap, Compass, Briefcase, MapPin, Phone, Eye, Brain
 } from 'lucide-react'
 import { useAuth } from '@/hooks/use-auth'
 import { canAccessAdmin, UserRole, AdminUserListItem } from '@/types/database'
@@ -24,6 +24,7 @@ import {
 import { getAllNequiPayments, confirmNequiPayment, NequiPaymentRecord } from '@/services/payments'
 import { Course } from '@/types/database'
 import Link from 'next/link'
+import MaTechAdminSection from '@/components/admin/matech-admin-section'
 
 type AdminSection =
   | 'overview'
@@ -36,6 +37,7 @@ type AdminSection =
   | 'modules'
   | 'exams'
   | 'payments'
+  | 'matech'
 
 export default function AdminPanel() {
   const { user, profile, role, session, isLoading } = useAuth()
@@ -434,6 +436,25 @@ export default function AdminPanel() {
                 ))}
               </div>
             </div>
+
+            <div>
+              <p className="text-[10px] font-bold text-[#536B83] uppercase tracking-widest px-3 mb-2">
+                INTELIGENCIA ARTIFICIAL
+              </p>
+              <div className="space-y-1">
+                <button
+                  onClick={() => setActiveSection('matech')}
+                  className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all ${
+                    activeSection === 'matech'
+                      ? 'bg-gradient-to-r from-[#176FC1] to-[#142D49] text-white shadow-xs'
+                      : 'text-[#536B83] hover:bg-[#F3F8FD] hover:text-[#142D49]'
+                  }`}
+                >
+                  <Brain className={`w-4 h-4 shrink-0 ${activeSection === 'matech' ? 'text-[#E78B24]' : 'text-[#E78B24]'}`} />
+                  <span>Cerebro MaTech (RAG)</span>
+                </button>
+              </div>
+            </div>
           </nav>
         </div>
 
@@ -478,6 +499,7 @@ export default function AdminPanel() {
                 {activeSection === 'courses' && 'Catálogo y Publicación de Cursos'}
                 {activeSection === 'modules' && 'Módulos Curriculares y Clases'}
                 {activeSection === 'exams' && 'Banco Oficial de Preguntas y Simulacros'}
+                {activeSection === 'matech' && 'Cerebro de MaTech (RAG Documental y Permisos)'}
               </h1>
             </div>
 
@@ -1773,6 +1795,11 @@ export default function AdminPanel() {
                 </table>
               </div>
             </div>
+          )}
+
+          {/* SECCIÓN: MATECH CEREBRO RAG */}
+          {activeSection === 'matech' && (
+            <MaTechAdminSection courses={courses} users={users} />
           )}
 
           {/* SECCIONES COMPLEMENTARIAS */}
