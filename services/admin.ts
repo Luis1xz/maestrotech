@@ -47,6 +47,9 @@ export async function getAdminUsersList(authToken?: string): Promise<{
         })
         if (res.ok) {
           const json = await res.json()
+          if (json.hasServiceRole && Array.isArray(json.users)) {
+            return { data: json.users as AdminUserListItem[], error: null }
+          }
           for (const apiUser of (json.users as AdminUserListItem[]) || []) {
             const existing = userMap.get(apiUser.id)
             const existingTs = existing?.role_updated_at || ''

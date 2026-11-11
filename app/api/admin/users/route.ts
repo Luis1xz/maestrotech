@@ -41,27 +41,58 @@ export async function GET(request: NextRequest) {
       process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
 
     if (adminClient) {
+      // 1. OBTENER LA LISTA REAL Y DIRECTA DE SUPABASE AUTH (TABLA auth.users)
+      const { data: authUsersData, error: authListErr } =
+        await adminClient.auth.admin.listUsers({ perPage: 1000 })
+
+      if (authListErr) {
+        console.error('[API /api/admin/users GET] Error listUsers:', authListErr)
+      }
+
       const { data: profiles } = await adminClient
         .from('profiles')
         .select('*')
-        .order('created_at', { ascending: false })
 
-      const { data: authUsersData } = await adminClient.auth.admin.listUsers({ perPage: 100 })
-      const emailMap = new Map<string, string>()
-      if (authUsersData?.users) {
-        authUsersData.users.forEach((u) => {
-          if (u.email) emailMap.set(u.id, u.email)
-        })
+      const profileMap = new Map<string, any>()
+      for (const p of profiles || []) {
+        profileMap.set(p.id, p)
       }
 
-      for (const p of profiles || []) {
-        const existing = userMap.get(p.id)
-        userMap.set(p.id, {
-          ...p,
-          role: existing?.role || p.role,
-          role_updated_at: existing?.role_updated_at,
-          email: emailMap.get(p.id) || existing?.email || 'registrado@legadodocente.co',
-        })
+      // La fuente de la verdad absoluta es Supabase Authentication:
+      userMap.clear()
+
+      if (authUsersData?.users) {
+        for (const authUser of authUsersData.users) {
+          const prof = profileMap.get(authUser.id)
+          const meta = authUser.user_metadata || {}
+          const userEmail = authUser.email || ''
+
+          const fullName =
+            prof?.full_name ||
+            meta.full_name ||
+            meta.name ||
+            (meta.first_name ? `${meta.first_name} ${meta.last_name || ''}`.trim() : '') ||
+            userEmail.split('@')[0] ||
+            'Usuario Registrado'
+
+          const firstName = prof?.first_name || meta.first_name || null
+          const lastName = prof?.last_name || meta.last_name || null
+          const role =
+            prof?.role ||
+            meta.role ||
+            (userEmail.toLowerCase() === 'luisalfonso1818@gmail.com' ? 'admin' : 'student')
+
+          userMap.set(authUser.id, {
+            id: authUser.id,
+            email: userEmail,
+            full_name: fullName,
+            first_name: firstName,
+            last_name: lastName,
+            role,
+            avatar_url: prof?.avatar_url || meta.avatar_url || meta.picture || null,
+            created_at: prof?.created_at || authUser.created_at || new Date().toISOString(),
+          })
+        }
       }
     } else if (url && anonKey) {
       const token = (authHeader || '').replace('Bearer ', '').trim()
@@ -96,7 +127,11 @@ export async function GET(request: NextRequest) {
     const deletedSet = new Set(store.deletedUserIds || [])
     const filteredUsers = Array.from(userMap.values()).filter((u) => !deletedSet.has(u.id))
 
-    return NextResponse.json({ users: filteredUsers })
+    return NextResponse.json({
+      users: filteredUsers,
+      total: filteredUsers.length,
+      hasServiceRole: Boolean(adminClient),
+    })
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Error interno del servidor'
     return NextResponse.json({ error: message }, { status: 500 })
@@ -153,7 +188,14 @@ export async function POST(request: NextRequest) {
           },
         })
 
-      if (!createAuthErr && createdAuthUser.user) {
+      if (createAuthErr) {
+        return NextResponse.json(
+          { error: `Error creando usuario en Supabase Auth: ${createAuthErr.message}` },
+          { status: 400 }
+        )
+      }
+
+      if (createdAuthUser?.user) {
         newUserId = createdAuthUser.user.id
         await adminClient.from('profiles').upsert(
           {
@@ -167,30 +209,14 @@ export async function POST(request: NextRequest) {
           { onConflict: 'id' }
         )
       }
-    } else if (url && anonKey) {
-      // Fallback cuando no hay SUPABASE_SERVICE_ROLE_KEY: registrar en Supabase Auth público + platform-store
-      try {
-        const publicClient = createClient(url, anonKey, {
-          auth: { persistSession: false, autoRefreshToken: false },
-        })
-        const { data: signUpData } = await publicClient.auth.signUp({
-          email: cleanEmail,
-          password: temporaryPassword,
-          options: {
-            data: {
-              full_name: fullName,
-              first_name: firstName.trim(),
-              last_name: lastName.trim(),
-              role,
-            },
-          },
-        })
-        if (signUpData?.user?.id) {
-          newUserId = signUpData.user.id
-        }
-      } catch {
-        // Ignorar si ya existe en Auth, guardaremos en platform-store
-      }
+    } else {
+      return NextResponse.json(
+        {
+          error:
+            'Para que los usuarios creados se registren directamente en la pestaña Users de Supabase, es necesario configurar SUPABASE_SERVICE_ROLE_KEY en el archivo .env.local. Encuéntrala en tu proyecto de Supabase > Project Settings > API > service_role (secret).',
+        },
+        { status: 400 }
+      )
     }
 
     // Guardar en el almacén sincronizado de plataforma para acceso inmediato con su rol
