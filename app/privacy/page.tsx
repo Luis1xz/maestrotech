@@ -13,7 +13,7 @@ export default function PrivacyPage() {
       <header className="sticky top-0 z-50 border-b border-[#E5EDF5] bg-white/95 backdrop-blur-md">
         <div className="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="w-8 h-8 rounded-xl overflow-hidden ring-1 ring-[#E5EDF5] shadow-sm group-hover:scale-105 transition-all duration-300 shrink-0 bg-white">
+            <div className="w-8 h-8 shrink-0 group-hover:scale-105 transition-transform duration-300">
               <img src="/logo-icon.png" alt="Legado Docente Logo" className="w-full h-full object-contain" />
             </div>
             <span className="text-base font-bold tracking-tight text-[#142D49] font-display">

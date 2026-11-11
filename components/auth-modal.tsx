@@ -108,7 +108,7 @@ export default function AuthModal({
 
           {/* Logo & Header */}
           <div className="flex items-center gap-2.5 mb-2">
-            <div className="w-10 h-10 rounded-full overflow-hidden ring-1 ring-[#C99E32] shadow-xs shrink-0 bg-white p-0.5">
+            <div className="w-10 h-10 shrink-0">
               <img src="/logo-icon.png" alt="Legado Docente Logo" className="w-full h-full object-contain" />
             </div>
             <div>

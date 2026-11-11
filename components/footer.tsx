@@ -24,7 +24,7 @@ export default function Footer({ onNavigate }: FooterProps) {
           {/* Brand */}
           <div className="col-span-2 md:col-span-1">
             <button onClick={() => onNavigate('home')} className="flex items-center gap-2.5 mb-4 group text-left cursor-pointer">
-              <div className="w-9 h-9 rounded-full overflow-hidden ring-1 ring-[#C99E32] shadow-xs group-hover:scale-105 transition-all duration-300 shrink-0 bg-white p-0.5">
+              <div className="w-9 h-9 shrink-0 group-hover:scale-105 transition-transform duration-300">
                 <img src="/logo-icon.png" alt="Legado Docente Logo" className="w-full h-full object-contain" />
               </div>
               <div>

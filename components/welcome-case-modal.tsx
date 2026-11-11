@@ -143,7 +143,7 @@ export default function WelcomeCaseModal({
           
           {/* Logo Legado Docente */}
           <div className="flex items-center gap-2 mb-6">
-            <div className="w-7 h-7 rounded-full overflow-hidden bg-white p-0.5 shadow-sm">
+            <div className="w-7 h-7 shrink-0">
               <img src="/logo-icon.png" alt="Legado Docente" className="w-full h-full object-contain" />
             </div>
             <span className="font-extrabold text-sm tracking-wider uppercase text-white font-display">

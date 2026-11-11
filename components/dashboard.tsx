@@ -239,7 +239,7 @@ export default function Dashboard({
         {/* Logo */}
         <div className="flex items-center justify-between px-6 py-5 border-b border-[#E2E8F0]">
           <button onClick={() => onNavigate('home')} className="flex items-center gap-2.5 group">
-            <div className="w-8 h-8 rounded-full overflow-hidden ring-1 ring-[#C99E32] shadow-2xs group-hover:scale-105 transition-all duration-300 shrink-0 bg-white p-0.5">
+            <div className="w-8 h-8 shrink-0 group-hover:scale-105 transition-transform duration-300">
               <img src="/logo-icon.png" alt="Legado Docente" className="w-full h-full object-contain" />
             </div>
             <span className="font-extrabold font-display text-[#0038DF]">Legado Docente</span>

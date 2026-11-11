@@ -141,7 +141,7 @@ function AuthCallbackContent() {
         
         {/* Logo */}
         <div className="flex items-center justify-center gap-2.5">
-          <div className="w-9 h-9 rounded-full overflow-hidden ring-1 ring-[#C99E32] bg-white p-0.5">
+          <div className="w-9 h-9 shrink-0">
             <img src="/logo-icon.png" alt="Legado Docente" className="w-full h-full object-contain" />
           </div>
           <span className="font-extrabold text-lg tracking-tight text-[#0038DF] font-display">

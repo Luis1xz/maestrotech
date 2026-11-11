@@ -454,7 +454,7 @@ export default function CandidateOnboardingModal({
           {/* Header con marca Legado Docente */}
           <div className="flex items-center justify-between pb-4 border-b border-[#E2E8F0] mb-5">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full overflow-hidden ring-1 ring-[#C99E32] shadow-xs shrink-0 bg-white p-0.5">
+              <div className="w-10 h-10 shrink-0">
                 <img src="/logo-icon.png" alt="Legado Docente" className="w-full h-full object-contain" />
               </div>
               <div>

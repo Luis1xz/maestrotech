@@ -682,8 +682,8 @@ export default function TeacherPanel() {
         <div>
           <div className="flex items-center justify-between mb-8">
             <Link href="/" className="flex items-center gap-2.5 group">
-              <div className="w-8 h-8 rounded-xl overflow-hidden ring-1 ring-[#E5EDF5] shadow-xs group-hover:scale-105 transition-all duration-300 shrink-0 bg-white">
-                <img src="/logo-icon.png" alt="Legado Docente Logo" className="w-full h-full object-cover" />
+              <div className="w-8 h-8 shrink-0 group-hover:scale-105 transition-transform duration-300">
+                <img src="/logo-icon.png" alt="Legado Docente Logo" className="w-full h-full object-contain" />
               </div>
               <span className="font-bold font-display text-[#142D49] text-sm">Legado Docente</span>
             </Link>
