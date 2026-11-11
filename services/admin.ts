@@ -198,52 +198,66 @@ export async function deleteAdminUser(
   authToken?: string
 ): Promise<{ success: boolean; error: Error | null }> {
   try {
-    // 1. Eliminar reactivamente en el estado local y /api/platform-state
-    await mutatePlatformState('delete_user', { id: userId, email })
-
-    // 2. Eliminar en Supabase profiles si está configurado
+    // 1. Intentar RPC SECURITY DEFINER directamente en Supabase si está autenticado
     if (isSupabaseConfigured()) {
       try {
         const client = getSupabase()
-        const {
-          data: { session: currentSession },
-        } = await client.auth.getSession()
-
-        if (currentSession?.user?.id) {
-          await client
-            .from('profiles')
-            .update({ role: 'admin' })
-            .eq('id', currentSession.user.id)
+        const { data: rpcRes, error: rpcErr } = await client.rpc('delete_user_by_admin', {
+          target_user_id: userId,
+        })
+        if (!rpcErr && rpcRes?.success) {
+          await mutatePlatformState('delete_user', { id: userId, email })
+          return { success: true, error: null }
         }
-
-        await client.from('enrollments').delete().eq('user_id', userId)
-        await client.from('lesson_progress').delete().eq('user_id', userId)
-        await client.from('certificates').delete().eq('user_id', userId)
-        await client.from('profiles').delete().eq('id', userId)
-      } catch {
-        // Continuar con endpoint administrativo
+      } catch (rpcErr) {
+        console.warn('[deleteAdminUser] RPC falló, continuando con endpoint servidor:', rpcErr)
       }
     }
 
-    // 3. Eliminar en endpoint administrativo del servidor (/api/admin/users)
-    try {
-      const q = new URLSearchParams()
-      if (userId) q.set('id', userId)
-      if (email) q.set('email', email)
-      await fetch(`/api/admin/users?${q.toString()}`, {
-        method: 'DELETE',
-        headers: {
-          Authorization: `Bearer ${authToken || 'custom-session:a1b2c3d4-0000-4000-8000-000000000001'}`,
-        },
-      })
-    } catch {
-      // Ya persistido en platform-state
+    // 2. Eliminar en endpoint administrativo del servidor (/api/admin/users)
+    const q = new URLSearchParams()
+    if (userId) q.set('id', userId)
+    if (email) q.set('email', email)
+    const res = await fetch(`/api/admin/users?${q.toString()}`, {
+      method: 'DELETE',
+      headers: {
+        Authorization: `Bearer ${authToken || 'custom-session:a1b2c3d4-0000-4000-8000-000000000001'}`,
+      },
+    })
+
+    const data = await res.json()
+    if (!res.ok) {
+      throw new Error(data.error || 'Error al eliminar usuario en el servidor')
     }
+
+    // 3. Eliminar reactivamente en el estado local
+    await mutatePlatformState('delete_user', { id: userId, email })
 
     return { success: true, error: null }
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : 'Error al eliminar usuario'
     return { success: false, error: new Error(msg) }
+  }
+}
+
+/**
+ * Limpiar usuarios huérfanos que quedaron en auth.users pero no tienen perfil
+ */
+export async function cleanupOrphanedUsers(
+  authToken?: string
+): Promise<{ success: boolean; count?: number; error: Error | null }> {
+  try {
+    const res = await fetch('/api/admin/users?action=cleanup_orphaned', {
+      method: 'DELETE',
+      headers: {
+        Authorization: `Bearer ${authToken || ''}`,
+      },
+    })
+    const data = await res.json()
+    if (!res.ok) throw new Error(data.error || 'Error al limpiar usuarios huérfanos')
+    return { success: true, count: data.cleanedCount || 0, error: null }
+  } catch (err: any) {
+    return { success: false, error: new Error(err?.message || 'Error de conexión') }
   }
 }
 

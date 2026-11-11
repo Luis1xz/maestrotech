@@ -376,8 +376,62 @@ export async function DELETE(request: NextRequest) {
     }
 
     const { searchParams } = new URL(request.url)
+    const action = searchParams.get('action')
     let id = searchParams.get('id')
     let email = searchParams.get('email')
+
+    const cleanEmail = (email || '').trim().toLowerCase()
+    const adminClient = getSupabaseAdminClient()
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.VITE_SUPABASE_URL
+    const anonKey =
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
+      process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
+    const token = (authHeader || '').replace('Bearer ', '').trim()
+
+    // ACCIÓN ESPECIAL: Limpiar usuarios huérfanos que quedaron en auth.users sin perfil
+    if (action === 'cleanup_orphaned') {
+      let cleanedCount = 0
+
+      if (adminClient) {
+        try {
+          const { data: authData } = await adminClient.auth.admin.listUsers({ perPage: 1000 })
+          const { data: profiles } = await adminClient.from('profiles').select('id')
+          const existingProfileIds = new Set((profiles || []).map((p: any) => p.id))
+
+          if (authData?.users) {
+            for (const u of authData.users) {
+              if (u.id !== authVerification.userId && !existingProfileIds.has(u.id)) {
+                await adminClient.auth.admin.deleteUser(u.id)
+                cleanedCount++
+              }
+            }
+          }
+        } catch (cleanErr) {
+          console.error('[API /api/admin/users] Error en cleanup_orphaned con adminClient:', cleanErr)
+        }
+      } else if (url && anonKey && token && !token.startsWith('custom-session:')) {
+        try {
+          const authedClient = createClient(url, anonKey, {
+            auth: { persistSession: false, autoRefreshToken: false },
+            global: {
+              headers: { apikey: anonKey, Authorization: `Bearer ${token}` },
+            },
+          })
+          const { data: rpcRes, error: rpcErr } = await authedClient.rpc('cleanup_orphaned_auth_users')
+          if (!rpcErr && rpcRes?.deleted_count) {
+            cleanedCount = rpcRes.deleted_count
+          }
+        } catch (rpcErr) {
+          console.error('[API /api/admin/users] Error en cleanup_orphaned con RPC:', rpcErr)
+        }
+      }
+
+      return NextResponse.json({
+        success: true,
+        cleanedCount,
+        message: `Se limpiaron ${cleanedCount} cuentas huérfanas de Supabase Auth.`,
+      })
+    }
 
     if (!id && request.headers.get('content-type')?.includes('application/json')) {
       try {
@@ -404,52 +458,57 @@ export async function DELETE(request: NextRequest) {
       )
     }
 
-    const cleanEmail = (email || '').trim().toLowerCase()
-    const adminClient = getSupabaseAdminClient()
-    const url = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.VITE_SUPABASE_URL
-    const anonKey =
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
-      process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
+    // 1. Eliminar en Supabase (Auth + Base de Datos)
+    let authDeleted = false
+    let authError: string | null = null
 
-    // Eliminar en Supabase
     if (adminClient && id) {
       try {
         await adminClient.from('enrollments').delete().eq('user_id', id)
         await adminClient.from('lesson_progress').delete().eq('user_id', id)
         await adminClient.from('certificates').delete().eq('user_id', id)
         await adminClient.from('profiles').delete().eq('id', id)
-        await adminClient.auth.admin.deleteUser(id)
-      } catch {
-        // Fallback a platform-store
+        const { error: delAuthErr } = await adminClient.auth.admin.deleteUser(id)
+        if (delAuthErr) {
+          authError = delAuthErr.message
+          console.error('[API /api/admin/users] Error deleting from auth.users via adminClient:', delAuthErr)
+        } else {
+          authDeleted = true
+        }
+      } catch (err: any) {
+        authError = err?.message || 'Error en adminClient'
       }
-    } else if (url && anonKey && id) {
-      const token = (authHeader || '').replace('Bearer ', '').trim()
-      if (token && !token.startsWith('custom-session:')) {
-        try {
-          const authedClient = createClient(url, anonKey, {
-            auth: { persistSession: false, autoRefreshToken: false },
-            global: {
-              headers: {
-                apikey: anonKey,
-                Authorization: `Bearer ${token}`,
-              },
+    }
+
+    // 2. Si no hay adminClient o falló, intentar con RPC SECURITY DEFINER
+    if (!authDeleted && url && anonKey && id && token && !token.startsWith('custom-session:')) {
+      try {
+        const authedClient = createClient(url, anonKey, {
+          auth: { persistSession: false, autoRefreshToken: false },
+          global: {
+            headers: {
+              apikey: anonKey,
+              Authorization: `Bearer ${token}`,
             },
-          })
+          },
+        })
 
-          if (authVerification.userId) {
-            await authedClient
-              .from('profiles')
-              .update({ role: 'admin' })
-              .eq('id', authVerification.userId)
-          }
+        const { data: rpcRes, error: rpcErr } = await authedClient.rpc('delete_user_by_admin', {
+          target_user_id: id,
+        })
 
+        if (!rpcErr && rpcRes?.success) {
+          authDeleted = true
+        } else if (rpcErr) {
+          console.warn('[API /api/admin/users] RPC delete_user_by_admin falló o no existe:', rpcErr)
+          // Fallback a eliminación manual de tablas
           await authedClient.from('enrollments').delete().eq('user_id', id)
           await authedClient.from('lesson_progress').delete().eq('user_id', id)
           await authedClient.from('certificates').delete().eq('user_id', id)
           await authedClient.from('profiles').delete().eq('id', id)
-        } catch {
-          // Continuar con platform-store
         }
+      } catch (err: any) {
+        console.error('[API /api/admin/users] Error en authedClient RPC:', err)
       }
     }
 

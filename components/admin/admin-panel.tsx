@@ -14,7 +14,7 @@ import { canAccessAdmin, UserRole, AdminUserListItem } from '@/types/database'
 import { CandidateProfile } from '@/types/candidate'
 import { getAllCandidates } from '@/services/candidate'
 import { COLOMBIA_DEPARTMENTS } from '@/lib/colombia-data'
-import { getAdminUsersList, updateUserRole, createAdminUser, deleteAdminUser, getPlatformOverview, PlatformOverviewStats } from '@/services/admin'
+import { getAdminUsersList, updateUserRole, createAdminUser, deleteAdminUser, cleanupOrphanedUsers, getPlatformOverview, PlatformOverviewStats } from '@/services/admin'
 import { getAllCoursesForTeacher, updateCourse } from '@/services/courses'
 import {
   enrollInCourse,
@@ -74,6 +74,7 @@ export default function AdminPanel() {
   // Feedback de cambio de rol y eliminación
   const [roleUpdatingId, setRoleUpdatingId] = useState<string | null>(null)
   const [deletingUserId, setDeletingUserId] = useState<string | null>(null)
+  const [isCleaningOrphaned, setIsCleaningOrphaned] = useState(false)
   const [roleFeedback, setRoleFeedback] = useState<{
     type: 'success' | 'error'
     text: string
@@ -225,6 +226,29 @@ export default function AdminPanel() {
       setRoleFeedback({
         type: 'error',
         text: error?.message || 'Error al eliminar usuario.',
+      })
+    }
+  }
+
+  // Limpiar usuarios huérfanos en Supabase Auth
+  const handleCleanupOrphaned = async () => {
+    setIsCleaningOrphaned(true)
+    setRoleFeedback(null)
+    const res = await cleanupOrphanedUsers(token)
+    setIsCleaningOrphaned(false)
+    if (res.success) {
+      setRoleFeedback({
+        type: 'success',
+        text:
+          res.count && res.count > 0
+            ? `Se eliminaron exitosamente ${res.count} cuentas huérfanas de Supabase Auth.`
+            : 'Supabase Auth está sincronizado: no se encontraron usuarios huérfanos pendientes.',
+      })
+      loadAll()
+    } else {
+      setRoleFeedback({
+        type: 'error',
+        text: res.error?.message || 'Error al sincronizar Supabase Auth.',
       })
     }
   }
@@ -1461,21 +1485,33 @@ export default function AdminPanel() {
                 </div>
 
                 {activeSection === 'users' && (
-                  <div className="flex items-center gap-2">
-                    <Filter className="w-4 h-4 text-[#536B83]" />
-                    {(['all', 'admin', 'instructor', 'student'] as const).map((r) => (
-                      <button
-                        key={r}
-                        onClick={() => setRoleFilter(r)}
-                        className={`px-3 py-2 rounded-xl text-xs font-semibold transition-all capitalize ${
-                          roleFilter === r
-                            ? 'bg-[#176FC1] text-white shadow-xs'
-                            : 'bg-white border border-[#E5EDF5] text-[#536B83] hover:text-[#142D49] hover:bg-[#F3F8FD]'
-                        }`}
-                      >
-                        {r === 'all' ? 'Todos' : r === 'admin' ? 'Admins' : r === 'instructor' ? 'Docentes' : 'Alumnos'}
-                      </button>
-                    ))}
+                  <div className="flex flex-wrap items-center gap-2">
+                    <div className="flex items-center gap-1">
+                      <Filter className="w-4 h-4 text-[#536B83]" />
+                      {(['all', 'admin', 'instructor', 'student'] as const).map((r) => (
+                        <button
+                          key={r}
+                          onClick={() => setRoleFilter(r)}
+                          className={`px-3 py-2 rounded-xl text-xs font-semibold transition-all capitalize ${
+                            roleFilter === r
+                              ? 'bg-[#176FC1] text-white shadow-xs'
+                              : 'bg-white border border-[#E5EDF5] text-[#536B83] hover:text-[#142D49] hover:bg-[#F3F8FD]'
+                          }`}
+                        >
+                          {r === 'all' ? 'Todos' : r === 'admin' ? 'Admins' : r === 'instructor' ? 'Docentes' : 'Alumnos'}
+                        </button>
+                      ))}
+                    </div>
+
+                    <button
+                      onClick={handleCleanupOrphaned}
+                      disabled={isCleaningOrphaned}
+                      className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold bg-white border border-[#E5EDF5] text-[#142D49] hover:bg-[#F3F8FD] hover:text-[#176FC1] shadow-xs transition-all disabled:opacity-50"
+                      title="Elimina de auth.users en Supabase las cuentas que ya fueron eliminadas pero siguen en la pestaña Users"
+                    >
+                      <RefreshCw className={`w-3.5 h-3.5 ${isCleaningOrphaned ? 'animate-spin text-[#176FC1]' : 'text-[#E78B24]'}`} />
+                      <span>{isCleaningOrphaned ? 'Sincronizando...' : 'Sincronizar Supabase Auth'}</span>
+                    </button>
                   </div>
                 )}
               </div>
