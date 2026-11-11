@@ -36,11 +36,19 @@ export interface AuthContextType {
   signIn: (params: SignInParams) => Promise<{ error: Error | null }>
   signUp: (params: SignUpParams) => Promise<{ error: Error | null }>
   signInWithGoogle: () => Promise<{ error: Error | null }>
+  resetPasswordForEmail: (email: string) => Promise<{ error: Error | null }>
   signOut: () => Promise<void>
   refreshProfile: () => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
+
+function getSiteOrigin(): string {
+  if (typeof window !== 'undefined' && window.location.origin) {
+    return window.location.origin
+  }
+  return process.env.NEXT_PUBLIC_SITE_URL || 'https://legadodocente.com'
+}
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
@@ -285,10 +293,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       const client = getSupabase()
+      const origin = getSiteOrigin()
+      const emailRedirectTo = `${origin}/auth/callback`
+
       const { data, error } = await client.auth.signUp({
         email: cleanEmail,
         password,
         options: {
+          emailRedirectTo,
           data: {
             full_name: fullName,
             first_name: firstName,
@@ -351,7 +363,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     try {
       const client = getSupabase()
-      const origin = typeof window !== 'undefined' ? window.location.origin : ''
+      const origin = getSiteOrigin()
       const redirectTo = `${origin}/auth/callback`
 
       const { error } = await client.auth.signInWithOAuth({
@@ -372,6 +384,32 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return { error: null }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Error al conectar con Google'
+      return { error: new Error(msg) }
+    }
+  }
+
+  // Restablecimiento de contraseña institucional por correo
+  const resetPasswordForEmail = async (email: string): Promise<{ error: Error | null }> => {
+    if (!isConfigured) {
+      return { error: new Error('La conexión a la base de datos no está configurada.') }
+    }
+
+    try {
+      const client = getSupabase()
+      const origin = getSiteOrigin()
+      const redirectTo = `${origin}/auth/callback?type=recovery`
+
+      const { error } = await client.auth.resetPasswordForEmail(email.trim().toLowerCase(), {
+        redirectTo,
+      })
+
+      if (error) {
+        return { error: new Error(error.message) }
+      }
+
+      return { error: null }
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Error al enviar correo de recuperación'
       return { error: new Error(msg) }
     }
   }
@@ -419,6 +457,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         signIn,
         signUp,
         signInWithGoogle,
+        resetPasswordForEmail,
         signOut,
         refreshProfile,
       }}

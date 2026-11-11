@@ -15,6 +15,7 @@ const plusJakarta = Plus_Jakarta_Sans({
 })
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://legadodocente.com'),
   title: 'Legado Docente — «Aprende, comparte, deja huella»',
   description:
     'Legado Docente es la plataforma oficial de preparación para el Concurso de Méritos Docente en Colombia. Curso integral de 140 horas, simulacros oficiales y caracterización inteligente.',
@@ -32,6 +33,8 @@ export const metadata: Metadata = {
     title: 'Legado Docente — «Aprende, comparte, deja huella»',
     description: 'Prepárate con método, fuentes oficiales y una comunidad de colegas. Curso oficial de 140 horas.',
     type: 'website',
+    url: 'https://legadodocente.com',
+    siteName: 'Legado Docente',
   },
   icons: {
     icon: [

@@ -70,7 +70,7 @@ function AuthCallbackContent() {
         // Si no hay código ni sesión activa
         if (isMounted) {
           setStatus('error')
-          setErrorMessage('No se encontró información de autenticación en la respuesta de Google.')
+          setErrorMessage('No se encontró una sesión o token de autenticación válido.')
         }
       } catch (err: unknown) {
         const msg = err instanceof Error ? err.message : 'Error inesperado durante la autenticación'
