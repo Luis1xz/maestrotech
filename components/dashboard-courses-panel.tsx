@@ -15,6 +15,7 @@ import {
   Shield,
   Layers,
   ChevronRight,
+  ChevronDown,
   GraduationCap,
   Download,
   Filter,
@@ -228,6 +229,33 @@ export default function DashboardCoursesPanel({
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedNucleus, setSelectedNucleus] = useState<string>('Todos')
   const [activeTab, setActiveTab] = useState<'curriculum' | 'enrolled'>('curriculum')
+  const [expandedModuleCards, setExpandedModuleCards] = useState<Record<string, boolean>>({})
+
+  // Toggle para desplegar o plegar un módulo en el catálogo
+  const toggleCard = (id: string) => {
+    setExpandedModuleCards((prev) => ({
+      ...prev,
+      [id]: !prev[id],
+    }))
+  }
+
+  // Desplegar todos los módulos
+  const expandAllCards = () => {
+    const all: Record<string, boolean> = {}
+    OFFICIAL_140H_MODULES.forEach((m) => {
+      all[m.id] = true
+    })
+    setExpandedModuleCards(all)
+  }
+
+  // Plegar todos los módulos
+  const collapseAllCards = () => {
+    const all: Record<string, boolean> = {}
+    OFFICIAL_140H_MODULES.forEach((m) => {
+      all[m.id] = false
+    })
+    setExpandedModuleCards(all)
+  }
 
   // Curso insignia
   const flagshipCourse = availableCourses.find(
@@ -494,114 +522,175 @@ export default function DashboardCoursesPanel({
           VISTA 1: EXPLORADOR DE MÓDULOS DEL PLAN DE 140H
           ======================================================== */}
       {activeTab === 'curriculum' && (
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-          className="grid md:grid-cols-2 lg:grid-cols-3 gap-6"
-        >
-          {filteredModules.map((item) => (
-            <motion.div
-              key={item.id}
-              variants={cardVariants}
-              whileHover={{ y: -5, transition: { duration: 0.2 } }}
-              className="group rounded-3xl bg-white border-2 border-[#E2E8F0] hover:border-[#C99E32] p-6 shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col justify-between"
-            >
-              <div>
-                {/* Header del Módulo */}
-                <div className="flex items-center justify-between mb-3.5">
-                  <div className="flex items-center gap-1.5">
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#0038DF]/10 border border-[#0038DF]/25 text-[#0038DF] text-xs font-extrabold uppercase tracking-wide">
-                      {item.moduleNumber}
-                    </span>
-                    {!isEnrolledInFlagship && !item.hasSimulacro && (
-                      <span className="inline-flex items-center gap-1 text-[10px] font-bold text-amber-800 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">
-                        <Lock className="w-3 h-3 text-amber-600" />
-                        Bloqueado
-                      </span>
-                    )}
-                  </div>
-                  <span className="inline-flex items-center gap-1 text-xs font-extrabold text-[#9C7316] bg-[#C99E32]/10 px-2.5 py-1 rounded-full border border-[#C99E32]/30 font-mono">
-                    <Clock className="w-3.5 h-3.5" />
-                    {item.hours} horas
-                  </span>
-                </div>
+        <div className="space-y-4">
+          {/* Barra de control para desplegar o plegar todos los módulos */}
+          <div className="flex items-center justify-between px-2 py-1 text-xs">
+            <span className="text-xs font-bold text-[#64748B]">
+              Estructura Curricular ({filteredModules.length} Módulos Oficiales)
+            </span>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={expandAllCards}
+                className="text-xs font-bold text-[#0038DF] hover:underline cursor-pointer"
+              >
+                Desplegar todos
+              </button>
+              <span className="text-[#CBD5E1]">·</span>
+              <button
+                type="button"
+                onClick={collapseAllCards}
+                className="text-xs font-bold text-[#64748B] hover:text-[#1E293B] cursor-pointer"
+              >
+                Plegar todos
+              </button>
+            </div>
+          </div>
 
-                {/* Título */}
-                <h3 className="font-extrabold text-lg text-[#0038DF] group-hover:text-[#002299] transition-colors leading-snug mb-2">
-                  {item.title}
-                </h3>
+          <motion.div
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+            className="grid md:grid-cols-2 lg:grid-cols-3 gap-6"
+          >
+            {filteredModules.map((item) => {
+              const isExpanded = Boolean(expandedModuleCards[item.id])
 
-                {/* Núcleo Formatívo */}
-                <div className="mb-3">
-                  <span className="text-[11px] font-bold text-[#64748B] uppercase tracking-wider block">
-                    {item.nucleus}
-                  </span>
-                </div>
-
-                {/* Descripción */}
-                <p className="text-xs text-[#1E293B] leading-relaxed mb-4">
-                  {item.description}
-                </p>
-
-                {/* Topics Chips */}
-                <div className="flex flex-wrap gap-1.5 mb-5">
-                  {item.topics.map((t) => (
-                    <span
-                      key={t}
-                      className="px-2 py-0.5 rounded-md bg-[#F1F5F9] text-[#1E293B] text-[10px] font-semibold border border-[#E2E8F0]"
-                    >
-                      {t}
-                    </span>
-                  ))}
-                </div>
-              </div>
-
-              {/* Botón de Entrada */}
-              <div className="pt-4 border-t border-[#F1F5F9] flex items-center justify-between gap-3">
-                <span className="text-[11px] font-bold text-[#64748B] flex items-center gap-1">
-                  <FileText className="w-3.5 h-3.5 text-[#0038DF]" />
-                  {item.materialsCount} recursos PDF
-                </span>
-
-                <button
-                  onClick={() => {
-                    if (item.hasSimulacro) {
-                      onNavigateToExam()
-                    } else if (isEnrolledInFlagship) {
-                      if (flagshipCourse) onSelectCourse(flagshipCourse.slug)
-                    } else {
-                      if (onNavigateToPricing) onNavigateToPricing()
-                      else window.location.href = '/?view=pricing'
-                    }
-                  }}
-                  className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shadow-sm cursor-pointer ${
-                    item.hasSimulacro || isEnrolledInFlagship
-                      ? 'bg-[#0038DF] hover:bg-[#002299] text-white group-hover:scale-105'
-                      : 'bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300'
-                  }`}
+              return (
+                <motion.div
+                  key={item.id}
+                  variants={cardVariants}
+                  whileHover={{ y: -4, transition: { duration: 0.2 } }}
+                  className="group rounded-3xl bg-white border-2 border-[#E2E8F0] hover:border-[#C99E32] p-6 shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col justify-between"
                 >
-                  {item.hasSimulacro ? (
-                    <>
-                      <span>Abrir Simulacro</span>
-                      <ChevronRight className="w-3.5 h-3.5" />
-                    </>
-                  ) : isEnrolledInFlagship ? (
-                    <>
-                      <span>Iniciar Módulo</span>
-                      <ChevronRight className="w-3.5 h-3.5" />
-                    </>
-                  ) : (
-                    <>
-                      <Lock className="w-3.5 h-3.5 text-amber-800" />
-                      <span>Requiere Matrícula</span>
-                    </>
-                  )}
-                </button>
-              </div>
-            </motion.div>
-          ))}
-        </motion.div>
+                  <div>
+                    {/* Header del Módulo */}
+                    <div className="flex items-center justify-between mb-3.5">
+                      <div className="flex items-center gap-1.5">
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#0038DF]/10 border border-[#0038DF]/25 text-[#0038DF] text-xs font-extrabold uppercase tracking-wide">
+                          {item.moduleNumber}
+                        </span>
+                        {!isEnrolledInFlagship && !item.hasSimulacro && (
+                          <span className="inline-flex items-center gap-1 text-[10px] font-bold text-amber-800 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">
+                            <Lock className="w-3 h-3 text-amber-600" />
+                            Bloqueado
+                          </span>
+                        )}
+                      </div>
+                      <span className="inline-flex items-center gap-1 text-xs font-extrabold text-[#9C7316] bg-[#C99E32]/10 px-2.5 py-1 rounded-full border border-[#C99E32]/30 font-mono">
+                        <Clock className="w-3.5 h-3.5" />
+                        {item.hours} horas
+                      </span>
+                    </div>
+
+                    {/* Título */}
+                    <h3 className="font-extrabold text-lg text-[#0038DF] group-hover:text-[#002299] transition-colors leading-snug mb-1.5">
+                      {item.title}
+                    </h3>
+
+                    {/* Núcleo Formatívo */}
+                    <div className="mb-2">
+                      <span className="text-[11px] font-bold text-[#64748B] uppercase tracking-wider block">
+                        {item.nucleus}
+                      </span>
+                    </div>
+
+                    {/* Botón para desplegar / ocultar contenido y temario del módulo */}
+                    <button
+                      type="button"
+                      onClick={() => toggleCard(item.id)}
+                      className="w-full my-2.5 py-1.5 px-3 rounded-xl bg-[#F8FAFC] hover:bg-[#F1F5F9] border border-[#E2E8F0] flex items-center justify-between text-[11px] font-bold text-[#0038DF] transition-colors cursor-pointer"
+                    >
+                      <span className="flex items-center gap-1.5">
+                        <BookOpen className="w-3.5 h-3.5 text-[#C99E32]" />
+                        {isExpanded ? 'Plegar temario y contenidos' : 'Desplegar temario y contenidos'}
+                      </span>
+                      <ChevronDown
+                        className={`w-3.5 h-3.5 transition-transform duration-200 ${
+                          isExpanded ? 'rotate-180 text-[#0038DF]' : 'text-[#64748B]'
+                        }`}
+                      />
+                    </button>
+
+                    {/* Contenido desplegable */}
+                    <AnimatePresence initial={false}>
+                      {isExpanded && (
+                        <motion.div
+                          key="card-details"
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: 'auto', opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          transition={{ duration: 0.22, ease: [0.25, 1, 0.5, 1] }}
+                          className="overflow-hidden"
+                        >
+                          {/* Descripción */}
+                          <p className="text-xs text-[#1E293B] leading-relaxed mb-3 pt-1">
+                            {item.description}
+                          </p>
+
+                          {/* Topics Chips */}
+                          <div className="flex flex-wrap gap-1.5 mb-4">
+                            {item.topics.map((t) => (
+                              <span
+                                key={t}
+                                className="px-2 py-0.5 rounded-md bg-[#F1F5F9] text-[#1E293B] text-[10px] font-semibold border border-[#E2E8F0]"
+                              >
+                                {t}
+                              </span>
+                            ))}
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+
+                  {/* Botón de Entrada */}
+                  <div className="pt-4 border-t border-[#F1F5F9] flex items-center justify-between gap-3">
+                    <span className="text-[11px] font-bold text-[#64748B] flex items-center gap-1">
+                      <FileText className="w-3.5 h-3.5 text-[#0038DF]" />
+                      {item.materialsCount} recursos PDF
+                    </span>
+
+                    <button
+                      onClick={() => {
+                        if (item.hasSimulacro) {
+                          onNavigateToExam()
+                        } else if (isEnrolledInFlagship) {
+                          if (flagshipCourse) onSelectCourse(flagshipCourse.slug)
+                        } else {
+                          if (onNavigateToPricing) onNavigateToPricing()
+                          else window.location.href = '/?view=pricing'
+                        }
+                      }}
+                      className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shadow-sm cursor-pointer ${
+                        item.hasSimulacro || isEnrolledInFlagship
+                          ? 'bg-[#0038DF] hover:bg-[#002299] text-white group-hover:scale-105'
+                          : 'bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300'
+                      }`}
+                    >
+                      {item.hasSimulacro ? (
+                        <>
+                          <span>Abrir Simulacro</span>
+                          <ChevronRight className="w-3.5 h-3.5" />
+                        </>
+                      ) : isEnrolledInFlagship ? (
+                        <>
+                          <span>Iniciar Módulo</span>
+                          <ChevronRight className="w-3.5 h-3.5" />
+                        </>
+                      ) : (
+                        <>
+                          <Lock className="w-3.5 h-3.5 text-amber-800" />
+                          <span>Requiere Matrícula</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </motion.div>
+              )
+            })}
+          </motion.div>
+        </div>
       )}
 
       {/* ========================================================

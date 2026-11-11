@@ -12,6 +12,7 @@ import {
   Lock,
   Clock,
   ChevronRight,
+  ChevronDown,
   Star,
   Download,
   Zap,
@@ -94,6 +95,51 @@ export default function LearningView({
   const [certModalOpen, setCertModalOpen] = useState(false)
   const [issuedCert, setIssuedCert] = useState<CertificateWithCourse | null>(null)
   const [issuingCert, setIssuingCert] = useState(false)
+
+  // Estado para desplegar o plegar módulos individualmente (acordeón interactivo)
+  const [expandedModules, setExpandedModules] = useState<Record<string, boolean>>({})
+
+  // Toggle de un módulo individual
+  const toggleModule = (modId: string) => {
+    setExpandedModules((prev) => {
+      const isCurrentlyOpen =
+        prev[modId] !== undefined ? prev[modId] : modId === activeModuleId
+      return {
+        ...prev,
+        [modId]: !isCurrentlyOpen,
+      }
+    })
+  }
+
+  // Desplegar todos los módulos
+  const expandAllModules = () => {
+    if (!course) return
+    const allOpen: Record<string, boolean> = {}
+    course.modules.forEach((m) => {
+      allOpen[m.id] = true
+    })
+    setExpandedModules(allOpen)
+  }
+
+  // Plegar todos los módulos
+  const collapseAllModules = () => {
+    if (!course) return
+    const allClosed: Record<string, boolean> = {}
+    course.modules.forEach((m) => {
+      allClosed[m.id] = false
+    })
+    setExpandedModules(allClosed)
+  }
+
+  // Asegurar que el módulo activo esté desplegado al seleccionarlo
+  useEffect(() => {
+    if (activeModuleId) {
+      setExpandedModules((prev) => ({
+        ...prev,
+        [activeModuleId]: true,
+      }))
+    }
+  }, [activeModuleId])
 
   // Seleccionar primer módulo y primera lección disponible al cambiar de curso
   useEffect(() => {
@@ -341,91 +387,171 @@ export default function LearningView({
           </div>
         </div>
 
-        {/* Módulos y Clases reales */}
-        <div className="p-4 space-y-4">
-          {course.modules.map((mod, modIdx) => (
-            <div
-              key={mod.id}
-              className="rounded-2xl border border-[#E2E8F0] bg-white overflow-hidden shadow-xs"
+        {/* Controles para Desplegar / Plegar Módulos a elección del alumno */}
+        <div className="px-4 py-2.5 flex items-center justify-between text-xs border-b border-[#E2E8F0]/70 bg-[#F8FAFC]">
+          <span className="font-extrabold text-[#1E293B] text-[11px] uppercase tracking-wider flex items-center gap-1.5">
+            <BookOpen className="w-3.5 h-3.5 text-[#0038DF]" />
+            Módulos ({course.modules.length})
+          </span>
+          <div className="flex items-center gap-1.5">
+            <button
+              type="button"
+              onClick={expandAllModules}
+              className="text-[11px] font-bold text-[#0038DF] hover:underline px-1.5 py-0.5 rounded cursor-pointer"
             >
-              <div className="p-3.5 bg-[#F8FAFC] border-b border-[#E2E8F0] flex items-center justify-between">
-                <div>
-                  <span className="text-[10px] font-extrabold text-[#0038DF] uppercase tracking-wider">
-                    Módulo {mod.order_index || modIdx + 1}
-                  </span>
-                  <p className="text-xs font-bold text-[#1E293B] truncate max-w-[210px]">
-                    {mod.title}
-                  </p>
-                </div>
-                <span className="text-[10px] text-[#64748B] font-mono">
-                  {mod.lessons.length} clases
-                </span>
-              </div>
+              Desplegar todo
+            </button>
+            <span className="text-[#CBD5E1]">·</span>
+            <button
+              type="button"
+              onClick={collapseAllModules}
+              className="text-[11px] font-bold text-[#64748B] hover:text-[#1E293B] px-1.5 py-0.5 rounded cursor-pointer"
+            >
+              Plegar todo
+            </button>
+          </div>
+        </div>
 
-              <div className="p-1.5 space-y-1">
-                {mod.lessons.map((lesson) => {
-                  const isCurrent = lesson.id === activeLesson?.id
-                  const isLocked = !hasCourseAccess
-                  const isCompleted = lesson.progress?.completed
+        {/* Módulos y Clases con Acordeón Desplegable */}
+        <div className="p-4 space-y-3">
+          {course.modules.map((mod, modIdx) => {
+            const isExpanded =
+              expandedModules[mod.id] !== undefined
+                ? expandedModules[mod.id]
+                : mod.id === activeModuleId
+            const hasActiveLesson = mod.lessons.some((l) => l.id === activeLesson?.id)
+            const completedCount = mod.lessons.filter((l) => l.progress?.completed).length
 
-                  return (
-                    <button
-                      key={lesson.id}
-                      onClick={() => {
-                        setActiveModuleId(mod.id)
-                        setActiveLessonId(lesson.id)
-                      }}
-                      className={`w-full flex items-center gap-3 p-3 rounded-xl text-left transition-all ${
-                        isCurrent
-                          ? 'bg-[#0038DF]/5 border-2 border-[#C99E32] text-[#0038DF] font-bold shadow-xs'
-                          : isLocked
-                            ? 'opacity-60 hover:opacity-80'
-                            : 'hover:bg-[#F8FAFC] text-[#1E293B]'
-                      }`}
-                    >
-                      <div
-                        className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 text-xs ${
-                          isCompleted
-                            ? 'bg-emerald-50 text-emerald-600'
-                            : isCurrent
-                              ? 'bg-[#0038DF] text-white shadow-xs'
-                              : 'bg-[#F8FAFC] text-[#64748B] border border-[#E2E8F0]'
+            return (
+              <div
+                key={mod.id}
+                className={`rounded-2xl border transition-all duration-200 overflow-hidden shadow-xs ${
+                  hasActiveLesson
+                    ? 'border-[#0038DF]/40 bg-white ring-1 ring-[#0038DF]/20 shadow-sm'
+                    : 'border-[#E2E8F0] bg-white hover:border-[#C99E32]/50'
+                }`}
+              >
+                {/* Cabecera del Módulo Clickeable para Desplegar o Plegar su Contenido */}
+                <button
+                  type="button"
+                  onClick={() => toggleModule(mod.id)}
+                  aria-expanded={isExpanded}
+                  className="w-full p-3.5 bg-[#F8FAFC] hover:bg-[#F1F5F9] transition-colors flex items-center justify-between text-left cursor-pointer group select-none"
+                >
+                  <div className="min-w-0 pr-2">
+                    <div className="flex items-center gap-2">
+                      <span
+                        className={`text-[10px] font-extrabold uppercase tracking-wider ${
+                          hasActiveLesson ? 'text-[#0038DF]' : 'text-[#64748B]'
                         }`}
                       >
-                        {isCompleted ? (
-                          <CheckCircle2 className="w-4 h-4" strokeWidth={2.5} />
-                        ) : isLocked ? (
-                          <Lock className="w-3.5 h-3.5 text-[#64748B]" />
-                        ) : (
-                          <Play className="w-3 h-3 fill-current text-[#0038DF]" />
-                        )}
-                      </div>
+                        Módulo {mod.order_index || modIdx + 1}
+                      </span>
+                      {completedCount > 0 && (
+                        <span className="inline-flex items-center gap-0.5 text-[9px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.2 rounded-full border border-emerald-200">
+                          <CheckCircle2 className="w-2.5 h-2.5 text-emerald-600" />
+                          {completedCount}/{mod.lessons.length}
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-xs font-bold text-[#1E293B] truncate max-w-[210px] mt-0.5 group-hover:text-[#0038DF] transition-colors">
+                      {mod.title}
+                    </p>
+                  </div>
 
-                      <div className="flex-1 min-w-0">
-                        <p
-                          className={`text-xs truncate ${
-                            isCurrent ? 'text-[#0038DF] font-bold' : 'text-[#1E293B] font-medium'
-                          }`}
-                        >
-                          {lesson.title}
-                        </p>
-                        <div className="flex items-center gap-2 mt-0.5">
-                          <span className="text-[10px] text-[#64748B]">
-                            {Math.round((lesson.duration_seconds || 1800) / 60)} min
-                          </span>
-                          {lesson.materials && lesson.materials.length > 0 && (
-                            <span className="text-[9px] font-bold text-[#9C7316] bg-[#C99E32]/10 px-1.5 py-0.2 rounded border border-[#C99E32]/20">
-                              {lesson.materials.length} PDF
-                            </span>
-                          )}
-                        </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <span className="text-[10px] text-[#64748B] font-mono">
+                      {mod.lessons.length} {mod.lessons.length === 1 ? 'clase' : 'clases'}
+                    </span>
+                    <div
+                      className={`w-6 h-6 rounded-lg flex items-center justify-center bg-white border border-[#E2E8F0] text-[#1E293B] transition-transform duration-200 ${
+                        isExpanded ? 'rotate-180 text-[#0038DF] border-[#0038DF]/40 shadow-xs' : ''
+                      }`}
+                    >
+                      <ChevronDown className="w-3.5 h-3.5" />
+                    </div>
+                  </div>
+                </button>
+
+                {/* Contenido de Clases Desplegable con Animación Suave */}
+                <AnimatePresence initial={false}>
+                  {isExpanded && (
+                    <motion.div
+                      key="content"
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.22, ease: [0.25, 1, 0.5, 1] }}
+                      className="overflow-hidden"
+                    >
+                      <div className="p-1.5 space-y-1 border-t border-[#E2E8F0]/70 bg-white">
+                        {mod.lessons.map((lesson) => {
+                          const isCurrent = lesson.id === activeLesson?.id
+                          const isLocked = !hasCourseAccess
+                          const isCompleted = lesson.progress?.completed
+
+                          return (
+                            <button
+                              key={lesson.id}
+                              onClick={() => {
+                                setActiveModuleId(mod.id)
+                                setActiveLessonId(lesson.id)
+                              }}
+                              className={`w-full flex items-center gap-3 p-3 rounded-xl text-left transition-all ${
+                                isCurrent
+                                  ? 'bg-[#0038DF]/5 border-2 border-[#C99E32] text-[#0038DF] font-bold shadow-xs'
+                                  : isLocked
+                                    ? 'opacity-60 hover:opacity-80'
+                                    : 'hover:bg-[#F8FAFC] text-[#1E293B]'
+                              }`}
+                            >
+                              <div
+                                className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 text-xs ${
+                                  isCompleted
+                                    ? 'bg-emerald-50 text-emerald-600'
+                                    : isCurrent
+                                      ? 'bg-[#0038DF] text-white shadow-xs'
+                                      : 'bg-[#F8FAFC] text-[#64748B] border border-[#E2E8F0]'
+                                }`}
+                              >
+                                {isCompleted ? (
+                                  <CheckCircle2 className="w-4 h-4" strokeWidth={2.5} />
+                                ) : isLocked ? (
+                                  <Lock className="w-3.5 h-3.5 text-[#64748B]" />
+                                ) : (
+                                  <Play className="w-3 h-3 fill-current text-[#0038DF]" />
+                                )}
+                              </div>
+
+                              <div className="flex-1 min-w-0">
+                                <p
+                                  className={`text-xs truncate ${
+                                    isCurrent ? 'text-[#0038DF] font-bold' : 'text-[#1E293B] font-medium'
+                                  }`}
+                                >
+                                  {lesson.title}
+                                </p>
+                                <div className="flex items-center gap-2 mt-0.5">
+                                  <span className="text-[10px] text-[#64748B]">
+                                    {Math.round((lesson.duration_seconds || 1800) / 60)} min
+                                  </span>
+                                  {lesson.materials && lesson.materials.length > 0 && (
+                                    <span className="text-[9px] font-bold text-[#9C7316] bg-[#C99E32]/10 px-1.5 py-0.2 rounded border border-[#C99E32]/20">
+                                      {lesson.materials.length} PDF
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+                            </button>
+                          )
+                        })}
                       </div>
-                    </button>
-                  )
-                })}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
       </aside>
 
