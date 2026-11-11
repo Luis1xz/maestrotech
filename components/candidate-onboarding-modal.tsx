@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   X,
@@ -59,11 +59,12 @@ export default function CandidateOnboardingModal({
   onSuccess,
   onSwitchToLogin,
 }: CandidateOnboardingModalProps) {
-  const { signUp, signIn, user } = useAuth()
+  const { signUp, signIn, user, signInWithGoogle } = useAuth()
 
   // Etapa actual: 1 a 5, y 6 para la pantalla de perfil listo
   const [step, setStep] = useState<number>(1)
   const [loading, setLoading] = useState<boolean>(false)
+  const [loadingGoogle, setLoadingGoogle] = useState<boolean>(false)
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
   const [celebrate, setCelebrate] = useState<boolean>(false)
 
@@ -73,6 +74,43 @@ export default function CandidateOnboardingModal({
   const [firstName, setFirstName] = useState('')
   const [lastName, setLastName] = useState('')
   const [email, setEmail] = useState('')
+
+  // Pre-llenar datos si el usuario ya inició sesión con Google
+  useEffect(() => {
+    if (user) {
+      if (user.email && !email) {
+        setEmail(user.email)
+      }
+      const meta = (user.user_metadata || {}) as Record<string, unknown>
+      const gFirst = ((meta.first_name || meta.given_name) as string) || ''
+      const gLast = ((meta.last_name || meta.family_name) as string) || ''
+      const gFull = ((meta.full_name || meta.name) as string) || ''
+
+      if (gFirst && !firstName) setFirstName(gFirst)
+      if (gLast && !lastName) setLastName(gLast)
+      if (!gFirst && !gLast && gFull && !firstName) {
+        const parts = gFull.trim().split(' ')
+        setFirstName(parts[0] || '')
+        setLastName(parts.slice(1).join(' ') || '')
+      }
+    }
+  }, [user])
+
+  const handleGoogleSignUp = async () => {
+    setErrorMsg(null)
+    setLoadingGoogle(true)
+    try {
+      const res = await signInWithGoogle()
+      if (res.error) {
+        setErrorMsg(res.error.message || 'Error al conectar con Google.')
+        setLoadingGoogle(false)
+      }
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Error al conectar con Google'
+      setErrorMsg(msg)
+      setLoadingGoogle(false)
+    }
+  }
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [phoneNumber, setPhoneNumber] = useState('')
@@ -529,6 +567,67 @@ export default function CandidateOnboardingModal({
                 </p>
               </div>
 
+              {/* Botón de Registro con Google o Confirmación de Cuenta Verificada */}
+              {user ? (
+                <div className="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center justify-between shadow-xs">
+                  <div className="flex items-center gap-2.5">
+                    <CheckCircle2 className="w-5 h-5 shrink-0 text-emerald-600" />
+                    <div>
+                      <span className="font-bold block text-emerald-900">Identidad verificada con Google</span>
+                      <span className="text-[11px] text-emerald-700">{user.email}</span>
+                    </div>
+                  </div>
+                  <span className="text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-full bg-emerald-200/80 text-emerald-900 tracking-wider">
+                    Verificado
+                  </span>
+                </div>
+              ) : (
+                <div className="space-y-3 pt-1">
+                  <button
+                    type="button"
+                    onClick={handleGoogleSignUp}
+                    disabled={loadingGoogle || loading}
+                    className="w-full py-3 px-4 rounded-2xl bg-white border-2 border-[#0038DF]/30 hover:border-[#0038DF] hover:bg-[#0038DF]/5 text-[#0038DF] font-bold text-xs transition-all flex items-center justify-center gap-2.5 shadow-sm hover:shadow-md disabled:opacity-50 cursor-pointer"
+                  >
+                    {loadingGoogle ? (
+                      <div className="w-4 h-4 border-2 border-[#0038DF]/40 border-t-[#0038DF] rounded-full animate-spin" />
+                    ) : (
+                      <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
+                        <path
+                          fill="#4285F4"
+                          d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17z"
+                        />
+                        <path
+                          fill="#34A853"
+                          d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.33 24 12 24z"
+                        />
+                        <path
+                          fill="#FBBC05"
+                          d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.18 0 9.99 0 12s.45 3.82 1.25 5.42l4.03-3.15z"
+                        />
+                        <path
+                          fill="#EA4335"
+                          d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"
+                        />
+                      </svg>
+                    )}
+                    <span>
+                      {loadingGoogle
+                        ? 'Verificando con Google...'
+                        : 'Registrarme con Google (Verificación Inmediata en 1 Clic)'}
+                    </span>
+                  </button>
+
+                  <div className="relative flex items-center justify-center my-2">
+                    <div className="border-t border-[#E2E8F0] w-full" />
+                    <span className="bg-white px-3 text-[10px] font-semibold text-[#64748B] uppercase tracking-wider shrink-0">
+                      o completa tu registro con contraseña
+                    </span>
+                    <div className="border-t border-[#E2E8F0] w-full" />
+                  </div>
+                </div>
+              )}
+
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                 <div>
                   <label className="block text-xs font-bold text-[#142D49] mb-1">
@@ -567,10 +666,15 @@ export default function CandidateOnboardingModal({
                   <input
                     type="email"
                     required
+                    disabled={Boolean(user?.email)}
                     placeholder="docente@ejemplo.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-[#F8FAFC] border border-[#E5EDF5] text-xs text-[#142D49] outline-none focus:border-[#0045E6] focus:ring-1 focus:ring-[#0045E6]"
+                    className={`w-full px-3.5 py-2.5 rounded-xl border text-xs outline-none ${
+                      user?.email
+                        ? 'bg-emerald-50/60 border-emerald-300 text-emerald-950 font-semibold cursor-not-allowed'
+                        : 'bg-[#F8FAFC] border-[#E5EDF5] text-[#142D49] focus:border-[#0045E6] focus:ring-1 focus:ring-[#0045E6]'
+                    }`}
                   />
                 </div>
 

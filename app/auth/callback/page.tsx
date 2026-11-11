@@ -4,6 +4,7 @@ import { useEffect, useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { getSupabase } from '@/lib/supabase/client'
 import { ensureProfile } from '@/services/profiles'
+import { getCandidateProfile } from '@/services/candidate'
 import { Sparkles, AlertCircle, CheckCircle2, ArrowRight } from 'lucide-react'
 
 function AuthCallbackContent() {
@@ -113,16 +114,29 @@ function AuthCallbackContent() {
           role: targetRole,
         })
 
+        // Determinar destino: Si el aspirante aún no completa su caracterización, enviarlo a onboarding
+        let destinationView = nextView || 'dashboard'
+        if (targetRole === 'student') {
+          try {
+            const candidate = await getCandidateProfile(user.id)
+            if (!candidate || !candidate.profile_completed) {
+              destinationView = 'onboarding'
+            }
+          } catch {
+            // Continuar con destinationView
+          }
+        }
+
         setStatus('success')
 
         setTimeout(() => {
           if (isMounted) {
-            window.location.href = `/?view=${encodeURIComponent(nextView)}`
+            window.location.href = `/?view=${encodeURIComponent(destinationView)}`
           }
         }, 500)
       } catch (e) {
         console.error('[auth/callback] Error creando perfil de usuario:', e)
-        // Redirigir de todos modos al dashboard ya que la sesión en Auth existe
+        // Redirigir de todos modos ya que la sesión en Auth existe
         window.location.href = `/?view=${encodeURIComponent(nextView)}`
       }
     }

@@ -31,6 +31,7 @@ type View =
   | 'login'
   | 'teachers'
   | 'leadership'
+  | 'onboarding'
 
 function MainApp() {
   const [view, setView] = useState<View>('home')
@@ -85,6 +86,12 @@ function MainApp() {
           window.history.replaceState({}, document.title, window.location.pathname)
         }, 600)
       }
+    } else if (viewParam === 'onboarding') {
+      setAuthModalMode('signup')
+      setAuthModalOpen(true)
+      setTimeout(() => {
+        window.history.replaceState({}, document.title, window.location.pathname)
+      }, 600)
     } else if (viewParam === 'dashboard') {
       setView('dashboard')
       setTimeout(() => {
@@ -102,6 +109,10 @@ function MainApp() {
   const navigate = (v: string) => {
     if (v === 'login') {
       openAuth('signin')
+      return
+    }
+    if (v === 'onboarding') {
+      openAuth('signup')
       return
     }
 
