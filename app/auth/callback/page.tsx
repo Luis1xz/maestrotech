@@ -15,14 +15,31 @@ function AuthCallbackContent() {
 
   useEffect(() => {
     let isMounted = true
+    let processed = false
 
     async function handleAuthCallback() {
-      const code = searchParams.get('code')
-      const errorParam = searchParams.get('error')
-      const errorDesc = searchParams.get('error_description')
-      const nextView = searchParams.get('next') || 'dashboard'
+      // 1. Obtener parámetros desde searchParams y también directamente de window.location
+      const winSearch = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null
+      let code = searchParams.get('code') || winSearch?.get('code') || null
+      let errorParam = searchParams.get('error') || winSearch?.get('error') || null
+      let errorDesc = searchParams.get('error_description') || winSearch?.get('error_description') || null
+      const nextView = searchParams.get('next') || winSearch?.get('next') || 'dashboard'
 
-      // 1. Manejo de error devuelto por Google o Supabase
+      // Revisar fragmento hash (#access_token=... o #code=...) típico de OAuth o flujos directos
+      let hashAccessToken: string | null = null
+      let hashRefreshToken: string | null = null
+
+      if (typeof window !== 'undefined' && window.location.hash) {
+        const hashStr = window.location.hash.replace(/^#/, '')
+        const hashParams = new URLSearchParams(hashStr)
+        if (!code && hashParams.get('code')) code = hashParams.get('code')
+        if (!errorParam && hashParams.get('error')) errorParam = hashParams.get('error')
+        if (!errorDesc && hashParams.get('error_description')) errorDesc = hashParams.get('error_description')
+        hashAccessToken = hashParams.get('access_token')
+        hashRefreshToken = hashParams.get('refresh_token')
+      }
+
+      // 2. Manejo de error devuelto por Google o Supabase
       if (errorParam) {
         const fullMsg = errorDesc || errorParam
         console.warn('[auth/callback] Error retornado por OAuth:', fullMsg)
@@ -35,48 +52,78 @@ function AuthCallbackContent() {
 
       const client = getSupabase()
 
+      // 3. Suscripción a eventos onAuthStateChange (captura sesión cuando detectSessionInUrl procesa el hash)
+      const { data: authListener } = client.auth.onAuthStateChange(async (event, session) => {
+        if (!processed && session?.user && isMounted) {
+          processed = true
+          await processLoggedInUser(session.user, nextView)
+        }
+      })
+
       try {
-        // 2. Si viene el código de autorización PKCE de Google
+        // 4. Si vienen tokens directos en el hash (flujo implicit)
+        if (hashAccessToken) {
+          const { data: setSessionData, error: setSessionErr } = await client.auth.setSession({
+            access_token: hashAccessToken,
+            refresh_token: hashRefreshToken || '',
+          })
+          if (!setSessionErr && setSessionData?.user && !processed && isMounted) {
+            processed = true
+            authListener.subscription.unsubscribe()
+            await processLoggedInUser(setSessionData.user, nextView)
+            return
+          }
+        }
+
+        // 5. Si viene el código de autorización PKCE de Google
         if (code) {
           const { data, error: exchangeError } = await client.auth.exchangeCodeForSession(code)
 
-          if (exchangeError) {
-            console.error('[auth/callback] Error al intercambiar código PKCE:', exchangeError)
-            // Si el código ya fue consumido por onAuthStateChange en paralelo, comprobar si hay sesión activa
-            const { data: sessionData } = await client.auth.getSession()
-            if (sessionData?.session?.user) {
-              await processLoggedInUser(sessionData.session.user, nextView)
-              return
-            }
-            if (isMounted) {
-              setStatus('error')
-              setErrorMessage(exchangeError.message || 'Error al validar la sesión con Google.')
-            }
-            return
-          }
-
-          if (data?.session?.user) {
+          if (!exchangeError && data?.session?.user && !processed && isMounted) {
+            processed = true
+            authListener.subscription.unsubscribe()
             await processLoggedInUser(data.session.user, nextView)
             return
           }
+
+          if (exchangeError) {
+            console.warn('[auth/callback] exchangeCodeForSession falló o ya fue consumido:', exchangeError.message)
+            // Verificar si la sesión ya quedó activa en el cliente
+            const { data: sessionData } = await client.auth.getSession()
+            if (sessionData?.session?.user && !processed && isMounted) {
+              processed = true
+              authListener.subscription.unsubscribe()
+              await processLoggedInUser(sessionData.session.user, nextView)
+              return
+            }
+          }
         }
 
-        // 3. Fallback: verificar si la sesión ya existe en cookies o storage (ej. hash implicit o detectSession)
-        const { data: currentSessionData } = await client.auth.getSession()
-        if (currentSessionData?.session?.user) {
-          await processLoggedInUser(currentSessionData.session.user, nextView)
-          return
+        // 6. Polling de sesión resiliente: esperar hasta 3.5 segundos a que detectSessionInUrl o cookies sincronicen
+        for (let attempt = 0; attempt < 7; attempt++) {
+          if (processed) return
+          const { data: currentSessionData } = await client.auth.getSession()
+          if (currentSessionData?.session?.user && !processed && isMounted) {
+            processed = true
+            authListener.subscription.unsubscribe()
+            await processLoggedInUser(currentSessionData.session.user, nextView)
+            return
+          }
+          await new Promise((r) => setTimeout(r, 500))
         }
 
-        // Si no hay código ni sesión activa
-        if (isMounted) {
+        authListener.subscription.unsubscribe()
+
+        // 7. Si después de los reintentos no hay código ni sesión activa
+        if (!processed && isMounted) {
           setStatus('error')
           setErrorMessage('No se encontró una sesión o token de autenticación válido.')
         }
       } catch (err: unknown) {
+        authListener.subscription.unsubscribe()
         const msg = err instanceof Error ? err.message : 'Error inesperado durante la autenticación'
         console.error('[auth/callback] Excepción:', err)
-        if (isMounted) {
+        if (isMounted && !processed) {
           setStatus('error')
           setErrorMessage(msg)
         }
@@ -101,9 +148,9 @@ function AuthCallbackContent() {
           email.split('@')[0] ||
           'Docente'
 
-        // Todos los nuevos registros mediante Google ingresan como aspirantes ('student')
-        // Los roles de docente o administrador son asignados por los administradores en la base de datos
-        const targetRole = 'student'
+        // Identificar rol: superusuarios conocidos conservan admin
+        const isAdmin = email === 'luisalfonso1818@gmail.com' || email === 'patriciajhon@gmail.com'
+        const targetRole = isAdmin ? 'admin' : 'student'
 
         await ensureProfile(user.id, {
           email,
@@ -114,9 +161,11 @@ function AuthCallbackContent() {
           role: targetRole,
         })
 
-        // Determinar destino: Si el aspirante aún no completa su caracterización, enviarlo a onboarding
+        // Determinar destino:
         let destinationView = nextView || 'dashboard'
-        if (targetRole === 'student') {
+        if (isAdmin) {
+          destinationView = 'dashboard'
+        } else if (targetRole === 'student') {
           try {
             const candidate = await getCandidateProfile(user.id)
             if (!candidate || !candidate.profile_completed) {
