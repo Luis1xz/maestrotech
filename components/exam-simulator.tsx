@@ -20,6 +20,8 @@ import {
   Zap,
   Award,
   BookOpen,
+  Lock,
+  ShieldAlert,
 } from 'lucide-react'
 import { RadarChart, PolarGrid, PolarAngleAxis, Radar, ResponsiveContainer } from 'recharts'
 import { getExamQuestions } from '@/services/exams'
@@ -34,6 +36,8 @@ import {
   Badge,
   TopicPerformance,
 } from '@/types/gamification'
+import { useAuth } from '@/context/auth-context'
+import { getUserEnrollments } from '@/services/enrollments'
 
 interface ExamProps {
   onNavigate: (view: string) => void
@@ -48,69 +52,109 @@ interface SimulatorQuestion {
   competency: string
 }
 
-const DEFAULT_QUESTIONS: SimulatorQuestion[] = [
+export const DIAGNOSTIC_QUESTIONS: SimulatorQuestion[] = [
   {
-    id: 'q1',
-    text: 'Según el Decreto 1278 de 2002, ¿cuál es el principal criterio para el ingreso al servicio docente en Colombia?',
+    id: 'diag-1',
+    text: 'De acuerdo con el Decreto Ley 1278 de 2002, ¿cuál de las siguientes opciones describe con exactitud el periodo de prueba para los docentes que superan el concurso de méritos?',
     options: [
-      'Antigüedad en el cargo directivo',
-      'Superación de concurso de méritos mediante prueba de competencias',
-      'Recomendación del rector de la institución',
-      'Título de especialización en pedagogía',
+      'Tiene una duración de cuatro meses y es calificado exclusivamente por los padres de familia del consejo directivo.',
+      'Corresponde a la totalidad del año escolar lectivo y culmina con una evaluación de desempeño que requiere un puntaje mínimo del sesenta por ciento (60%) para ser inscrito en el Escalafón Docente.',
+      'Dura dos años consecutivos y el docente no percibe salario completo hasta que apruebe la evaluación del MEN.',
+      'Es un periodo opcional que solo aplica a profesionales no licenciados antes de entrar a carrera.',
     ],
     correct: 1,
     explanation:
-      'El Decreto 1278 establece que el ingreso al servicio educativo estatal se hará mediante concurso de méritos, que incluye prueba de aptitudes, competencias básicas y pedagógicas.',
-    competency: 'Legislación Educativa',
+      'El Decreto Ley 1278 de 2002 (artículos 12 y 31) establece que el periodo de prueba comprende el año académico lectivo y debe ser evaluado con un puntaje mínimo de 60 puntos para lograr la inscripción definitiva en la carrera docente.',
+    competency: 'Legislación 1278',
   },
   {
-    id: 'q2',
-    text: '¿Qué autor propuso la "Zona de Desarrollo Próximo" como concepto fundamental para entender el aprendizaje en sociedad?',
-    options: ['Jean Piaget', 'Lev Vygotsky', 'David Ausubel', 'Jerome Bruner'],
+    id: 'diag-2',
+    text: 'Un docente observa que varios de sus estudiantes resuelven problemas complejos cuando trabajan en parejas guiadas por compañeros, pero se bloquean de manera individual. Desde la teoría sociocultural de Lev Vygotsky, este fenómeno evidencia que:',
+    options: [
+      'Los estudiantes presentan un déficit de memoria operativa que les impide automatizar los algoritmos.',
+      'La tarea se encuentra en la Zona de Desarrollo Próximo (ZDP), donde la mediación y el andamiaje social permiten alcanzar el nivel potencial.',
+      'El modelo pedagógico constructivista exige que la evaluación nunca sea individual.',
+      'Los estudiantes se ubican en la etapa sensoriomotriz según la epistemología genética de Jean Piaget.',
+    ],
     correct: 1,
     explanation:
-      'Lev Vygotsky introdujo la Zona de Desarrollo Próximo (ZDP) para describir la diferencia entre lo que el estudiante puede hacer solo y lo que puede lograr con apoyo, fundamental para el aprendizaje colaborativo.',
-    competency: 'Psicología del Aprendizaje',
+      'Vygotsky define la Zona de Desarrollo Próximo (ZDP) como la distancia entre el nivel real de desarrollo (resolución independiente) y el potencial alcanzable bajo la guía de un mediador o en colaboración con pares más avanzados.',
+    competency: 'Pedagogía',
   },
   {
-    id: 'q3',
-    text: 'En el marco del modelo pedagógico constructivista, ¿cuál es el rol principal del docente?',
+    id: 'diag-3',
+    text: 'En el marco del Decreto 1290 de 2009 que reglamenta el Sistema Institucional de Evaluación de los Estudiantes (SIEE), ¿cuál es el propósito prioritario de la evaluación en el aula de clases?',
     options: [
-      'Transmisor de información académica',
-      'Evaluador de resultados finales',
-      'Facilitador y mediador del proceso de aprendizaje',
-      'Diseñador de currículos nacionales',
+      'Clasificar a los educandos en un ranking cuantitativo para determinar sanciones y promociones condicionadas.',
+      'Servir como instrumento sancionatorio que condicione la disciplina escolar.',
+      'Identificar las características personales, ritmos y estilos de aprendizaje para valorar avances y diseñar estrategias pedagógicas de apoyo.',
+      'Asegurar que ningún estudiante apruebe el año si no alcanza una calificación mínima del 95% en la prueba final.',
     ],
     correct: 2,
     explanation:
-      'En el constructivismo, el docente es un facilitador que guía al estudiante en la construcción activa de su propio conocimiento, creando ambientes de aprendizaje significativo.',
-    competency: 'Pedagogía',
+      'El Decreto 1290 de 2009 define la evaluación como un proceso formativo, integral y continuo cuyo fin primordial es retroalimentar oportunamente y diseñar planes de mejoramiento que atiendan la diversidad de ritmos de aprendizaje.',
+    competency: 'Evaluación Formativa',
+  },
+  {
+    id: 'diag-4',
+    text: 'Durante el descanso pedagógico, dos estudiantes discuten acaloradamente por un desacuerdo en un juego deportivo, generándose agravios verbales mutuos sin que existan agresiones físicas ni afectación a la integridad corporal. De acuerdo con la Ley 1620 de 2013, ¿a qué tipo de situación corresponde y cuál es la actuación correcta del docente?',
+    options: [
+      'Situación Tipo III: El docente debe denunciar inmediatamente ante la Fiscalía y solicitar la expulsión preventiva.',
+      'Situación Tipo I: El docente debe intervenir oportunamente, propiciar la mediación pedagógica mediante el diálogo reflexivo y concertar compromisos de reconciliación.',
+      'Situación Tipo II: Debe convocarse en menos de dos horas al Comité Municipal de Convivencia Escolar.',
+      'No constituye una situación de convivencia y por tanto el docente no debe intervenir.',
+    ],
+    correct: 1,
+    explanation:
+      'Las situaciones Tipo I son conflictos cotidianos manejados de forma inadecuada que no generan daño al cuerpo ni a la salud física o mental. Su protocolo demanda intervención inmediata del docente mediante mediación y acuerdos pedagógicos.',
+    competency: 'Juicio Situacional',
+  },
+  {
+    id: 'diag-5',
+    text: 'Considere la siguiente premisa del MEN: "La educación inclusiva transforma las instituciones y sus prácticas para responder a la diversidad de todos los estudiantes (Decreto 1421 de 2017)". A partir de esto, se infiere que en el aula de clases:',
+    options: [
+      'Los educandos con discapacidad deben asistir exclusivamente a aulas especiales aisladas del grupo regular.',
+      'El currículo debe mantenerse inalterable, delegando la totalidad de adaptaciones al orientador escolar.',
+      'El Diseño Universal para el Aprendizaje (DUA) y los Planes Individuales de Ajustes Razonables (PIAR) son herramientas clave para eliminar barreras formativas.',
+      'La evaluación debe suprimirse de manera general para evitar la frustración de los aprendices.',
+    ],
+    correct: 2,
+    explanation:
+      'El Decreto 1421 de 2017 fundamenta la inclusión en el marco del DUA y el PIAR como compromisos institucionales y pedagógicos del docente para garantizar el acceso, permanencia y promoción equitativa de todos los estudiantes.',
+    competency: 'Lectura Crítica',
   },
 ]
+
+const DEFAULT_QUESTIONS = DIAGNOSTIC_QUESTIONS
 
 const RADAR_DATA = [
   { subject: 'Pedagogía', A: 0, fullMark: 100 },
   { subject: 'Legislación', A: 0, fullMark: 100 },
+  { subject: 'Evaluación', A: 0, fullMark: 100 },
+  { subject: 'Juicio Situacional', A: 0, fullMark: 100 },
   { subject: 'Lectura Crítica', A: 0, fullMark: 100 },
-  { subject: 'Razonamiento', A: 0, fullMark: 100 },
-  { subject: 'Comportamental', A: 0, fullMark: 100 },
 ]
 
 type Phase = 'intro' | 'exam' | 'result'
+type ExamMode = 'diagnostic' | 'official'
 
 export default function ExamSimulator({ onNavigate }: ExamProps) {
-  const [questions, setQuestions] = useState<SimulatorQuestion[]>(DEFAULT_QUESTIONS)
+  const { user, role } = useAuth()
+  const [isEnrolled, setIsEnrolled] = useState(false)
+  const [examMode, setExamMode] = useState<ExamMode>('diagnostic')
+
+  const [questions, setQuestions] = useState<SimulatorQuestion[]>(DIAGNOSTIC_QUESTIONS)
   const [phase, setPhase] = useState<Phase>('intro')
   const [current, setCurrent] = useState(0)
   const [selected, setSelected] = useState<(number | null)[]>(
-    Array(DEFAULT_QUESTIONS.length).fill(null)
+    Array(DIAGNOSTIC_QUESTIONS.length).fill(null)
   )
-  const [flagged, setFlagged] = useState<boolean[]>(Array(DEFAULT_QUESTIONS.length).fill(false))
-  const [timeLeft, setTimeLeft] = useState(60 * 60)
+  const [flagged, setFlagged] = useState<boolean[]>(Array(DIAGNOSTIC_QUESTIONS.length).fill(false))
+  const [timeLeft, setTimeLeft] = useState(15 * 60)
   const [answered, setAnswered] = useState(false)
 
   // Estados Pedagógicos & Gamificación
-  const [gamification, setGamification] = useState<UserGamificationState>(() => getUserGamification())
+  const [gamification, setGamification] = useState<UserGamificationState>(() => getUserGamification(user?.id))
   const [mentorMood, setMentorMood] = useState<MentorMood>('thinking')
   const [showParticles, setShowParticles] = useState(false)
   const [retriedQuestions, setRetriedQuestions] = useState<Record<number, boolean>>({})
@@ -118,28 +162,70 @@ export default function ExamSimulator({ onNavigate }: ExamProps) {
   const [sessionXp, setSessionXp] = useState(0)
 
   useEffect(() => {
-    setGamification(getUserGamification())
-  }, [])
+    if (role === 'admin' || role === 'instructor') {
+      setIsEnrolled(true)
+      return
+    }
+    if (!user?.id) {
+      setIsEnrolled(false)
+      return
+    }
+    getUserEnrollments(user.id).then((res) => {
+      if (res.data && res.data.length > 0) {
+        setIsEnrolled(true)
+      } else {
+        setIsEnrolled(false)
+      }
+    })
+  }, [user?.id, role])
 
   useEffect(() => {
-    async function loadBank() {
-      const { data } = await getExamQuestions()
-      if (data && data.length > 0) {
-        const mapped: SimulatorQuestion[] = data.map((q) => ({
-          id: q.id,
-          text: q.text,
-          options: q.options,
-          correct: typeof q.correct === 'number' ? q.correct : 0,
-          explanation: q.explanation,
-          competency: q.competency,
-        }))
-        setQuestions(mapped)
-        setSelected(Array(mapped.length).fill(null))
-        setFlagged(Array(mapped.length).fill(false))
-      }
+    setGamification(getUserGamification(user?.id))
+  }, [user?.id])
+
+  const startDiagnosticExam = () => {
+    setExamMode('diagnostic')
+    setQuestions(DIAGNOSTIC_QUESTIONS)
+    setSelected(Array(DIAGNOSTIC_QUESTIONS.length).fill(null))
+    setFlagged(Array(DIAGNOSTIC_QUESTIONS.length).fill(false))
+    setCurrent(0)
+    setTimeLeft(15 * 60) // 15 min
+    setAnswered(false)
+    setSessionXp(0)
+    setRetriedQuestions({})
+    setShowHintForQuestion({})
+    setMentorMood('thinking')
+    setPhase('exam')
+  }
+
+  const startOfficialExam = async () => {
+    if (!isEnrolled) return
+    setExamMode('official')
+    const { data } = await getExamQuestions()
+    let pool = DIAGNOSTIC_QUESTIONS
+    if (data && data.length > 0) {
+      const mapped: SimulatorQuestion[] = data.map((q) => ({
+        id: q.id,
+        text: q.text,
+        options: q.options,
+        correct: typeof q.correct === 'number' ? q.correct : 0,
+        explanation: q.explanation,
+        competency: q.competency,
+      }))
+      pool = mapped
     }
-    loadBank()
-  }, [])
+    setQuestions(pool)
+    setSelected(Array(pool.length).fill(null))
+    setFlagged(Array(pool.length).fill(false))
+    setCurrent(0)
+    setTimeLeft(120 * 60) // 120 min
+    setAnswered(false)
+    setSessionXp(0)
+    setRetriedQuestions({})
+    setShowHintForQuestion({})
+    setMentorMood('thinking')
+    setPhase('exam')
+  }
 
   const formatTime = (s: number) => {
     const m = Math.floor(s / 60)
@@ -178,6 +264,7 @@ export default function ExamSimulator({ onNavigate }: ExamProps) {
       competency: questions[current]?.competency || 'Pedagogía',
       isCorrect,
       isRetry,
+      userId: user?.id,
     })
 
     setGamification(res.state)
@@ -245,64 +332,184 @@ export default function ExamSimulator({ onNavigate }: ExamProps) {
     const total = questions.filter((q) => q.competency.toLowerCase().includes(keyword)).length
     return {
       ...d,
-      A: total > 0 ? Math.round((matching.length / total) * 100) : Math.max(65, pct),
+      A: total > 0 ? Math.round((matching.length / total) * 100) : pct,
     }
   })
 
   if (phase === 'intro') {
     return (
-      <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center px-6 py-12">
+      <div className="min-h-screen bg-[#F8FAFC] flex flex-col justify-center px-4 sm:px-6 py-12">
         <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5 }}
-          className="w-full max-w-2xl"
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+          className="w-full max-w-4xl mx-auto space-y-6"
         >
           <button
             onClick={() => onNavigate('dashboard')}
-            className="flex items-center gap-2 text-sm text-[#64748B] hover:text-[#0038DF] mb-8 transition-colors font-bold cursor-pointer"
+            className="flex items-center gap-2 text-sm text-[#64748B] hover:text-[#0038DF] transition-colors font-bold cursor-pointer"
           >
             <ArrowLeft className="w-4 h-4" />
             Volver a Mi Aula Virtual
           </button>
 
-          <div className="p-10 rounded-3xl bg-white border-2 border-[#C99E32] shadow-xl text-center">
-            <div className="w-20 h-20 rounded-3xl bg-[#0038DF] flex items-center justify-center mx-auto mb-6 shadow-lg shadow-[#0038DF]/20">
-              <Target className="w-10 h-10 text-white" strokeWidth={1.5} />
-            </div>
-
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#0038DF]/10 text-[#0038DF] border border-[#0038DF]/20 text-xs font-extrabold uppercase tracking-wider mb-4">
-              Simulacro Oficial Sincronizado • CNSC
-            </div>
-
-            <h1 className="font-display font-extrabold text-3xl md:text-4xl text-[#0038DF] mb-3">
-              Concurso de Méritos Docente CNSC
+          <div className="text-center max-w-2xl mx-auto space-y-2">
+            <span className="eyebrow-white-pill">
+              CENTRO DE EVALUACIÓN Y SIMULACROS • CNSC
+            </span>
+            <h1 className="font-display font-extrabold text-3xl sm:text-4xl text-[#0038DF]">
+              Entrenamiento para el Concurso Docente
             </h1>
-            <p className="text-[#1E293B] mb-8 max-w-md mx-auto text-sm leading-relaxed">
-              Simulacro de entrenamiento con {questions.length} preguntas situacionales. Tiempo límite: 60 minutos. Basado en el marco del MEN, el Estatuto Docente 1278 y casos pedagógicos reales.
+            <p className="text-xs sm:text-sm text-[#64748B] font-medium leading-relaxed">
+              Elige entre la prueba diagnóstica de entrada gratuita para medir tu nivel o el simulacro oficial completo con cronómetro de alta exigencia.
             </p>
+          </div>
 
-            <div className="grid grid-cols-3 gap-4 mb-10">
-              {[
-                { label: 'Preguntas', value: `${questions.length}`, icon: Brain },
-                { label: 'Duración', value: '60 min', icon: Clock },
-                { label: 'Aprobación', value: '60%', icon: CheckCircle2 },
-              ].map(({ label, value, icon: Icon }) => (
-                <div key={label} className="p-4 rounded-2xl bg-[#F8FAFC] border border-[#E2E8F0]">
-                  <Icon className="w-5 h-5 text-[#0038DF] mx-auto mb-2" />
-                  <p className="text-lg font-extrabold font-display text-[#0038DF]">{value}</p>
-                  <p className="text-xs text-[#64748B] font-semibold">{label}</p>
+          <div className="grid md:grid-cols-2 gap-6 items-stretch">
+            {/* OPCION 1: PRUEBA DIAGNOSTICA GRATUITA */}
+            <div className="p-8 rounded-3xl bg-white border-2 border-[#0038DF] shadow-lg flex flex-col justify-between relative overflow-hidden">
+              <div className="absolute top-0 right-0 bg-[#0038DF] text-white text-[10px] font-extrabold px-3 py-1 rounded-bl-xl uppercase tracking-wider">
+                Gratis • Para Todos
+              </div>
+
+              <div className="space-y-5">
+                <div className="w-14 h-14 rounded-2xl bg-[#0038DF]/10 text-[#0038DF] flex items-center justify-center">
+                  <Target className="w-7 h-7" />
                 </div>
-              ))}
+
+                <div>
+                  <span className="text-[11px] font-extrabold uppercase tracking-wider text-[#0038DF]">
+                    Diagnóstico Inicial de Entrada
+                  </span>
+                  <h3 className="text-xl font-extrabold text-[#1E293B] mt-1">
+                    Prueba Diagnóstica Gratuita
+                  </h3>
+                  <p className="text-xs text-[#64748B] mt-2 leading-relaxed">
+                    5 preguntas situacionales representativas para evaluar tu nivel en las 5 competencias del Decreto 1278 y calibrar tu radar de fortalezas y debilidades.
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-3 gap-2 py-3 border-y border-[#E2E8F0] text-center">
+                  <div>
+                    <p className="text-sm font-extrabold text-[#0038DF]">5</p>
+                    <p className="text-[10px] text-[#64748B] font-semibold">Preguntas</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-extrabold text-[#0038DF]">15 min</p>
+                    <p className="text-[10px] text-[#64748B] font-semibold">Tiempo</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-extrabold text-[#0038DF]">100%</p>
+                    <p className="text-[10px] text-[#64748B] font-semibold">Real</p>
+                  </div>
+                </div>
+
+                <div className="space-y-1.5 text-xs text-[#1E293B]">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                    <span>Calcula tu Radar de Competencias real</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                    <span>Detecta fortalezas y ejes normativos a reforzar</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                    <span>Retroalimentación pedagógica paso a paso</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="pt-6">
+                <button
+                  onClick={startDiagnosticExam}
+                  className="btn-gold-cta btn-gold-pill w-full py-3.5 text-sm font-extrabold flex items-center justify-center gap-2 cursor-pointer shadow-md"
+                >
+                  <span>Comenzar Prueba Diagnóstica</span>
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
             </div>
 
-            <button
-              onClick={() => setPhase('exam')}
-              className="btn-gold-cta btn-gold-pill w-full py-4 text-base font-extrabold flex items-center justify-center gap-2 cursor-pointer shadow-lg group"
-            >
-              <span>Comenzar simulacro cronometrado</span>
-              <ChevronRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
-            </button>
+            {/* OPCION 2: SIMULACRO OFICIAL CNSC (100 PREGUNTAS) */}
+            <div className={`p-8 rounded-3xl bg-white border-2 ${isEnrolled ? 'border-[#C99E32]' : 'border-[#E2E8F0]'} shadow-lg flex flex-col justify-between relative overflow-hidden`}>
+              <div className={`absolute top-0 right-0 ${isEnrolled ? 'bg-[#9C7316]' : 'bg-[#64748B]'} text-white text-[10px] font-extrabold px-3 py-1 rounded-bl-xl uppercase tracking-wider`}>
+                {isEnrolled ? 'Plan 140h • Habilitado' : 'Exclusivo Matriculados'}
+              </div>
+
+              <div className="space-y-5">
+                <div className={`w-14 h-14 rounded-2xl ${isEnrolled ? 'bg-[#C99E32]/15 text-[#9C7316]' : 'bg-[#F1F5F9] text-[#64748B]'} flex items-center justify-center`}>
+                  {isEnrolled ? <Brain className="w-7 h-7" /> : <Lock className="w-7 h-7" />}
+                </div>
+
+                <div>
+                  <span className="text-[11px] font-extrabold uppercase tracking-wider text-[#9C7316]">
+                    Simulación Oficial Cronometrada
+                  </span>
+                  <h3 className="text-xl font-extrabold text-[#1E293B] mt-1">
+                    Simulacro Oficial CNSC (100 Preguntas)
+                  </h3>
+                  <p className="text-xs text-[#64748B] mt-2 leading-relaxed">
+                    Experiencia de inmersión idéntica a la prueba escrita de la CNSC. Banco completo de preguntas situacionales, cronómetro de alta exigencia y análisis psicométrico.
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-3 gap-2 py-3 border-y border-[#E2E8F0] text-center">
+                  <div>
+                    <p className="text-sm font-extrabold text-[#0038DF]">100</p>
+                    <p className="text-[10px] text-[#64748B] font-semibold">Preguntas</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-extrabold text-[#0038DF]">120 min</p>
+                    <p className="text-[10px] text-[#64748B] font-semibold">Tiempo</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-extrabold text-[#0038DF]">60%</p>
+                    <p className="text-[10px] text-[#64748B] font-semibold">Aprobación</p>
+                  </div>
+                </div>
+
+                <div className="space-y-1.5 text-xs text-[#1E293B]">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                    <span>Simulación cronometrada oficial sin pausas</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                    <span>Juicio situacional, lectura crítica y razonamiento</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                    <span>Emisión de Certificado Verificable si superas el 60%</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="pt-6">
+                {isEnrolled ? (
+                  <button
+                    onClick={startOfficialExam}
+                    className="w-full py-3.5 rounded-full bg-[#0038DF] hover:bg-[#002299] text-white text-sm font-extrabold flex items-center justify-center gap-2 cursor-pointer shadow-md transition-all"
+                  >
+                    <span>Iniciar Simulacro Oficial</span>
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
+                ) : (
+                  <div className="space-y-2">
+                    <button
+                      onClick={() => onNavigate('pricing')}
+                      className="btn-gold-cta btn-gold-pill w-full py-3.5 text-sm font-extrabold flex items-center justify-center gap-2 cursor-pointer shadow-md"
+                    >
+                      <Lock className="w-4 h-4" />
+                      <span>Ver Planes y Realizar Matrícula</span>
+                    </button>
+                    <p className="text-[11px] text-center text-[#64748B]">
+                      Disponible con matrícula activa en el Curso de 140 Horas
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         </motion.div>
       </div>
@@ -337,7 +544,11 @@ export default function ExamSimulator({ onNavigate }: ExamProps) {
                 passed ? 'text-emerald-600' : 'text-[#9C7316]'
               }`}
             >
-              {passed ? '¡Simulacro Superado con Éxito!' : '¡Buen Esfuerzo! Cada Intento Suma'}
+              {examMode === 'diagnostic'
+                ? 'Diagnóstico Pedagógico Inicial • Decreto 1278'
+                : passed
+                ? '¡Simulacro Superado con Éxito!'
+                : '¡Buen Esfuerzo! Cada Intento Suma'}
             </p>
             <h2 className="font-display font-extrabold text-5xl md:text-6xl text-[#0038DF] mb-2">
               {pct}%
@@ -529,6 +740,30 @@ export default function ExamSimulator({ onNavigate }: ExamProps) {
             </div>
           </div>
 
+          {/* Upsell for unmatriculated */}
+          {!isEnrolled && (
+            <div className="p-6 rounded-3xl bg-amber-50/70 border-2 border-amber-300 text-center space-y-3">
+              <div className="w-12 h-12 rounded-2xl bg-amber-100 text-amber-900 flex items-center justify-center mx-auto">
+                <Lock className="w-6 h-6 text-amber-700" />
+              </div>
+              <div>
+                <h4 className="font-extrabold text-[#0038DF] text-base">
+                  Desbloquea el Curso Completo de 140 Horas y los 100 Casos Oficiales
+                </h4>
+                <p className="text-xs text-[#64748B] max-w-lg mx-auto mt-1 leading-relaxed">
+                  Has completado tu diagnóstico inicial. Para profundizar en tus ejes por reforzar, acceder a los 13 módulos certificados y al Mentor Pedagógico IA, matricúlate hoy mismo.
+                </p>
+              </div>
+              <button
+                onClick={() => onNavigate('pricing')}
+                className="btn-gold-cta btn-gold-pill px-6 py-3 text-xs sm:text-sm font-extrabold inline-flex items-center gap-2 cursor-pointer shadow-md"
+              >
+                <BookOpen className="w-4 h-4" />
+                <span>Ver Planes y Realizar Matrícula</span>
+              </button>
+            </div>
+          )}
+
           {/* Action Buttons */}
           <div className="grid grid-cols-2 gap-4">
             <button
@@ -537,7 +772,7 @@ export default function ExamSimulator({ onNavigate }: ExamProps) {
                 setCurrent(0)
                 setSelected(Array(questions.length).fill(null))
                 setFlagged(Array(questions.length).fill(false))
-                setTimeLeft(3600)
+                setTimeLeft(15 * 60)
                 setAnswered(false)
                 setSessionXp(0)
                 setRetriedQuestions({})
@@ -547,7 +782,7 @@ export default function ExamSimulator({ onNavigate }: ExamProps) {
               className="flex items-center justify-center gap-2 py-4 rounded-2xl bg-white border border-[#E2E8F0] hover:border-[#C99E32] text-[#0038DF] font-bold text-sm transition-all shadow-xs cursor-pointer"
             >
               <RotateCcw className="w-4 h-4" />
-              Repetir simulacro
+              {examMode === 'diagnostic' ? 'Repetir Diagnóstico' : 'Repetir Simulacro'}
             </button>
             <button
               onClick={() => onNavigate('dashboard')}

@@ -200,10 +200,8 @@ export async function getUserGlobalProgress(
 
     const completedLessonsCount = progressList.filter((p) => p.completed).length
     const totalSeconds = progressList.reduce((acc, curr) => acc + (curr.watched_seconds || 0), 0)
-    const totalStudyHours = Math.max(
-      1.5,
-      Math.round((totalSeconds / 3600) * 10) / 10
-    )
+    const totalStudyHours = Math.round((totalSeconds / 3600) * 10) / 10
+    const averageScore = progressList.length > 0 ? 80 : 0
 
     return {
       data: {
@@ -211,7 +209,7 @@ export async function getUserGlobalProgress(
         completedCoursesCount,
         completedLessonsCount,
         totalStudyHours,
-        averageScore: 86.5,
+        averageScore,
       },
       error: null,
     }

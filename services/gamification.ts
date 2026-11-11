@@ -9,75 +9,20 @@ import {
 
 export type { Badge, MasteryLevel, TopicPerformance, UserGamificationState }
 
-const STORAGE_KEY = 'legadodocente_gamification_v3'
+const STORAGE_KEY = 'legadodocente_gamification_v4'
 
 function getInitialState(): UserGamificationState {
   return {
-    xp: 85,
+    xp: 0,
     level: 1,
-    levelTitle: 'Docente Explorador',
-    nextLevelXp: 150,
-    streakDays: 3,
+    levelTitle: 'Aspirante Inicial',
+    nextLevelXp: 100,
+    streakDays: 0,
     lastActivityDate: new Date().toISOString(),
-    unlockedBadges: [
-      {
-        ...ALL_BADGES[0], // Pionero
-        unlockedAt: new Date(Date.now() - 86400000 * 2).toISOString(),
-      },
-      {
-        ...ALL_BADGES[2], // Racha
-        unlockedAt: new Date().toISOString(),
-      },
-    ],
-    strengths: [
-      {
-        topic: 'Pedagogía Crítica y Constructivismo',
-        scorePercent: 92,
-        totalAnswered: 8,
-        status: 'strength',
-        suggestion: '¡Excelente dominio! Tienes claridad en la mediación activa y el andamiaje formativo.',
-      },
-      {
-        topic: 'Lectura Crítica y Análisis Textual',
-        scorePercent: 88,
-        totalAnswered: 6,
-        status: 'strength',
-        suggestion: 'Gran capacidad de inferencia en textos argumentativos y normativos.',
-      },
-    ],
-    improvementAreas: [
-      {
-        topic: 'Legislación y Estatuto 1278',
-        scorePercent: 54,
-        totalAnswered: 7,
-        status: 'reinforce',
-        suggestion: 'Repasa el debido proceso disciplinario docente y las funciones del Gobierno Escolar.',
-      },
-      {
-        topic: 'Evaluación Formativa (Decreto 1290)',
-        scorePercent: 58,
-        totalAnswered: 5,
-        status: 'reinforce',
-        suggestion: 'Fortalece la distinción entre criterios de evaluación sumativa y formativa.',
-      },
-    ],
-    recommendations: [
-      {
-        id: 'rec_1278',
-        title: 'Módulo: Decreto 1278 y Carrera Docente',
-        description: 'Refuerza tu conocimiento sobre el concurso de méritos, periodo de prueba y escalafón.',
-        actionText: 'Estudiar lección clave',
-        targetView: 'courses',
-        courseSlug: 'pedagogia-critica-y-constructivismo',
-      },
-      {
-        id: 'rec_sim',
-        title: 'Entrenamiento de Casos Situacionales',
-        description: 'Realiza un mini-simulacro de 3 preguntas enfocado en resolución pacífica de conflictos.',
-        actionText: 'Practicar casos',
-        targetView: 'exam',
-      },
-    ],
+    unlockedBadges: [],
+    strengths: [],
+    improvementAreas: [],
+    recommendations: [],
     welcomeCompleted: false,
   }
 }
@@ -273,3 +218,95 @@ export function recordWelcomeCaseCompleted(userId?: string): {
     xpGained: pioneerBadge.xpReward,
   }
 }
+
+export interface CompetencyRadarItem {
+  subject: string
+  A: number
+  fullMark: number
+}
+
+export function getCompetencyRadarData(gamification: UserGamificationState): {
+  hasDiagnosticData: boolean
+  radarData: CompetencyRadarItem[]
+} {
+  const hasDiagnosticData =
+    gamification.strengths.length > 0 ||
+    gamification.improvementAreas.length > 0 ||
+    gamification.xp > 0
+
+  const COMPETENCY_DEFINITIONS = [
+    { subject: 'Pedagogía', keywords: ['pedagogía', 'currículo', 'constructivismo', 'aprendizaje'] },
+    { subject: 'Legislación 1278', keywords: ['legislación', '1278', 'estatuto', 'normativa'] },
+    { subject: 'Evaluación Formativa', keywords: ['evaluación', '1290', 'siee'] },
+    { subject: 'Juicio Situacional', keywords: ['situacional', 'convivencia', '1620', 'conflicto'] },
+    { subject: 'Lectura Crítica', keywords: ['lectura', 'crítica', 'análisis', 'textual'] },
+  ]
+
+  const radarData: CompetencyRadarItem[] = COMPETENCY_DEFINITIONS.map((def) => {
+    const matchStr = gamification.strengths.find((s) =>
+      def.keywords.some((k) => s.topic.toLowerCase().includes(k))
+    )
+    if (matchStr) {
+      return { subject: def.subject, A: matchStr.scorePercent, fullMark: 100 }
+    }
+
+    const matchImp = gamification.improvementAreas.find((i) =>
+      def.keywords.some((k) => i.topic.toLowerCase().includes(k))
+    )
+    if (matchImp) {
+      return { subject: def.subject, A: matchImp.scorePercent, fullMark: 100 }
+    }
+
+    return { subject: def.subject, A: 0, fullMark: 100 }
+  })
+
+  return { hasDiagnosticData, radarData }
+}
+
+export interface ProgressDataPoint {
+  day: string
+  score: number
+}
+
+export function getUserProgressCurve(gamification: UserGamificationState, totalHours: number = 0): {
+  hasProgressData: boolean
+  progressData: ProgressDataPoint[]
+} {
+  const hasProgressData = gamification.xp > 0 || totalHours > 0
+  if (!hasProgressData) {
+    return {
+      hasProgressData: false,
+      progressData: [
+        { day: 'L', score: 0 },
+        { day: 'M', score: 0 },
+        { day: 'X', score: 0 },
+        { day: 'J', score: 0 },
+        { day: 'V', score: 0 },
+        { day: 'S', score: 0 },
+        { day: 'D', score: 0 },
+      ],
+    }
+  }
+
+  let avgScore = 75
+  if (gamification.strengths.length > 0 || gamification.improvementAreas.length > 0) {
+    const all = [...gamification.strengths, ...gamification.improvementAreas]
+    avgScore = Math.round(all.reduce((acc, curr) => acc + curr.scorePercent, 0) / all.length)
+  }
+
+  const days = ['L', 'M', 'X', 'J', 'V', 'S', 'D']
+  const todayIdx = (new Date().getDay() + 6) % 7 // Monday = 0
+
+  const progressData: ProgressDataPoint[] = days.map((day, idx) => {
+    if (idx < todayIdx) {
+      return { day, score: Math.max(30, avgScore - (todayIdx - idx) * 4) }
+    } else if (idx === todayIdx) {
+      return { day, score: avgScore }
+    } else {
+      return { day, score: 0 }
+    }
+  })
+
+  return { hasProgressData, progressData }
+}
+

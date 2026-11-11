@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   LayoutDashboard,
@@ -48,7 +48,11 @@ import { getUserCertificates, CertificateWithCourse } from '@/services/certifica
 import { getAvatarUrl } from '@/lib/supabase/storage'
 import AIMentor from '@/components/ai-mentor'
 import DashboardCoursesPanel from '@/components/dashboard-courses-panel'
-import { getUserGamification } from '@/services/gamification'
+import {
+  getUserGamification,
+  getCompetencyRadarData,
+  getUserProgressCurve,
+} from '@/services/gamification'
 import { Badge, TopicPerformance, UserGamificationState } from '@/types/gamification'
 import Link from 'next/link'
 
@@ -66,25 +70,6 @@ const SIDEBAR_ITEMS = [
   { icon: Brain, label: 'Mentor Pedagógico IA', view: 'ai' },
   { icon: Award, label: 'Mis Certificados', view: 'achievements' },
   { icon: BarChart3, label: 'Analíticas', view: 'analytics' },
-]
-
-const RADAR_DATA = [
-  { subject: 'Pedagogía', A: 86 },
-  { subject: 'Legislación', A: 78 },
-  { subject: 'Psicología', A: 82 },
-  { subject: 'Currículo', A: 74 },
-  { subject: 'Evaluación', A: 85 },
-  { subject: 'Lectura Crítica', A: 90 },
-]
-
-const PROGRESS_DATA = [
-  { day: 'L', score: 65 },
-  { day: 'M', score: 72 },
-  { day: 'X', score: 75 },
-  { day: 'J', score: 81 },
-  { day: 'V', score: 85 },
-  { day: 'S', score: 88 },
-  { day: 'D', score: 92 },
 ]
 
 const ACHIEVEMENTS = [
@@ -121,7 +106,19 @@ export default function Dashboard({
 
   useEffect(() => {
     setGamification(getUserGamification(user?.id))
-  }, [user?.id])
+  }, [user?.id, activeView])
+
+  const isEnrolled = enrollments.length > 0 || role === 'admin' || role === 'instructor'
+
+  const { hasDiagnosticData, radarData } = useMemo(
+    () => getCompetencyRadarData(gamification),
+    [gamification]
+  )
+
+  const { hasProgressData, progressData } = useMemo(
+    () => getUserProgressCurve(gamification, stats?.totalStudyHours || 0),
+    [gamification, stats?.totalStudyHours]
+  )
 
   const [aiMessage, setAiMessage] = useState('')
   const [aiHistory, setAiHistory] = useState([
@@ -491,89 +488,150 @@ export default function Dashboard({
                   transition={{ duration: 0.25 }}
                   className="space-y-6"
                 >
-                  <div className="p-8 rounded-3xl bg-white border-2 border-[#C99E32] shadow-xl space-y-6">
-                    <div className="flex items-center justify-between pb-6 border-b border-[#E2E8F0]">
-                      <div className="flex items-center gap-3.5">
-                        <div className="w-12 h-12 rounded-2xl bg-[#0038DF] text-white flex items-center justify-center shadow-md">
-                          <Brain className="w-6 h-6" />
+                  {!isEnrolled ? (
+                    <div className="p-8 sm:p-12 rounded-3xl bg-white border-2 border-[#C99E32] shadow-xl text-center max-w-3xl mx-auto space-y-6">
+                      <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-[#0038DF] to-[#002299] text-white flex items-center justify-center mx-auto shadow-xl shadow-[#0038DF]/20">
+                        <Brain className="w-10 h-10 text-[#C99E32]" />
+                      </div>
+
+                      <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-[#9C7316] text-xs font-extrabold uppercase tracking-wider">
+                        Herramienta Exclusiva para Estudiantes Matriculados
+                      </div>
+
+                      <div>
+                        <h2 className="font-display font-extrabold text-2xl sm:text-3xl text-[#0038DF] mb-2">
+                          Mentor Pedagógico con Inteligencia Artificial
+                        </h2>
+                        <p className="text-sm text-[#1E293B] max-w-xl mx-auto leading-relaxed">
+                          El tutor inteligente entrenado en el marco normativo colombiano (Ley 115 de 1994, Decreto Ley 1278 de 2002, Decreto 1290 de 2009 y casos situacionales de la CNSC) está reservado exclusivamente para los estudiantes del <strong>Curso de Preparación Ingreso a la Carrera Docente (140 Horas)</strong>.
+                        </p>
+                      </div>
+
+                      <div className="grid sm:grid-cols-3 gap-4 text-left max-w-2xl mx-auto">
+                        <div className="p-4 rounded-2xl bg-[#F8FAFC] border border-[#E2E8F0]">
+                          <Sparkles className="w-5 h-5 text-[#C99E32] mb-2" />
+                          <h4 className="text-xs font-bold text-[#0038DF]">Dudas Normativas 24/7</h4>
+                          <p className="text-[11px] text-[#64748B] mt-1">
+                            Aclaraciones sobre estatutos, escalafón docente y gobierno escolar al instante.
+                          </p>
                         </div>
-                        <div>
-                          <h2 className="title-h1 text-2xl font-extrabold text-[#0038DF]">
-                            Mentor Pedagógico Inteligente
-                          </h2>
-                          <p className="text-xs text-[#64748B] font-medium">
-                            Entrenado con las normas educativas colombianas: Ley 115, Decreto 1278, Decreto 1290 y casos CNSC
+                        <div className="p-4 rounded-2xl bg-[#F8FAFC] border border-[#E2E8F0]">
+                          <Target className="w-5 h-5 text-[#0038DF] mb-2" />
+                          <h4 className="text-xs font-bold text-[#0038DF]">Casos Situacionales</h4>
+                          <p className="text-[11px] text-[#64748B] mt-1">
+                            Entrenamiento guiado para responder casos de convivencia escolar (Ley 1620).
+                          </p>
+                        </div>
+                        <div className="p-4 rounded-2xl bg-[#F8FAFC] border border-[#E2E8F0]">
+                          <Award className="w-5 h-5 text-[#9C7316] mb-2" />
+                          <h4 className="text-xs font-bold text-[#0038DF]">Estrategias de Descarte</h4>
+                          <p className="text-[11px] text-[#64748B] mt-1">
+                            Técnicas para identificar opciones distractoras en las pruebas oficiales.
                           </p>
                         </div>
                       </div>
-                      <div className="hidden sm:flex items-center gap-2">
-                        <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
-                        <span className="text-xs font-bold text-emerald-600">En línea y listo</span>
-                      </div>
-                    </div>
 
-                    <div>
-                      <p className="text-xs font-bold text-[#1E293B] mb-2.5 flex items-center gap-1.5">
-                        <Sparkles className="w-4 h-4 text-[#C99E32]" />
-                        Temas rápidos de consulta frecuente:
-                      </p>
-                      <div className="flex flex-wrap gap-2">
-                        {[
-                          '¿Cómo responder casos de juicio situacional docente?',
-                          'Diferencia entre Jean Piaget y Lev Vygotsky para la prueba',
-                          '¿Qué exige el Decreto 1290 en el SIEE?',
-                          'Rutas y protocolos para situaciones Tipo I, II y III (Ley 1620)',
-                          '¿Cómo se aplican el DUA y el PIAR según el Decreto 1421?',
-                        ].map((prompt) => (
-                          <button
-                            key={prompt}
-                            onClick={() => setAiMessage(prompt)}
-                            className="text-xs px-3.5 py-1.5 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0] hover:border-[#C99E32] text-[#1E293B] hover:text-[#0038DF] font-semibold transition-all cursor-pointer text-left"
-                          >
-                            {prompt}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="rounded-2xl bg-[#F8FAFC] border border-[#E2E8F0] p-6 space-y-4 min-h-[340px] max-h-[500px] overflow-y-auto">
-                      {aiHistory.map((msg, i) => (
-                        <div
-                          key={i}
-                          className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                      <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
+                        <button
+                          onClick={() => onNavigate('pricing')}
+                          className="btn-gold-cta btn-gold-pill px-8 py-3.5 text-sm font-extrabold cursor-pointer shadow-md flex items-center gap-2"
                         >
-                          <div
-                            className={`max-w-[85%] px-5 py-3 rounded-2xl text-xs sm:text-sm leading-relaxed ${
-                              msg.role === 'user'
-                                ? 'bg-[#0038DF] text-white rounded-br-sm shadow-sm'
-                                : 'bg-white text-[#1E293B] border border-[#E2E8F0] rounded-bl-sm font-medium shadow-xs'
-                            }`}
-                          >
-                            {msg.text}
+                          <span>Ver Planes y Realizar Matrícula</span>
+                          <ChevronRight className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => onNavigate('exam')}
+                          className="px-6 py-3 rounded-full bg-[#F8FAFC] border border-[#E2E8F0] hover:border-[#0038DF] text-[#0038DF] text-xs font-bold cursor-pointer transition-all"
+                        >
+                          Presentar Prueba Diagnóstica Gratuita
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="p-8 rounded-3xl bg-white border-2 border-[#C99E32] shadow-xl space-y-6">
+                      <div className="flex items-center justify-between pb-6 border-b border-[#E2E8F0]">
+                        <div className="flex items-center gap-3.5">
+                          <div className="w-12 h-12 rounded-2xl bg-[#0038DF] text-white flex items-center justify-center shadow-md">
+                            <Brain className="w-6 h-6" />
+                          </div>
+                          <div>
+                            <h2 className="title-h1 text-2xl font-extrabold text-[#0038DF]">
+                              Mentor Pedagógico Inteligente
+                            </h2>
+                            <p className="text-xs text-[#64748B] font-medium">
+                              Entrenado con las normas educativas colombianas: Ley 115, Decreto 1278, Decreto 1290 y casos CNSC
+                            </p>
                           </div>
                         </div>
-                      ))}
-                    </div>
+                        <div className="hidden sm:flex items-center gap-2">
+                          <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
+                          <span className="text-xs font-bold text-emerald-600">En línea y listo</span>
+                        </div>
+                      </div>
 
-                    <div className="flex gap-3">
-                      <input
-                        value={aiMessage}
-                        onChange={(e) => setAiMessage(e.target.value)}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter') sendMessage()
-                        }}
-                        placeholder="Escribe tu consulta pedagógica o pregunta sobre la prueba docente..."
-                        className="flex-1 px-5 py-3.5 rounded-2xl bg-[#F8FAFC] border border-[#E2E8F0] focus:border-[#0038DF] focus:bg-white focus:outline-none text-xs sm:text-sm text-[#1E293B] placeholder-[#94A3B8] transition-all"
-                      />
-                      <button
-                        onClick={sendMessage}
-                        className="btn-gold-cta btn-gold-pill px-6 py-3.5 text-xs sm:text-sm font-extrabold flex items-center gap-2 cursor-pointer"
-                      >
-                        <Zap className="w-4 h-4" />
-                        <span>Consultar</span>
-                      </button>
+                      <div>
+                        <p className="text-xs font-bold text-[#1E293B] mb-2.5 flex items-center gap-1.5">
+                          <Sparkles className="w-4 h-4 text-[#C99E32]" />
+                          Temas rápidos de consulta frecuente:
+                        </p>
+                        <div className="flex flex-wrap gap-2">
+                          {[
+                            '¿Cómo responder casos de juicio situacional docente?',
+                            'Diferencia entre Jean Piaget y Lev Vygotsky para la prueba',
+                            '¿Qué exige el Decreto 1290 en el SIEE?',
+                            'Rutas y protocolos para situaciones Tipo I, II y III (Ley 1620)',
+                            '¿Cómo se aplican el DUA y el PIAR según el Decreto 1421?',
+                          ].map((prompt) => (
+                            <button
+                              key={prompt}
+                              onClick={() => setAiMessage(prompt)}
+                              className="text-xs px-3.5 py-1.5 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0] hover:border-[#C99E32] text-[#1E293B] hover:text-[#0038DF] font-semibold transition-all cursor-pointer text-left"
+                            >
+                              {prompt}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="rounded-2xl bg-[#F8FAFC] border border-[#E2E8F0] p-6 space-y-4 min-h-[340px] max-h-[500px] overflow-y-auto">
+                        {aiHistory.map((msg, i) => (
+                          <div
+                            key={i}
+                            className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                          >
+                            <div
+                              className={`max-w-[85%] px-5 py-3 rounded-2xl text-xs sm:text-sm leading-relaxed ${
+                                msg.role === 'user'
+                                  ? 'bg-[#0038DF] text-white rounded-br-sm shadow-sm'
+                                  : 'bg-white text-[#1E293B] border border-[#E2E8F0] rounded-bl-sm font-medium shadow-xs'
+                              }`}
+                            >
+                              {msg.text}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+
+                      <div className="flex gap-3">
+                        <input
+                          value={aiMessage}
+                          onChange={(e) => setAiMessage(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') sendMessage()
+                          }}
+                          placeholder="Escribe tu consulta pedagógica o pregunta sobre la prueba docente..."
+                          className="flex-1 px-5 py-3.5 rounded-2xl bg-[#F8FAFC] border border-[#E2E8F0] focus:border-[#0038DF] focus:bg-white focus:outline-none text-xs sm:text-sm text-[#1E293B] placeholder-[#94A3B8] transition-all"
+                        />
+                        <button
+                          onClick={sendMessage}
+                          className="btn-gold-cta btn-gold-pill px-6 py-3.5 text-xs sm:text-sm font-extrabold flex items-center gap-2 cursor-pointer"
+                        >
+                          <Zap className="w-4 h-4" />
+                          <span>Consultar</span>
+                        </button>
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </motion.div>
               ) : activeView === 'achievements' ? (
                 <motion.div
@@ -697,52 +755,72 @@ export default function Dashboard({
                             Puntuaciones estimadas en respuestas y simulacros CNSC
                           </p>
                         </div>
-                        <div className="flex items-center gap-1.5 text-xs text-[#0038DF] font-extrabold bg-[#0038DF]/10 px-3 py-1.5 rounded-full border border-[#0038DF]/20">
-                          <TrendingUp className="w-4 h-4 text-[#0038DF]" />
-                          +27 pts promedio
-                        </div>
+                        {hasProgressData && (
+                          <div className="flex items-center gap-1.5 text-xs text-[#0038DF] font-extrabold bg-[#0038DF]/10 px-3 py-1.5 rounded-full border border-[#0038DF]/20">
+                            <TrendingUp className="w-4 h-4 text-[#0038DF]" />
+                            {gamification.xp} XP acumulados
+                          </div>
+                        )}
                       </div>
-                      <div className="h-64">
-                        <ResponsiveContainer width="100%" height="100%">
-                          <AreaChart
-                            data={PROGRESS_DATA}
-                            margin={{ top: 10, right: 10, bottom: 0, left: -20 }}
+                      {!hasProgressData ? (
+                        <div className="h-64 flex flex-col items-center justify-center text-center p-6 rounded-2xl bg-[#F8FAFC] border border-dashed border-[#E2E8F0]">
+                          <div className="w-12 h-12 rounded-2xl bg-[#0038DF]/10 text-[#0038DF] flex items-center justify-center mb-3">
+                            <TrendingUp className="w-6 h-6" />
+                          </div>
+                          <p className="text-sm font-extrabold text-[#0038DF]">Sin actividad de estudio registrada</p>
+                          <p className="text-xs text-[#64748B] max-w-sm mt-1 leading-relaxed">
+                            Tus horas de estudio y puntajes en simulacros se registrarán automáticamente a medida que completes lecciones o presentes tu prueba diagnóstica.
+                          </p>
+                          <button
+                            onClick={() => onNavigate('exam')}
+                            className="btn-gold-cta btn-gold-pill px-5 py-2 text-xs font-bold cursor-pointer mt-3 shadow-xs"
                           >
-                            <defs>
-                              <linearGradient id="scoreGrad" x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="5%" stopColor="#0038DF" stopOpacity={0.3} />
-                                <stop offset="95%" stopColor="#C99E32" stopOpacity={0.02} />
-                              </linearGradient>
-                            </defs>
-                            <XAxis
-                              dataKey="day"
-                              tick={{ fontSize: 12, fill: '#64748B' }}
-                              axisLine={false}
-                              tickLine={false}
-                            />
-                            <Tooltip
-                              contentStyle={{
-                                background: '#FFFFFF',
-                                border: '1.5px solid #C99E32',
-                                borderRadius: '14px',
-                                fontSize: 12,
-                                color: '#1E293B',
-                                boxShadow: '0 8px 24px rgba(0, 56, 223, 0.12)',
-                              }}
-                              labelStyle={{ color: '#0038DF', fontWeight: 700 }}
-                              itemStyle={{ color: '#0038DF' }}
-                            />
-                            <Area
-                              type="monotone"
-                              dataKey="score"
-                              stroke="#0038DF"
-                              strokeWidth={3}
-                              fill="url(#scoreGrad)"
-                              dot={{ stroke: '#C99E32', strokeWidth: 2, r: 4, fill: '#FFFFFF' }}
-                            />
-                          </AreaChart>
-                        </ResponsiveContainer>
-                      </div>
+                            Presentar Prueba Diagnóstica Gratuita
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="h-64">
+                          <ResponsiveContainer width="100%" height="100%">
+                            <AreaChart
+                              data={progressData}
+                              margin={{ top: 10, right: 10, bottom: 0, left: -20 }}
+                            >
+                              <defs>
+                                <linearGradient id="scoreGrad" x1="0" y1="0" x2="0" y2="1">
+                                  <stop offset="5%" stopColor="#0038DF" stopOpacity={0.3} />
+                                  <stop offset="95%" stopColor="#C99E32" stopOpacity={0.02} />
+                                </linearGradient>
+                              </defs>
+                              <XAxis
+                                dataKey="day"
+                                tick={{ fontSize: 12, fill: '#64748B' }}
+                                axisLine={false}
+                                tickLine={false}
+                              />
+                              <Tooltip
+                                contentStyle={{
+                                  background: '#FFFFFF',
+                                  border: '1.5px solid #C99E32',
+                                  borderRadius: '14px',
+                                  fontSize: 12,
+                                  color: '#1E293B',
+                                  boxShadow: '0 8px 24px rgba(0, 56, 223, 0.12)',
+                                }}
+                                labelStyle={{ color: '#0038DF', fontWeight: 700 }}
+                                itemStyle={{ color: '#0038DF' }}
+                              />
+                              <Area
+                                type="monotone"
+                                dataKey="score"
+                                stroke="#0038DF"
+                                strokeWidth={3}
+                                fill="url(#scoreGrad)"
+                                dot={{ stroke: '#C99E32', strokeWidth: 2, r: 4, fill: '#FFFFFF' }}
+                              />
+                            </AreaChart>
+                          </ResponsiveContainer>
+                        </div>
+                      )}
                     </div>
 
                     <div className="p-6 rounded-3xl bg-white border border-[#E2E8F0] shadow-sm">
@@ -750,24 +828,42 @@ export default function Dashboard({
                         Radar de Competencias
                       </h3>
                       <p className="text-xs text-[#64748B] mb-4">Alineación con el Decreto 1278</p>
-                      <div className="h-64">
-                        <ResponsiveContainer width="100%" height="100%">
-                          <RadarChart data={RADAR_DATA}>
-                            <PolarGrid stroke="#E2E8F0" />
-                            <PolarAngleAxis
-                              dataKey="subject"
-                              tick={{ fontSize: 11, fill: '#1E293B', fontWeight: 600 }}
-                            />
-                            <Radar
-                              dataKey="A"
-                              stroke="#0038DF"
-                              fill="#0038DF"
-                              fillOpacity={0.25}
-                              strokeWidth={2.5}
-                            />
-                          </RadarChart>
-                        </ResponsiveContainer>
-                      </div>
+                      {!hasDiagnosticData ? (
+                        <div className="h-64 flex flex-col items-center justify-center text-center p-6 rounded-2xl bg-[#F8FAFC] border border-dashed border-[#E2E8F0]">
+                          <div className="w-12 h-12 rounded-2xl bg-amber-500/10 text-[#9C7316] flex items-center justify-center mb-3">
+                            <Target className="w-6 h-6" />
+                          </div>
+                          <p className="text-sm font-extrabold text-[#0038DF]">Diagnóstico Pedagógico Pendiente</p>
+                          <p className="text-xs text-[#64748B] max-w-xs mt-1 leading-relaxed">
+                            Presenta la prueba de 5 preguntas del Decreto 1278 para calcular tu radar de competencias en tiempo real.
+                          </p>
+                          <button
+                            onClick={() => onNavigate('exam')}
+                            className="btn-gold-cta btn-gold-pill px-5 py-2 text-xs font-bold cursor-pointer mt-3 shadow-xs"
+                          >
+                            Presentar Prueba Diagnóstica Gratuita
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="h-64">
+                          <ResponsiveContainer width="100%" height="100%">
+                            <RadarChart data={radarData}>
+                              <PolarGrid stroke="#E2E8F0" />
+                              <PolarAngleAxis
+                                dataKey="subject"
+                                tick={{ fontSize: 11, fill: '#1E293B', fontWeight: 600 }}
+                              />
+                              <Radar
+                                dataKey="A"
+                                stroke="#0038DF"
+                                fill="#0038DF"
+                                fillOpacity={0.25}
+                                strokeWidth={2.5}
+                              />
+                            </RadarChart>
+                          </ResponsiveContainer>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </motion.div>
@@ -787,33 +883,67 @@ export default function Dashboard({
                       <div className="inline-flex items-center gap-2 mb-2">
                         <span className="eyebrow-white-pill">
                           <Sparkles className="w-3 h-3 text-[#C99E32]" />
-                          ESTUDIANTE ACTIVO
+                          {isEnrolled ? 'ESTUDIANTE MATRICULADO • 140 HORAS' : 'ASPIRANTE REGISTRADO • MODO DIAGNÓSTICO'}
                         </span>
                       </div>
                       <h1 className="font-display font-extrabold text-2xl md:text-3xl text-[#0038DF]">
                         Bienvenido(a), {displayName} 👋
                       </h1>
                       <p className="text-[#1E293B] mt-1 text-xs sm:text-sm font-medium">
-                        Tienes acceso completo al <strong className="text-[#0038DF]">Curso Oficial de 140 Horas</strong>, simulacros cronometrados y guías pedagógicas descargables.
+                        {isEnrolled ? (
+                          <>
+                            Tienes acceso completo al <strong className="text-[#0038DF]">Curso Oficial de 140 Horas</strong>, simulacros cronometrados y guías pedagógicas descargables.
+                          </>
+                        ) : (
+                          <>
+                            Comienza tu preparación presentando la <strong className="text-[#0038DF]">Prueba Diagnóstica Gratuita</strong> para medir tus competencias. Para desbloquear los 13 módulos del Curso de 140 Horas, simulacros cronometrados y el Mentor IA, matricúlate ahora.
+                          </>
+                        )}
                       </p>
                     </div>
-                    <div className="flex items-center gap-3 shrink-0">
-                      <button
-                        onClick={() => setActiveView('courses')}
-                        className="btn-gold-cta btn-gold-pill px-6 py-3 text-xs sm:text-sm font-extrabold flex items-center gap-2 shadow-sm cursor-pointer"
-                      >
-                        <BookOpen className="w-4 h-4" />
-                        <span>Ver Mis Módulos (140h)</span>
-                      </button>
+                    <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+                      {isEnrolled ? (
+                        <button
+                          onClick={() => setActiveView('courses')}
+                          className="btn-gold-cta btn-gold-pill px-6 py-3 text-xs sm:text-sm font-extrabold flex items-center gap-2 shadow-sm cursor-pointer"
+                        >
+                          <BookOpen className="w-4 h-4" />
+                          <span>Ver Mis Módulos (140h)</span>
+                        </button>
+                      ) : (
+                        <>
+                          <button
+                            onClick={() => onNavigate('pricing')}
+                            className="btn-gold-cta btn-gold-pill px-5 py-2.5 text-xs font-extrabold flex items-center gap-2 shadow-sm cursor-pointer"
+                          >
+                            <Lock className="w-3.5 h-3.5" />
+                            <span>Ver Planes y Realizar Matrícula</span>
+                          </button>
+                          <button
+                            onClick={() => onNavigate('exam')}
+                            className="px-4 py-2.5 rounded-full bg-[#F8FAFC] border border-[#E2E8F0] hover:border-[#0038DF] text-[#0038DF] text-xs font-bold transition-all cursor-pointer"
+                          >
+                            Presentar Diagnóstico
+                          </button>
+                        </>
+                      )}
                     </div>
                   </div>
 
                   {/* AI Mentor Companion Card */}
                   <AIMentor
-                    mood="happy"
+                    mood={gamification.streakDays > 0 ? 'happy' : 'thinking'}
                     variant="card"
-                    message={`¡Hola de nuevo, ${displayName}! Tu preparación para el concurso docente avanza con gran rigor. Hoy tienes activa tu racha de estudio de ${gamification.streakDays} días consecutivos.`}
-                    hint="Consejo clave: En las preguntas de juicio situacional docente, prioriza siempre el debido proceso formativo (Decreto 1290), el diálogo reflexivo y la corresponsabilidad con el PEI."
+                    message={
+                      gamification.streakDays > 0
+                        ? `¡Hola de nuevo, ${displayName}! Tu preparación para el concurso docente avanza con gran rigor. Hoy tienes activa tu racha de estudio de ${gamification.streakDays} días consecutivos.`
+                        : `¡Te damos la bienvenida a tu Aula Virtual de Legado Docente, ${displayName}! Comienza presentando la Prueba Diagnóstica Gratuita para evaluar tu nivel en las competencias del Decreto 1278.`
+                    }
+                    hint={
+                      gamification.streakDays > 0
+                        ? 'Consejo clave: En las preguntas de juicio situacional docente, prioriza siempre el debido proceso formativo (Decreto 1290), el diálogo reflexivo y la corresponsabilidad con el PEI.'
+                        : 'Pista pedagógica: La prueba oficial de la CNSC evalúa tu capacidad para resolver dilemas pedagógicos y de convivencia con apego a la norma y a los derechos de los estudiantes.'
+                    }
                   />
 
                   {error && (
@@ -845,7 +975,7 @@ export default function Dashboard({
                       {
                         icon: Clock,
                         label: 'Horas registradas',
-                        value: `${stats?.totalStudyHours || 1.5}h`,
+                        value: `${stats?.totalStudyHours || 0}h`,
                         sub: 'Tiempo en plataforma',
                         color: 'text-[#1E293B] bg-[#F1F5F9]',
                       },
@@ -922,18 +1052,24 @@ export default function Dashboard({
                         <p className="text-xs font-bold text-[#1E293B] mb-2 flex items-center gap-1.5">
                           <Award className="w-3.5 h-3.5 text-[#C99E32]" /> Insignias Obtenidas ({gamification.unlockedBadges.length})
                         </p>
-                        <div className="flex flex-wrap gap-2">
-                          {gamification.unlockedBadges.map((badge: Badge) => (
-                            <span
-                              key={badge.id}
-                              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0] text-xs font-medium text-[#1E293B]"
-                              title={badge.description}
-                            >
-                              <span>{badge.icon}</span>
-                              <span>{badge.title}</span>
-                            </span>
-                          ))}
-                        </div>
+                        {gamification.unlockedBadges.length === 0 ? (
+                          <p className="text-[11px] text-[#64748B] italic">
+                            Presenta la prueba diagnóstica o completa clases para desbloquear insignias.
+                          </p>
+                        ) : (
+                          <div className="flex flex-wrap gap-2">
+                            {gamification.unlockedBadges.map((badge: Badge) => (
+                              <span
+                                key={badge.id}
+                                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0] text-xs font-medium text-[#1E293B]"
+                                title={badge.description}
+                              >
+                                <span>{badge.icon}</span>
+                                <span>{badge.title}</span>
+                              </span>
+                            ))}
+                          </div>
+                        )}
                       </div>
                     </div>
 
@@ -951,39 +1087,70 @@ export default function Dashboard({
                           </div>
                           <button
                             onClick={() => onNavigate('exam')}
-                            className="text-xs text-[#0038DF] font-bold hover:underline"
+                            className="text-xs text-[#0038DF] font-bold hover:underline cursor-pointer"
                           >
                             Nuevo Simulacro →
                           </button>
                         </div>
 
-                        <div className="grid sm:grid-cols-2 gap-4">
-                          {/* Fortalezas */}
-                          <div className="space-y-2">
-                            <span className="text-[11px] font-bold uppercase tracking-wider text-[#0038DF] flex items-center gap-1.5">
-                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> Tus Mayores Fortalezas
-                            </span>
-                            {gamification.strengths.map((str: TopicPerformance) => (
-                              <div key={str.topic} className="p-3 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0]">
-                                <p className="text-xs font-bold text-[#1E293B]">{str.topic}</p>
-                                <p className="text-[11px] text-[#64748B] mt-0.5">{str.suggestion}</p>
-                              </div>
-                            ))}
+                        {!hasDiagnosticData ? (
+                          <div className="p-6 rounded-2xl bg-[#F8FAFC] border border-dashed border-[#E2E8F0] text-center space-y-2">
+                            <Sparkles className="w-8 h-8 text-[#C99E32] mx-auto mb-1" />
+                            <h4 className="font-extrabold text-[#0038DF] text-sm">
+                              Aún no has presentado tu Prueba Diagnóstica
+                            </h4>
+                            <p className="text-xs text-[#64748B] max-w-md mx-auto">
+                              Responde las 5 preguntas del examen diagnóstico para identificar automáticamente tus fortalezas y las normas educativas (Decreto 1278, Ley 1620, Decreto 1290) que debes reforzar.
+                            </p>
+                            <button
+                              onClick={() => onNavigate('exam')}
+                              className="btn-gold-cta btn-gold-pill px-5 py-2 text-xs font-bold cursor-pointer shadow-xs inline-flex items-center gap-1.5 mt-2"
+                            >
+                              <Target className="w-3.5 h-3.5" />
+                              <span>Presentar Prueba Diagnóstica Gratuita</span>
+                            </button>
                           </div>
+                        ) : (
+                          <div className="grid sm:grid-cols-2 gap-4">
+                            {/* Fortalezas */}
+                            <div className="space-y-2">
+                              <span className="text-[11px] font-bold uppercase tracking-wider text-[#0038DF] flex items-center gap-1.5">
+                                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> Tus Mayores Fortalezas
+                              </span>
+                              {gamification.strengths.length === 0 ? (
+                                <p className="text-xs text-[#64748B] italic p-3 rounded-xl bg-[#F8FAFC]">
+                                  Continúa practicando para consolidar tus temas fuertes.
+                                </p>
+                              ) : (
+                                gamification.strengths.map((str: TopicPerformance) => (
+                                  <div key={str.topic} className="p-3 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0]">
+                                    <p className="text-xs font-bold text-[#1E293B]">{str.topic}</p>
+                                    <p className="text-[11px] text-[#64748B] mt-0.5">{str.suggestion}</p>
+                                  </div>
+                                ))
+                              )}
+                            </div>
 
-                          {/* Ejes por Reforzar */}
-                          <div className="space-y-2">
-                            <span className="text-[11px] font-bold uppercase tracking-wider text-[#9C7316] flex items-center gap-1.5">
-                              <Lightbulb className="w-3.5 h-3.5 text-[#C99E32]" /> Ejes Clave por Reforzar
-                            </span>
-                            {gamification.improvementAreas.map((imp: TopicPerformance) => (
-                              <div key={imp.topic} className="p-3 rounded-xl bg-[#C99E32]/8 border border-[#C99E32]/25">
-                                <p className="text-xs font-bold text-[#1E293B]">{imp.topic}</p>
-                                <p className="text-[11px] text-[#64748B] mt-0.5">{imp.suggestion}</p>
-                              </div>
-                            ))}
+                            {/* Ejes por Reforzar */}
+                            <div className="space-y-2">
+                              <span className="text-[11px] font-bold uppercase tracking-wider text-[#9C7316] flex items-center gap-1.5">
+                                <Lightbulb className="w-3.5 h-3.5 text-[#C99E32]" /> Ejes Clave por Reforzar
+                              </span>
+                              {gamification.improvementAreas.length === 0 ? (
+                                <p className="text-xs text-[#64748B] italic p-3 rounded-xl bg-emerald-50/50 border border-emerald-100 text-emerald-800">
+                                  ¡Excelente! Por el momento no tienes ejes críticos detectados.
+                                </p>
+                              ) : (
+                                gamification.improvementAreas.map((imp: TopicPerformance) => (
+                                  <div key={imp.topic} className="p-3 rounded-xl bg-[#C99E32]/8 border border-[#C99E32]/25">
+                                    <p className="text-xs font-bold text-[#1E293B]">{imp.topic}</p>
+                                    <p className="text-[11px] text-[#64748B] mt-0.5">{imp.suggestion}</p>
+                                  </div>
+                                ))
+                              )}
+                            </div>
                           </div>
-                        </div>
+                        )}
                       </div>
 
                       <div className="pt-4 mt-3 border-t border-[#E2E8F0] flex flex-col sm:flex-row items-center justify-between gap-3">
@@ -1110,50 +1277,74 @@ export default function Dashboard({
                             Asistente Pedagógico IA
                           </h3>
                           <div className="flex items-center gap-1.5">
-                            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                            <span className="text-xs text-emerald-600 font-semibold">
-                              Alineado al Estatuto Docente 1278
+                            <span className={`w-2 h-2 rounded-full ${isEnrolled ? 'bg-emerald-500 animate-pulse' : 'bg-[#C99E32]'}`} />
+                            <span className={`text-xs ${isEnrolled ? 'text-emerald-600' : 'text-[#9C7316]'} font-semibold`}>
+                              {isEnrolled ? 'Alineado al Estatuto Docente 1278' : 'Exclusivo para Matriculados (140h)'}
                             </span>
                           </div>
                         </div>
                       </div>
 
-                      <div className="flex-1 space-y-2.5 overflow-y-auto no-scrollbar max-h-48 mb-4">
-                        {aiHistory.slice(-3).map((msg, i) => (
-                          <div
-                            key={i}
-                            className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
-                          >
-                            <div
-                              className={`max-w-[85%] px-4 py-2 rounded-2xl text-xs leading-relaxed ${
-                                msg.role === 'user'
-                                  ? 'bg-[#0038DF] text-white rounded-br-sm'
-                                  : 'bg-[#F8FAFC] text-[#1E293B] border border-[#E2E8F0] rounded-bl-sm font-medium'
-                              }`}
-                            >
-                              {msg.text}
-                            </div>
+                      {!isEnrolled ? (
+                        <div className="flex-1 flex flex-col justify-center items-center text-center p-6 rounded-2xl bg-[#F8FAFC] border border-dashed border-[#E2E8F0] space-y-3">
+                          <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-[#9C7316] flex items-center justify-center mx-auto">
+                            <Brain className="w-6 h-6" />
                           </div>
-                        ))}
-                      </div>
+                          <div>
+                            <p className="text-xs font-extrabold text-[#0038DF]">
+                              Mentor IA Exclusivo del Plan de 140 Horas
+                            </p>
+                            <p className="text-[11px] text-[#64748B] max-w-xs mx-auto mt-1">
+                              Resuelve dudas sobre leyes educativas, decretos 1278 y 1290, y análisis de casos las 24 horas del día.
+                            </p>
+                          </div>
+                          <button
+                            onClick={() => onNavigate('pricing')}
+                            className="btn-gold-cta btn-gold-pill px-5 py-2 text-xs font-extrabold cursor-pointer shadow-xs mt-1"
+                          >
+                            Ver Planes y Realizar Matrícula
+                          </button>
+                        </div>
+                      ) : (
+                        <>
+                          <div className="flex-1 space-y-2.5 overflow-y-auto no-scrollbar max-h-48 mb-4">
+                            {aiHistory.slice(-3).map((msg, i) => (
+                              <div
+                                key={i}
+                                className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                              >
+                                <div
+                                  className={`max-w-[85%] px-4 py-2 rounded-2xl text-xs leading-relaxed ${
+                                    msg.role === 'user'
+                                      ? 'bg-[#0038DF] text-white rounded-br-sm'
+                                      : 'bg-[#F8FAFC] text-[#1E293B] border border-[#E2E8F0] rounded-bl-sm font-medium'
+                                  }`}
+                                >
+                                  {msg.text}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
 
-                      <div className="flex gap-2">
-                        <input
-                          value={aiMessage}
-                          onChange={(e) => setAiMessage(e.target.value)}
-                          onKeyDown={(e) => {
-                            if (e.key === 'Enter') sendMessage()
-                          }}
-                          placeholder="Pregunta sobre Piaget, Decreto 1278 o 1290..."
-                          className="flex-1 px-4 py-2 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0] focus:border-[#0038DF] focus:bg-white focus:outline-none text-xs text-[#1E293B] placeholder-[#94A3B8] transition-all"
-                        />
-                        <button
-                          onClick={sendMessage}
-                          className="p-2.5 rounded-xl bg-[#0038DF] hover:bg-[#002299] text-white shadow-xs cursor-pointer"
-                        >
-                          <Zap className="w-4 h-4" />
-                        </button>
-                      </div>
+                          <div className="flex gap-2">
+                            <input
+                              value={aiMessage}
+                              onChange={(e) => setAiMessage(e.target.value)}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') sendMessage()
+                              }}
+                              placeholder="Pregunta sobre Piaget, Decreto 1278 o 1290..."
+                              className="flex-1 px-4 py-2 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0] focus:border-[#0038DF] focus:bg-white focus:outline-none text-xs text-[#1E293B] placeholder-[#94A3B8] transition-all"
+                            />
+                            <button
+                              onClick={sendMessage}
+                              className="p-2.5 rounded-xl bg-[#0038DF] hover:bg-[#002299] text-white shadow-xs cursor-pointer"
+                            >
+                              <Zap className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </>
+                      )}
                     </div>
                   </div>
 
@@ -1169,51 +1360,65 @@ export default function Dashboard({
                             Puntaje acumulado en casos situacionales
                           </p>
                         </div>
-                        <div className="flex items-center gap-1.5 text-xs text-[#0038DF] font-bold bg-[#0038DF]/10 px-2.5 py-1 rounded-full border border-[#0038DF]/20">
-                          <TrendingUp className="w-4 h-4" />
-                          +27 pts
+                        {hasProgressData && (
+                          <div className="flex items-center gap-1.5 text-xs text-[#0038DF] font-bold bg-[#0038DF]/10 px-2.5 py-1 rounded-full border border-[#0038DF]/20">
+                            <TrendingUp className="w-4 h-4" />
+                            {gamification.xp} XP
+                          </div>
+                        )}
+                      </div>
+                      {!hasProgressData ? (
+                        <div className="h-48 flex flex-col items-center justify-center text-center p-4 rounded-xl bg-[#F8FAFC] border border-dashed border-[#E2E8F0]">
+                          <div className="w-10 h-10 rounded-xl bg-[#0038DF]/10 text-[#0038DF] flex items-center justify-center mb-2">
+                            <TrendingUp className="w-5 h-5" />
+                          </div>
+                          <p className="text-xs font-bold text-[#0038DF]">Sin actividad de estudio aún</p>
+                          <p className="text-[11px] text-[#64748B] max-w-xs mt-0.5">
+                            Tus horas y puntajes se registrarán al avanzar lecciones o presentar tu prueba diagnóstica.
+                          </p>
                         </div>
-                      </div>
-                      <div className="h-48">
-                        <ResponsiveContainer width="100%" height="100%">
-                          <AreaChart
-                            data={PROGRESS_DATA}
-                            margin={{ top: 4, right: 4, bottom: 0, left: -20 }}
-                          >
-                            <defs>
-                              <linearGradient id="scoreGradOverview" x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="5%" stopColor="#0038DF" stopOpacity={0.25} />
-                                <stop offset="95%" stopColor="#C99E32" stopOpacity={0.02} />
-                              </linearGradient>
-                            </defs>
-                            <XAxis
-                              dataKey="day"
-                              tick={{ fontSize: 12, fill: '#64748B' }}
-                              axisLine={false}
-                              tickLine={false}
-                            />
-                            <Tooltip
-                              contentStyle={{
-                                background: '#FFFFFF',
-                                border: '1px solid #E2E8F0',
-                                borderRadius: '12px',
-                                fontSize: 12,
-                                color: '#1E293B',
-                              }}
-                              labelStyle={{ color: '#0038DF', fontWeight: 700 }}
-                              itemStyle={{ color: '#0038DF' }}
-                            />
-                            <Area
-                              type="monotone"
-                              dataKey="score"
-                              stroke="#0038DF"
-                              strokeWidth={2.5}
-                              fill="url(#scoreGradOverview)"
-                              dot={false}
-                            />
-                          </AreaChart>
-                        </ResponsiveContainer>
-                      </div>
+                      ) : (
+                        <div className="h-48">
+                          <ResponsiveContainer width="100%" height="100%">
+                            <AreaChart
+                              data={progressData}
+                              margin={{ top: 4, right: 4, bottom: 0, left: -20 }}
+                            >
+                              <defs>
+                                <linearGradient id="scoreGradOverview" x1="0" y1="0" x2="0" y2="1">
+                                  <stop offset="5%" stopColor="#0038DF" stopOpacity={0.25} />
+                                  <stop offset="95%" stopColor="#C99E32" stopOpacity={0.02} />
+                                </linearGradient>
+                              </defs>
+                              <XAxis
+                                dataKey="day"
+                                tick={{ fontSize: 12, fill: '#64748B' }}
+                                axisLine={false}
+                                tickLine={false}
+                              />
+                              <Tooltip
+                                contentStyle={{
+                                  background: '#FFFFFF',
+                                  border: '1px solid #E2E8F0',
+                                  borderRadius: '12px',
+                                  fontSize: 12,
+                                  color: '#1E293B',
+                                }}
+                                labelStyle={{ color: '#0038DF', fontWeight: 700 }}
+                                itemStyle={{ color: '#0038DF' }}
+                              />
+                              <Area
+                                type="monotone"
+                                dataKey="score"
+                                stroke="#0038DF"
+                                strokeWidth={2.5}
+                                fill="url(#scoreGradOverview)"
+                                dot={false}
+                              />
+                            </AreaChart>
+                          </ResponsiveContainer>
+                        </div>
+                      )}
                     </div>
 
                     <div className="p-6 rounded-2xl bg-white border border-[#E2E8F0] shadow-xs">
@@ -1221,24 +1426,42 @@ export default function Dashboard({
                         Radar de Competencias
                       </h3>
                       <p className="text-xs text-[#64748B] mb-4">Alineación con el Decreto 1278</p>
-                      <div className="h-48">
-                        <ResponsiveContainer width="100%" height="100%">
-                          <RadarChart data={RADAR_DATA}>
-                            <PolarGrid stroke="#E2E8F0" />
-                            <PolarAngleAxis
-                              dataKey="subject"
-                              tick={{ fontSize: 10, fill: '#64748B' }}
-                            />
-                            <Radar
-                              dataKey="A"
-                              stroke="#0038DF"
-                              fill="#0038DF"
-                              fillOpacity={0.2}
-                              strokeWidth={2}
-                            />
-                          </RadarChart>
-                        </ResponsiveContainer>
-                      </div>
+                      {!hasDiagnosticData ? (
+                        <div className="h-48 flex flex-col items-center justify-center text-center p-4 rounded-xl bg-[#F8FAFC] border border-dashed border-[#E2E8F0]">
+                          <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-[#9C7316] flex items-center justify-center mb-2">
+                            <Target className="w-5 h-5" />
+                          </div>
+                          <p className="text-xs font-bold text-[#0038DF]">Diagnóstico Pendiente</p>
+                          <p className="text-[11px] text-[#64748B] max-w-xs mt-0.5">
+                            Presenta la prueba de 5 preguntas para calcular tus puntajes reales por competencia.
+                          </p>
+                          <button
+                            onClick={() => onNavigate('exam')}
+                            className="btn-gold-cta btn-gold-pill px-4 py-1.5 text-[11px] font-bold cursor-pointer mt-2 shadow-xs"
+                          >
+                            Presentar Diagnóstico
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="h-48">
+                          <ResponsiveContainer width="100%" height="100%">
+                            <RadarChart data={radarData}>
+                              <PolarGrid stroke="#E2E8F0" />
+                              <PolarAngleAxis
+                                dataKey="subject"
+                                tick={{ fontSize: 10, fill: '#64748B' }}
+                              />
+                              <Radar
+                                dataKey="A"
+                                stroke="#0038DF"
+                                fill="#0038DF"
+                                fillOpacity={0.2}
+                                strokeWidth={2}
+                              />
+                            </RadarChart>
+                          </ResponsiveContainer>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </motion.div>
