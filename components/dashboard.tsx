@@ -1044,7 +1044,7 @@ export default function Dashboard({
                                 onClick={() => onNavigate('pricing')}
                                 className="btn-gold-cta btn-gold-pill px-5 py-2 text-xs font-extrabold cursor-pointer shadow-xs"
                               >
-                                Ver Planes de Matrícula (Nequi / Bancolombia)
+                                Ver Planes y Realizar Matrícula
                               </button>
                               <button
                                 onClick={() => setActiveView('courses')}

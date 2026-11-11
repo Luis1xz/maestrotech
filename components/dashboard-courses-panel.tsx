@@ -635,7 +635,7 @@ export default function DashboardCoursesPanel({
                 className="btn-gold-cta btn-gold-pill px-8 py-3.5 text-xs sm:text-sm font-extrabold inline-flex items-center gap-2 cursor-pointer shadow-md"
               >
                 <Sparkles className="w-4 h-4" />
-                <span>Ver Planes y Realizar Matrícula (Nequi / Bancolombia)</span>
+                <span>Ver Planes y Realizar Matrícula</span>
               </button>
             </div>
           ) : (
