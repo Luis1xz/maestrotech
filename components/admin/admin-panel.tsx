@@ -71,42 +71,6 @@ export default function AdminPanel() {
   const [creatingUser, setCreatingUser] = useState(false)
   const [createFeedback, setCreateFeedback] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
 
-  // Prueba de alerta por correo electrónico
-  const [testingEmail, setTestingEmail] = useState(false)
-  const [emailFeedback, setEmailFeedback] = useState<{ type: 'success' | 'info' | 'error'; text: string } | null>(null)
-
-  const handleTestEmail = async () => {
-    setTestingEmail(true)
-    setEmailFeedback(null)
-    try {
-      const res = await fetch('/api/notifications/test-email')
-      const data = await res.json()
-      if (data.isConfigured && data.success) {
-        setEmailFeedback({
-          type: 'success',
-          text: `¡Correo de prueba enviado con éxito a ${data.deliveredTo}! Revisa tu bandeja de entrada en Gmail.`,
-        })
-      } else if (!data.isConfigured) {
-        setEmailFeedback({
-          type: 'info',
-          text: 'Falta configurar SMTP_PASS en .env.local y Vercel (Contraseña de aplicación de 16 caracteres de Google).',
-        })
-      } else {
-        setEmailFeedback({
-          type: 'error',
-          text: data.error || 'Error al conectar con el servidor de correo.',
-        })
-      }
-    } catch {
-      setEmailFeedback({
-        type: 'error',
-        text: 'No se pudo comunicar con el servicio de correo.',
-      })
-    } finally {
-      setTestingEmail(false)
-    }
-  }
-
   // Feedback de cambio de rol y eliminación
   const [roleUpdatingId, setRoleUpdatingId] = useState<string | null>(null)
   const [deletingUserId, setDeletingUserId] = useState<string | null>(null)
@@ -565,18 +529,8 @@ export default function AdminPanel() {
 
             <div className="flex items-center gap-3">
               <button
-                onClick={handleTestEmail}
-                disabled={testingEmail}
-                className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-white border border-[#E2E8F0] hover:border-[#0038DF] text-[#0038DF] text-xs font-bold shadow-xs transition-all cursor-pointer disabled:opacity-50"
-                title="Enviar correo de prueba a tu cuenta de Gmail"
-              >
-                <Mail className={`w-4 h-4 ${testingEmail ? 'animate-bounce text-[#C99E32]' : 'text-[#0038DF]'}`} />
-                <span className="hidden sm:inline">{testingEmail ? 'Enviando prueba...' : 'Probar Alerta de Correo'}</span>
-              </button>
-
-              <button
                 onClick={() => loadAll()}
-                className="p-2.5 rounded-xl bg-white border border-[#E2E8F0] hover:bg-[#F8FAFC] text-[#64748B] hover:text-[#0038DF] transition-colors shadow-xs cursor-pointer"
+                className="p-2.5 rounded-xl bg-white border border-[#E5EDF5] hover:bg-[#F3F8FD] text-[#536B83] hover:text-[#142D49] transition-colors shadow-xs"
                 title="Actualizar datos"
               >
                 <RefreshCw className={`w-4 h-4 ${loadingData ? 'animate-spin' : ''}`} />
@@ -587,38 +541,12 @@ export default function AdminPanel() {
                   setCreateFeedback(null)
                   setIsCreateModalOpen(true)
                 }}
-                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#0038DF] hover:bg-[#002299] text-white text-xs font-bold shadow-md shadow-[#0038DF]/20 transition-all cursor-pointer"
+                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#176FC1] hover:bg-[#142D49] text-white text-xs font-bold shadow-md shadow-[#176FC1]/20 transition-all"
               >
                 <UserPlus className="w-4 h-4" /> Crear Usuario
               </button>
             </div>
           </div>
-
-          {/* Feedback de prueba de correo */}
-          {emailFeedback && (
-            <div className={`p-4 rounded-2xl mb-6 border flex items-center justify-between gap-3 text-xs font-semibold ${
-              emailFeedback.type === 'success'
-                ? 'bg-emerald-50 border-emerald-300 text-emerald-800'
-                : emailFeedback.type === 'info'
-                ? 'bg-amber-50 border-amber-300 text-amber-800'
-                : 'bg-rose-50 border-rose-300 text-rose-800'
-            }`}>
-              <div className="flex items-center gap-2">
-                {emailFeedback.type === 'success' ? (
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                ) : (
-                  <AlertCircle className="w-4 h-4 text-amber-600 shrink-0" />
-                )}
-                <span>{emailFeedback.text}</span>
-              </div>
-              <button
-                onClick={() => setEmailFeedback(null)}
-                className="text-current hover:opacity-75 cursor-pointer px-1.5 py-0.5 rounded-md hover:bg-black/5"
-              >
-                ✕
-              </button>
-            </div>
-          )}
 
           {/* SECCIÓN: RESUMEN GLOBAL */}
           {activeSection === 'overview' && (

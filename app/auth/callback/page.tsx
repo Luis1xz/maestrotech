@@ -161,23 +161,6 @@ function AuthCallbackContent() {
           role: targetRole,
         })
 
-        // Si no es el administrador, notificar nuevo ingreso por Google
-        if (!isAdmin && email) {
-          try {
-            fetch('/api/notifications/new-user', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                fullName,
-                firstName: (meta.first_name as string) || fullName.split(' ')[0],
-                email,
-              }),
-            }).catch(() => {})
-          } catch {
-            // Silencioso
-          }
-        }
-
         // Determinar destino:
         let destinationView = nextView || 'dashboard'
         if (isAdmin) {

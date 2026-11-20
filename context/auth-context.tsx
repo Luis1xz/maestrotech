@@ -341,22 +341,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         role: 'student',
       })
 
-      // Disparar notificación por correo al Administrador y Bienvenida al Estudiante
-      try {
-        fetch('/api/notifications/new-user', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            fullName,
-            firstName,
-            lastName,
-            email: cleanEmail,
-          }),
-        }).catch((e) => console.warn('[auth] Error al disparar notificación de registro:', e))
-      } catch {
-        // Silencioso
-      }
-
       // Si Supabase devuelve sesión de inmediato (Confirm email apagado)
       if (data.session && data.user) {
         setUser(data.user)
