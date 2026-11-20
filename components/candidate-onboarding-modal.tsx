@@ -464,6 +464,28 @@ export default function CandidateOnboardingModal({
         setFinalProfile({ ...candidateProfile, tags: cls.tags, primary_tag: cls.primaryTag })
       }
 
+      // Disparar notificación por correo al Administrador y Bienvenida al Estudiante con datos enriquecidos
+      try {
+        fetch('/api/notifications/new-user', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            fullName: `${firstName.trim()} ${lastName.trim()}`.trim(),
+            firstName: firstName.trim(),
+            lastName: lastName.trim(),
+            email: email.trim().toLowerCase(),
+            phoneNumber: phoneNumber.trim(),
+            department,
+            targetRole,
+            educationLevel: eduLevelHighest,
+            academicTitle: professionalTitle.trim(),
+            workExperience: totalWorkExp,
+          }),
+        }).catch((e) => console.warn('[onboarding] Error al notificar registro por correo:', e))
+      } catch {
+        // Silencioso
+      }
+
       setCelebrate(true)
       setStep(6) // Pantalla final de bienvenida y resumen
     } catch (err: unknown) {
