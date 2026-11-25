@@ -5,13 +5,19 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { getSupabase } from '@/lib/supabase/client'
 import { ensureProfile } from '@/services/profiles'
 import { getCandidateProfile } from '@/services/candidate'
-import { Sparkles, AlertCircle, CheckCircle2, ArrowRight } from 'lucide-react'
+import { Sparkles, AlertCircle, CheckCircle2, ArrowRight, Lock, Eye, EyeOff } from 'lucide-react'
 
 function AuthCallbackContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading')
+  const [status, setStatus] = useState<'loading' | 'recovery' | 'password_updated' | 'success' | 'error'>('loading')
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const [newPassword, setNewPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
+  const [recoveryError, setRecoveryError] = useState<string | null>(null)
+  const [savingPassword, setSavingPassword] = useState(false)
+  const [recoveryEmail, setRecoveryEmail] = useState<string | null>(null)
 
   useEffect(() => {
     let isMounted = true
@@ -23,11 +29,13 @@ function AuthCallbackContent() {
       let code = searchParams.get('code') || winSearch?.get('code') || null
       let errorParam = searchParams.get('error') || winSearch?.get('error') || null
       let errorDesc = searchParams.get('error_description') || winSearch?.get('error_description') || null
+      const typeParam = searchParams.get('type') || winSearch?.get('type') || null
       const nextView = searchParams.get('next') || winSearch?.get('next') || 'dashboard'
 
       // Revisar fragmento hash (#access_token=... o #code=...) típico de OAuth o flujos directos
       let hashAccessToken: string | null = null
       let hashRefreshToken: string | null = null
+      let hashType: string | null = null
 
       if (typeof window !== 'undefined' && window.location.hash) {
         const hashStr = window.location.hash.replace(/^#/, '')
@@ -37,7 +45,10 @@ function AuthCallbackContent() {
         if (!errorDesc && hashParams.get('error_description')) errorDesc = hashParams.get('error_description')
         hashAccessToken = hashParams.get('access_token')
         hashRefreshToken = hashParams.get('refresh_token')
+        hashType = hashParams.get('type')
       }
+
+      const isRecoveryFlow = typeParam === 'recovery' || hashType === 'recovery'
 
       // 2. Manejo de error devuelto por Google o Supabase
       if (errorParam) {
@@ -56,6 +67,11 @@ function AuthCallbackContent() {
       const { data: authListener } = client.auth.onAuthStateChange(async (event, session) => {
         if (!processed && session?.user && isMounted) {
           processed = true
+          if (event === 'PASSWORD_RECOVERY' || isRecoveryFlow) {
+            setRecoveryEmail(session.user.email || null)
+            setStatus('recovery')
+            return
+          }
           await processLoggedInUser(session.user, nextView)
         }
       })
@@ -70,18 +86,28 @@ function AuthCallbackContent() {
           if (!setSessionErr && setSessionData?.user && !processed && isMounted) {
             processed = true
             authListener.subscription.unsubscribe()
+            if (isRecoveryFlow) {
+              setRecoveryEmail(setSessionData.user.email || null)
+              setStatus('recovery')
+              return
+            }
             await processLoggedInUser(setSessionData.user, nextView)
             return
           }
         }
 
-        // 5. Si viene el código de autorización PKCE de Google
+        // 5. Si viene el código de autorización PKCE de Google o recovery
         if (code) {
           const { data, error: exchangeError } = await client.auth.exchangeCodeForSession(code)
 
           if (!exchangeError && data?.session?.user && !processed && isMounted) {
             processed = true
             authListener.subscription.unsubscribe()
+            if (isRecoveryFlow) {
+              setRecoveryEmail(data.session.user.email || null)
+              setStatus('recovery')
+              return
+            }
             await processLoggedInUser(data.session.user, nextView)
             return
           }
@@ -93,6 +119,11 @@ function AuthCallbackContent() {
             if (sessionData?.session?.user && !processed && isMounted) {
               processed = true
               authListener.subscription.unsubscribe()
+              if (isRecoveryFlow) {
+                setRecoveryEmail(sessionData.session.user.email || null)
+                setStatus('recovery')
+                return
+              }
               await processLoggedInUser(sessionData.session.user, nextView)
               return
             }
@@ -106,6 +137,11 @@ function AuthCallbackContent() {
           if (currentSessionData?.session?.user && !processed && isMounted) {
             processed = true
             authListener.subscription.unsubscribe()
+            if (isRecoveryFlow) {
+              setRecoveryEmail(currentSessionData.session.user.email || null)
+              setStatus('recovery')
+              return
+            }
             await processLoggedInUser(currentSessionData.session.user, nextView)
             return
           }
@@ -197,6 +233,38 @@ function AuthCallbackContent() {
     }
   }, [searchParams])
 
+  const handleUpdatePassword = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setRecoveryError(null)
+
+    if (newPassword.length < 6) {
+      setRecoveryError('La contraseña debe tener al menos 6 caracteres.')
+      return
+    }
+    if (newPassword !== confirmPassword) {
+      setRecoveryError('Las contraseñas no coinciden.')
+      return
+    }
+
+    setSavingPassword(true)
+    try {
+      const client = getSupabase()
+      const { error } = await client.auth.updateUser({ password: newPassword })
+      if (error) {
+        setRecoveryError(error.message || 'No se pudo actualizar la contraseña.')
+        return
+      }
+      setStatus('password_updated')
+      setTimeout(() => {
+        window.location.href = '/?view=dashboard'
+      }, 1500)
+    } catch (err: unknown) {
+      setRecoveryError(err instanceof Error ? err.message : 'Error inesperado al actualizar la contraseña.')
+    } finally {
+      setSavingPassword(false)
+    }
+  }
+
   return (
     <div className="min-h-screen bg-white flex flex-col items-center justify-center p-6 text-center">
       {/* Contenedor central con diseño Legado Docente */}
@@ -216,10 +284,97 @@ function AuthCallbackContent() {
           <div className="space-y-4 py-4">
             <div className="w-12 h-12 border-3 border-[#0038DF] border-t-transparent rounded-full animate-spin mx-auto" />
             <h2 className="title-h1 text-xl font-extrabold text-[#0038DF]">
-              Autenticando con Google
+              Verificando acceso
             </h2>
             <p className="text-xs text-[#64748B] leading-relaxed">
               Validando tus credenciales oficiales de acceso a la plataforma...
+            </p>
+          </div>
+        )}
+
+        {status === 'recovery' && (
+          <form onSubmit={handleUpdatePassword} className="space-y-4 py-2 text-left">
+            <div className="w-12 h-12 rounded-full bg-[#EEF3F9] text-[#0038DF] flex items-center justify-center mx-auto">
+              <Lock className="w-6 h-6" />
+            </div>
+            <div className="text-center space-y-1">
+              <h2 className="title-h1 text-xl font-extrabold text-[#0038DF]">
+                Crea tu nueva contraseña
+              </h2>
+              {recoveryEmail && (
+                <p className="text-xs text-[#64748B]">
+                  Cuenta: <strong className="text-[#1E293B]">{recoveryEmail}</strong>
+                </p>
+              )}
+            </div>
+
+            {recoveryError && (
+              <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-800">
+                {recoveryError}
+              </div>
+            )}
+
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-[#1E293B] block">
+                Nueva contraseña
+              </label>
+              <div className="relative">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  placeholder="Mínimo 6 caracteres"
+                  required
+                  minLength={6}
+                  className="w-full px-3.5 py-2.5 pr-10 rounded-xl border border-[#CBD5E1] text-sm text-[#1E293B] focus:outline-none focus:border-[#0038DF]"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((v) => !v)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#64748B] hover:text-[#0038DF] cursor-pointer"
+                  aria-label="Mostrar contraseña"
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-[#1E293B] block">
+                Confirmar contraseña
+              </label>
+              <input
+                type={showPassword ? 'text' : 'password'}
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                placeholder="Repite tu nueva contraseña"
+                required
+                minLength={6}
+                className="w-full px-3.5 py-2.5 rounded-xl border border-[#CBD5E1] text-sm text-[#1E293B] focus:outline-none focus:border-[#0038DF]"
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={savingPassword}
+              className="w-full py-3 rounded-full bg-[#0038DF] hover:bg-[#002299] text-white text-sm font-bold flex items-center justify-center gap-2 transition-colors disabled:opacity-60 cursor-pointer"
+            >
+              <span>{savingPassword ? 'Guardando...' : 'Guardar nueva contraseña'}</span>
+              {!savingPassword && <ArrowRight className="w-4 h-4" />}
+            </button>
+          </form>
+        )}
+
+        {status === 'password_updated' && (
+          <div className="space-y-4 py-4">
+            <div className="w-12 h-12 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto shadow-sm">
+              <CheckCircle2 className="w-7 h-7" />
+            </div>
+            <h2 className="title-h1 text-xl font-extrabold text-[#0038DF]">
+              ¡Contraseña actualizada!
+            </h2>
+            <p className="text-xs text-[#1E293B] font-semibold">
+              Ingresando a tu Aula Virtual de Legado Docente...
             </p>
           </div>
         )}
