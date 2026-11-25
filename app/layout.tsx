@@ -38,14 +38,14 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      { url: '/favicon.ico', sizes: 'any' },
-      { url: '/favicon.svg', type: 'image/svg+xml' },
-      { url: '/favicon-32.png', type: 'image/png', sizes: '32x32' },
-      { url: '/favicon-16.png', type: 'image/png', sizes: '16x16' },
+      { url: '/favicon.ico?v=3', sizes: 'any' },
+      { url: '/favicon.svg?v=3', type: 'image/svg+xml' },
+      { url: '/favicon-32.png?v=3', type: 'image/png', sizes: '32x32' },
+      { url: '/favicon-16.png?v=3', type: 'image/png', sizes: '16x16' },
     ],
-    shortcut: '/favicon.ico',
+    shortcut: '/favicon.ico?v=3',
     apple: [
-      { url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
+      { url: '/apple-touch-icon.png?v=3', sizes: '180x180', type: 'image/png' },
     ],
   },
   manifest: '/site.webmanifest',
@@ -73,11 +73,11 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <head>
-        <link rel="icon" href="/favicon.ico" sizes="any" />
-        <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
-        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png" />
-        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+        <link rel="icon" href="/favicon.ico?v=3" sizes="any" />
+        <link rel="icon" href="/favicon.svg?v=3" type="image/svg+xml" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png?v=3" />
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png?v=3" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=3" />
         <link rel="manifest" href="/site.webmanifest" />
       </head>
       <body className="antialiased font-sans">
