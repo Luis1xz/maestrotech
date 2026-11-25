@@ -1,22 +1,35 @@
-import { Section } from '@react-email/components';
-import { COLORS } from './constants';
+import { Img } from '@react-email/components';
+import { EMAIL_ASSETS } from './constants';
 
-interface GoldDividerProps {
-  margin?: string;
-}
-
-export function GoldDivider({ margin = '28px auto' }: GoldDividerProps) {
+export function EmailDivider() {
   return (
-    <Section style={{ padding: '0' }}>
-      <div
-        style={{
-          margin,
-          width: '80px',
-          height: '3px',
-          background: `linear-gradient(90deg, ${COLORS.goldDark}, ${COLORS.goldBase}, ${COLORS.goldLight}, ${COLORS.goldBase}, ${COLORS.goldDark})`,
-          borderRadius: '2px',
-        }}
-      />
-    </Section>
+    <table
+      role="presentation"
+      width="100%"
+      cellPadding={0}
+      cellSpacing={0}
+      border={0}
+      style={{ margin: '4px 0 24px 0' }}
+    >
+      <tbody>
+        <tr>
+          <td align="center">
+            <Img
+              src={EMAIL_ASSETS.decorations.goldDivider}
+              alt=""
+              width="60"
+              height="4"
+              style={{
+                display: 'block',
+                width: '60px',
+                height: '4px',
+                margin: '0 auto',
+                border: 0,
+              }}
+            />
+          </td>
+        </tr>
+      </tbody>
+    </table>
   );
 }

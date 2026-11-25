@@ -1,162 +1,93 @@
 import { Section, Text } from '@react-email/components';
 import { EmailLayout } from './components/EmailLayout';
-import { GoldButton } from './components/Button';
-import { GoldDivider } from './components/GoldDivider';
-import { InfoCard } from './components/InfoCard';
-import { COLORS, FONTS, IMAGES, BRAND } from './components/constants';
+import { EmailHero } from './components/EmailHero';
+import { EmailPill } from './components/EmailPill';
+import { EmailHeading } from './components/EmailHeading';
+import { EmailButton } from './components/Button';
+import { EmailDivider } from './components/GoldDivider';
+import { EmailInfoCard } from './components/EmailInfoCard';
+import { EmailDetails } from './components/EmailDetails';
+import { EMAIL_ASSETS, BRAND, FONT_STACK, COLORS } from './components/constants';
 
-/**
- * PLANTILLA 5: Confirmación de Pago
- * Para integración futura con Resend
- */
-
-interface PaymentConfirmationProps {
+interface PaymentApprovedProps {
   userName?: string;
-  planName?: string;
+  courseName?: string;
   amount?: string;
-  reference?: string;
   paymentDate?: string;
-  paymentMethod?: string;
+  reference?: string;
+  currency?: string;
 }
 
-export default function PaymentConfirmation({
+/**
+ * PLANTILLA 5: Pago Aprobado
+ * Banner: «Has invertido en tu futuro»
+ * Botón: «Ver mi compra»
+ */
+export default function PaymentApproved({
   userName = 'Docente',
-  planName = 'Plan Premium — Curso Integral 140h',
-  amount = '$297.000 COP',
-  reference = 'LD-2026-001234',
+  courseName = 'Curso Integral Concurso Docente (140h)',
+  amount = '$297.000',
   paymentDate = '25 de noviembre de 2026',
-  paymentMethod = 'Tarjeta de crédito',
-}: PaymentConfirmationProps) {
+  reference = 'LD-PAY-84920',
+  currency = 'COP',
+}: PaymentApprovedProps) {
   return (
-    <EmailLayout
-      preview={`✅ Pago confirmado — ${planName}`}
-      heroImage={IMAGES.heroCelebration}
-      heroTitle="¡Pago exitoso!"
-      heroSubtitle="Tu inversión en educación está confirmada"
-    >
-      <Section style={{ padding: '36px 32px 12px 32px' }}>
-        {/* Success badge */}
-        <div
-          style={{
-            display: 'inline-block',
-            background: COLORS.successBg,
-            border: `1px solid ${COLORS.success}30`,
-            borderRadius: '50px',
-            padding: '6px 16px',
-            marginBottom: '20px',
-          }}
-        >
-          <Text
-            style={{
-              margin: 0,
-              fontSize: '12px',
-              fontWeight: 700,
-              fontFamily: FONTS.display,
-              color: '#065F46',
-              textTransform: 'uppercase' as const,
-              letterSpacing: '0.1em',
-            }}
-          >
-            ✓ Pago confirmado
-          </Text>
-        </div>
+    <EmailLayout preview="Tu pago ha sido aprobado exitosamente en Legado Docente">
+      <EmailHero
+        src={EMAIL_ASSETS.banners.paymentApproved}
+        alt="Has invertido en tu futuro. Tu pago fue aprobado y tu experiencia continúa avanzando."
+      />
 
-        <Text
-          style={{
-            margin: '0 0 8px 0',
-            fontSize: '24px',
-            fontWeight: 800,
-            fontFamily: FONTS.display,
-            color: COLORS.textDark,
-            lineHeight: '1.3',
-          }}
-        >
-          ¡Gracias, {userName}!
-        </Text>
+      <Section className="body-pad" style={{ padding: '36px 36px 36px 36px' }}>
+        <EmailPill
+          iconSrc={EMAIL_ASSETS.icons.pillCard}
+          label="PAGO APROBADO"
+        />
+
+        <EmailHeading normalText="Tu pago fue" highlightText="confirmado." />
 
         <Text
           style={{
             margin: '0 0 24px 0',
             fontSize: '16px',
-            fontFamily: FONTS.sans,
+            fontWeight: 400,
+            fontFamily: FONT_STACK,
             color: COLORS.textMuted,
-            lineHeight: '1.7',
+            lineHeight: '1.6',
+            textAlign: 'left',
           }}
         >
-          Hemos recibido tu pago exitosamente. A continuación encontrarás los detalles de tu transacción.
+          {userName !== 'Docente' && (
+            <span style={{ display: 'block', marginBottom: '8px', fontWeight: 600, color: COLORS.textDark }}>
+              Hola, {userName}:
+            </span>
+          )}
+          Hemos recibido tu pago correctamente. Ya puedes revisar tu compra y
+          continuar con tranquilidad dentro de Legado Docente.
         </Text>
 
-        {/* Amount highlight */}
-        <div
-          style={{
-            background: `linear-gradient(135deg, ${COLORS.royalDeep} 0%, ${COLORS.royalBlue} 100%)`,
-            borderRadius: '14px',
-            padding: '24px 28px',
-            textAlign: 'center' as const,
-            margin: '0 0 20px 0',
-          }}
-        >
-          <Text
-            style={{
-              margin: '0 0 4px 0',
-              fontSize: '12px',
-              fontWeight: 600,
-              fontFamily: FONTS.sans,
-              color: COLORS.goldLight,
-              textTransform: 'uppercase' as const,
-              letterSpacing: '0.1em',
-            }}
-          >
-            Total pagado
-          </Text>
-          <Text
-            style={{
-              margin: 0,
-              fontSize: '36px',
-              fontWeight: 800,
-              fontFamily: FONTS.display,
-              color: COLORS.white,
-              letterSpacing: '-0.02em',
-            }}
-          >
-            {amount}
-          </Text>
-        </div>
-
-        {/* Payment details */}
-        <InfoCard
+        <EmailDetails
           title="Detalles de la transacción"
           items={[
-            { label: 'Plan', value: planName },
+            { label: 'Estudiante', value: userName },
+            { label: 'Programa', value: courseName },
+            { label: 'Importe pagado', value: `${amount} ${currency}` },
+            { label: 'Fecha de pago', value: paymentDate },
             { label: 'Referencia', value: reference },
-            { label: 'Fecha', value: paymentDate },
-            { label: 'Método de pago', value: paymentMethod },
           ]}
         />
 
-        <GoldDivider />
+        <EmailButton href={BRAND.dashboardUrl}>
+          Ver mi compra
+        </EmailButton>
 
-        {/* CTA */}
-        <div style={{ textAlign: 'center' as const, margin: '0 0 20px 0' }}>
-          <GoldButton href={`${BRAND.siteUrl}`}>
-            Ir a mi cuenta
-          </GoldButton>
-        </div>
+        <EmailDivider />
 
-        {/* Receipt note */}
-        <Text
-          style={{
-            margin: '0 0 8px 0',
-            fontSize: '12px',
-            fontFamily: FONTS.sans,
-            color: COLORS.textLight,
-            textAlign: 'center' as const,
-            lineHeight: '1.6',
-          }}
-        >
-          Este correo es tu comprobante de pago. Guárdalo para tus registros.
-          Si necesitas una factura, contáctanos.
-        </Text>
+        <EmailInfoCard
+          iconSrc={EMAIL_ASSETS.icons.infoCard}
+          title="Pago recibido con éxito"
+          description="Tu transacción ha sido registrada correctamente y de forma segura en nuestra plataforma. Puedes consultar los detalles de tu compra desde tu cuenta en Legado Docente."
+        />
       </Section>
     </EmailLayout>
   );

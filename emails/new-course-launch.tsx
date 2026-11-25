@@ -1,260 +1,136 @@
-import { Section, Text, Img } from '@react-email/components';
+import { Section, Text, Link } from '@react-email/components';
 import { EmailLayout } from './components/EmailLayout';
-import { GoldButton } from './components/Button';
-import { GoldDivider } from './components/GoldDivider';
-import { COLORS, FONTS, IMAGES, BRAND } from './components/constants';
-
-/**
- * PLANTILLA 8: Lanzamiento de Nuevos Cursos
- * Para integración futura con Resend
- */
+import { EmailHero } from './components/EmailHero';
+import { EmailPill } from './components/EmailPill';
+import { EmailHeading } from './components/EmailHeading';
+import { EmailButton } from './components/Button';
+import { EmailDivider } from './components/GoldDivider';
+import { EmailInfoCard } from './components/EmailInfoCard';
+import { EmailDetails } from './components/EmailDetails';
+import { EMAIL_ASSETS, BRAND, FONT_STACK, COLORS } from './components/constants';
 
 interface NewCourseLaunchProps {
   userName?: string;
-  courseTitle?: string;
-  courseDescription?: string;
-  startDate?: string;
+  courseName?: string;
+  description?: string;
   duration?: string;
   price?: string;
-  enrollUrl?: string;
+  courseUrl?: string;
+  unsubscribeUrl?: string;
 }
 
+/**
+ * PLANTILLA 9: Lanzamiento de Nuevo Curso
+ * Banner: «Nunca dejes de aprender»
+ * Botón: «Descubrir el programa»
+ */
 export default function NewCourseLaunch({
   userName = 'Docente',
-  courseTitle = 'Simulacro Nacional — Evaluación Diagnóstica 2026',
-  courseDescription = 'Mide tu nivel actual con nuestro simulacro más realista, diseñado con la estructura exacta del examen CNSC. Incluye retroalimentación detallada por competencia.',
-  startDate = '15 de diciembre de 2026',
-  duration = '4 horas',
-  price = '$49.000 COP',
-  enrollUrl = 'https://legadodocente.com',
+  courseName = 'Simulacro Intensivo de Prueba Pedagógica 2026',
+  description = 'Prepárate con casos prácticos reales, metodología oficial CNSC y retroalimentación personalizada.',
+  duration = '40 horas prácticas',
+  price = '$149.000 COP',
+  courseUrl = BRAND.coursesUrl,
+  unsubscribeUrl = `${BRAND.siteUrl}/preferencias-correo`,
 }: NewCourseLaunchProps) {
   return (
-    <EmailLayout
-      preview={`🚀 ¡Nuevo lanzamiento! ${courseTitle}`}
-      heroImage={IMAGES.heroNewCourse}
-      heroTitle="¡Nuevo lanzamiento!"
-      heroSubtitle="Un nuevo recurso para tu preparación"
-    >
-      <Section style={{ padding: '36px 32px 12px 32px' }}>
-        {/* Launch badge */}
-        <div
-          style={{
-            display: 'inline-block',
-            background: `linear-gradient(135deg, ${COLORS.royalBlue}12, ${COLORS.royalDeep}08)`,
-            border: `1px solid ${COLORS.royalBlue}25`,
-            borderRadius: '50px',
-            padding: '6px 16px',
-            marginBottom: '20px',
-          }}
-        >
-          <Text
-            style={{
-              margin: 0,
-              fontSize: '12px',
-              fontWeight: 700,
-              fontFamily: FONTS.display,
-              color: COLORS.royalBlue,
-              textTransform: 'uppercase' as const,
-              letterSpacing: '0.1em',
-            }}
-          >
-            🚀 Nuevo lanzamiento
-          </Text>
-        </div>
+    <EmailLayout preview={`Nuevo programa disponible en Legado Docente: ${courseName}`}>
+      <EmailHero
+        src={EMAIL_ASSETS.banners.newCourseLaunch}
+        alt="Nunca dejes de aprender. Hemos preparado un nuevo programa para seguir impulsando tu crecimiento."
+      />
 
-        <Text
-          style={{
-            margin: '0 0 4px 0',
-            fontSize: '14px',
-            fontWeight: 600,
-            fontFamily: FONTS.sans,
-            color: COLORS.textMuted,
-          }}
-        >
-          Hola, {userName}:
-        </Text>
+      <Section className="body-pad" style={{ padding: '36px 36px 36px 36px' }}>
+        <EmailPill
+          iconSrc={EMAIL_ASSETS.icons.pillCap}
+          label="NUEVO CURSO"
+        />
 
-        <Text
-          style={{
-            margin: '0 0 20px 0',
-            fontSize: '24px',
-            fontWeight: 800,
-            fontFamily: FONTS.display,
-            color: COLORS.textDark,
-            lineHeight: '1.3',
-          }}
-        >
-          {courseTitle}
-        </Text>
+        <EmailHeading normalText="Descubre un nuevo" highlightText="programa." />
 
         <Text
           style={{
             margin: '0 0 24px 0',
             fontSize: '16px',
-            fontFamily: FONTS.sans,
+            fontWeight: 400,
+            fontFamily: FONT_STACK,
             color: COLORS.textMuted,
-            lineHeight: '1.7',
+            lineHeight: '1.6',
+            textAlign: 'left',
           }}
         >
-          {courseDescription}
+          {userName !== 'Docente' && (
+            <span style={{ display: 'block', marginBottom: '8px', fontWeight: 600, color: COLORS.textDark }}>
+              Hola, {userName}:
+            </span>
+          )}
+          Explora una nueva oportunidad de formación en{' '}
+          <strong style={{ color: COLORS.textDark, fontWeight: 700 }}>
+            Legado Docente.
+          </strong>{' '}
+          Accede a más contenidos, herramientas y experiencias para seguir dejando
+          huella.
         </Text>
 
-        {/* Course info cards */}
-        <div
-          style={{
-            display: 'flex',
-            gap: '12px',
-            marginBottom: '24px',
-          }}
+        <EmailDetails
+          title="Ficha del nuevo programa"
+          items={[
+            { label: 'Programa', value: courseName },
+            { label: 'Descripción', value: description },
+            { label: 'Duración', value: duration },
+            { label: 'Precio', value: price },
+          ]}
+        />
+
+        <EmailButton href={courseUrl}>
+          Descubrir el programa
+        </EmailButton>
+
+        <EmailDivider />
+
+        <EmailInfoCard
+          iconSrc={EMAIL_ASSETS.icons.infoCap}
+          title="Una nueva oportunidad te espera"
+          description="Sigue fortaleciendo tus conocimientos, desarrolla nuevas competencias y amplía tu impacto como docente. Es el momento de seguir aprendiendo, creciendo y dejando huella."
+        />
+
+        {/* Unsubscribe link for commercial / marketing compliance */}
+        <table
+          role="presentation"
+          width="100%"
+          cellPadding={0}
+          cellSpacing={0}
+          border={0}
+          style={{ marginTop: '20px' }}
         >
-          {/* Date card */}
-          <div
-            style={{
-              flex: 1,
-              background: COLORS.offWhite,
-              borderRadius: '12px',
-              border: `1px solid ${COLORS.borderGray}`,
-              padding: '16px',
-              textAlign: 'center' as const,
-            }}
-          >
-            <Text
-              style={{
-                margin: '0 0 4px 0',
-                fontSize: '11px',
-                fontWeight: 600,
-                fontFamily: FONTS.sans,
-                color: COLORS.textMuted,
-                textTransform: 'uppercase' as const,
-                letterSpacing: '0.08em',
-              }}
-            >
-              Fecha
-            </Text>
-            <Text
-              style={{
-                margin: 0,
-                fontSize: '14px',
-                fontWeight: 700,
-                fontFamily: FONTS.display,
-                color: COLORS.textDark,
-              }}
-            >
-              {startDate}
-            </Text>
-          </div>
-
-          {/* Duration card */}
-          <div
-            style={{
-              flex: 1,
-              background: COLORS.offWhite,
-              borderRadius: '12px',
-              border: `1px solid ${COLORS.borderGray}`,
-              padding: '16px',
-              textAlign: 'center' as const,
-            }}
-          >
-            <Text
-              style={{
-                margin: '0 0 4px 0',
-                fontSize: '11px',
-                fontWeight: 600,
-                fontFamily: FONTS.sans,
-                color: COLORS.textMuted,
-                textTransform: 'uppercase' as const,
-                letterSpacing: '0.08em',
-              }}
-            >
-              Duración
-            </Text>
-            <Text
-              style={{
-                margin: 0,
-                fontSize: '14px',
-                fontWeight: 700,
-                fontFamily: FONTS.display,
-                color: COLORS.textDark,
-              }}
-            >
-              {duration}
-            </Text>
-          </div>
-
-          {/* Price card */}
-          <div
-            style={{
-              flex: 1,
-              background: `linear-gradient(135deg, ${COLORS.royalBlue}08, ${COLORS.royalDeep}05)`,
-              borderRadius: '12px',
-              border: `1px solid ${COLORS.royalBlue}20`,
-              padding: '16px',
-              textAlign: 'center' as const,
-            }}
-          >
-            <Text
-              style={{
-                margin: '0 0 4px 0',
-                fontSize: '11px',
-                fontWeight: 600,
-                fontFamily: FONTS.sans,
-                color: COLORS.textMuted,
-                textTransform: 'uppercase' as const,
-                letterSpacing: '0.08em',
-              }}
-            >
-              Inversión
-            </Text>
-            <Text
-              style={{
-                margin: 0,
-                fontSize: '14px',
-                fontWeight: 700,
-                fontFamily: FONTS.display,
-                color: COLORS.royalBlue,
-              }}
-            >
-              {price}
-            </Text>
-          </div>
-        </div>
-
-        {/* CTA */}
-        <div style={{ textAlign: 'center' as const, margin: '0 0 12px 0' }}>
-          <GoldButton href={enrollUrl}>
-            ¡Quiero inscribirme!
-          </GoldButton>
-        </div>
-
-        <div style={{ textAlign: 'center' as const, margin: '0 0 24px 0' }}>
-          <GoldButton href={`${BRAND.siteUrl}`} variant="outline">
-            Conocer más detalles
-          </GoldButton>
-        </div>
-
-        <GoldDivider />
-
-        {/* Urgency/Scarcity */}
-        <div
-          style={{
-            borderLeft: `4px solid ${COLORS.goldBase}`,
-            paddingLeft: '20px',
-            margin: '0 0 8px 0',
-          }}
-        >
-          <Text
-            style={{
-              margin: 0,
-              fontSize: '14px',
-              fontFamily: FONTS.sans,
-              color: COLORS.textMuted,
-              lineHeight: '1.6',
-            }}
-          >
-            <strong style={{ color: COLORS.textDark }}>Cupos limitados.</strong> Este programa tiene un número
-            reducido de plazas para garantizar la calidad de la experiencia. ¡Asegura tu lugar hoy!
-          </Text>
-        </div>
+          <tbody>
+            <tr>
+              <td align="center">
+                <Text
+                  style={{
+                    margin: 0,
+                    fontSize: '11.5px',
+                    fontFamily: FONT_STACK,
+                    color: COLORS.textLight,
+                    lineHeight: '1.5',
+                  }}
+                >
+                  Recibes esta comunicación porque eres miembro de Legado Docente. Si prefieres no recibir avisos de nuevos cursos, puedes{' '}
+                  <Link
+                    href={unsubscribeUrl}
+                    style={{
+                      color: COLORS.royalBlue,
+                      textDecoration: 'underline',
+                    }}
+                  >
+                    administrar tus preferencias aquí
+                  </Link>
+                  .
+                </Text>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </Section>
     </EmailLayout>
   );

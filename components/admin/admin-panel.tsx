@@ -25,6 +25,7 @@ import { getAllNequiPayments, confirmNequiPayment, NequiPaymentRecord } from '@/
 import { Course } from '@/types/database'
 import Link from 'next/link'
 import MaTechAdminSection from '@/components/admin/matech-admin-section'
+import EmailAdminSection from '@/components/admin/email-admin-section'
 
 type AdminSection =
   | 'overview'
@@ -38,6 +39,7 @@ type AdminSection =
   | 'exams'
   | 'payments'
   | 'matech'
+  | 'emails'
 
 export default function AdminPanel() {
   const { user, profile, role, session, isLoading } = useAuth()
@@ -463,6 +465,25 @@ export default function AdminPanel() {
 
             <div>
               <p className="text-[10px] font-bold text-[#536B83] uppercase tracking-widest px-3 mb-2">
+                COMUNICACIONES
+              </p>
+              <div className="space-y-1">
+                <button
+                  onClick={() => setActiveSection('emails')}
+                  className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all ${
+                    activeSection === 'emails'
+                      ? 'bg-gradient-to-r from-[#0038DF] to-[#002299] text-white shadow-xs'
+                      : 'text-[#536B83] hover:bg-[#F3F8FD] hover:text-[#142D49]'
+                  }`}
+                >
+                  <Mail className={`w-4 h-4 shrink-0 ${activeSection === 'emails' ? 'text-[#C99E32]' : 'text-[#0038DF]'}`} />
+                  <span>Centro de Correos</span>
+                </button>
+              </div>
+            </div>
+
+            <div>
+              <p className="text-[10px] font-bold text-[#536B83] uppercase tracking-widest px-3 mb-2">
                 INTELIGENCIA ARTIFICIAL
               </p>
               <div className="space-y-1">
@@ -524,6 +545,7 @@ export default function AdminPanel() {
                 {activeSection === 'modules' && 'Módulos Curriculares y Clases'}
                 {activeSection === 'exams' && 'Banco Oficial de Preguntas y Simulacros'}
                 {activeSection === 'matech' && 'Cerebro de MaTech (RAG Documental y Permisos)'}
+                {activeSection === 'emails' && 'Centro de Comunicaciones y Plantillas Oficiales'}
               </h1>
             </div>
 
@@ -1836,6 +1858,11 @@ export default function AdminPanel() {
           {/* SECCIÓN: MATECH CEREBRO RAG */}
           {activeSection === 'matech' && (
             <MaTechAdminSection courses={courses} users={users} />
+          )}
+
+          {/* SECCIÓN: CENTRO DE COMUNICACIONES / CORREOS */}
+          {activeSection === 'emails' && (
+            <EmailAdminSection />
           )}
 
           {/* SECCIONES COMPLEMENTARIAS */}

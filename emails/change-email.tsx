@@ -1,117 +1,60 @@
 import { Section, Text } from '@react-email/components';
 import { EmailLayout } from './components/EmailLayout';
-import { GoldButton } from './components/Button';
-import { GoldDivider } from './components/GoldDivider';
-import { COLORS, FONTS, IMAGES } from './components/constants';
+import { EmailHero } from './components/EmailHero';
+import { EmailPill } from './components/EmailPill';
+import { EmailHeading } from './components/EmailHeading';
+import { EmailButton } from './components/Button';
+import { EmailDivider } from './components/GoldDivider';
+import { EmailInfoCard } from './components/EmailInfoCard';
+import { EMAIL_ASSETS, FONT_STACK, COLORS } from './components/constants';
 
 /**
  * PLANTILLA 4: Cambio de Correo Electrónico
- * Compatible con Supabase Auth — usa {{ .ConfirmationURL }}
+ * Banner: «Tu identidad, siempre protegida»
+ * Botón: «Confirmar nuevo correo» ({{ .ConfirmationURL }})
  */
 export default function ChangeEmail() {
   return (
-    <EmailLayout
-      preview="Confirma tu nuevo correo electrónico en Legado Docente"
-      compact
-    >
-      <Section style={{ padding: '36px 32px 12px 32px' }}>
-        {/* Badge */}
-        <div
-          style={{
-            display: 'inline-block',
-            background: `${COLORS.royalBlue}10`,
-            border: `1px solid ${COLORS.royalBlue}25`,
-            borderRadius: '50px',
-            padding: '6px 16px',
-            marginBottom: '20px',
-          }}
-        >
-          <Text
-            style={{
-              margin: 0,
-              fontSize: '12px',
-              fontWeight: 700,
-              fontFamily: FONTS.display,
-              color: COLORS.royalBlue,
-              textTransform: 'uppercase' as const,
-              letterSpacing: '0.1em',
-            }}
-          >
-            ✉️ Actualización de correo
-          </Text>
-        </div>
+    <EmailLayout preview="Confirma tu nueva dirección de correo en Legado Docente">
+      <EmailHero
+        src={EMAIL_ASSETS.banners.changeEmail}
+        alt="Tu identidad, siempre protegida. Confirma tu nueva dirección de correo y mantén segura tu cuenta."
+      />
 
-        <Text
-          style={{
-            margin: '0 0 8px 0',
-            fontSize: '24px',
-            fontWeight: 800,
-            fontFamily: FONTS.display,
-            color: COLORS.textDark,
-            lineHeight: '1.3',
-          }}
-        >
-          Confirma tu nuevo correo
-        </Text>
+      <Section className="body-pad" style={{ padding: '36px 36px 36px 36px' }}>
+        <EmailPill
+          iconSrc={EMAIL_ASSETS.icons.pillMail}
+          label="CAMBIO DE CORREO"
+        />
+
+        <EmailHeading normalText="Confirma tu nuevo" highlightText="correo." />
 
         <Text
           style={{
             margin: '0 0 28px 0',
             fontSize: '16px',
-            fontFamily: FONTS.sans,
+            fontWeight: 400,
+            fontFamily: FONT_STACK,
             color: COLORS.textMuted,
-            lineHeight: '1.7',
+            lineHeight: '1.6',
+            textAlign: 'left',
           }}
         >
-          Has solicitado cambiar el correo electrónico asociado a tu cuenta de{' '}
-          <strong style={{ color: COLORS.royalBlue }}>Legado Docente</strong>. Para confirmar
-          este cambio, haz clic en el siguiente botón:
+          Recibimos una solicitud para cambiar la dirección de correo asociada a tu
+          cuenta. Verifica el cambio para mantener tu acceso actualizado.
         </Text>
 
-        {/* CTA */}
-        <div style={{ textAlign: 'center' as const, margin: '0 0 28px 0' }}>
-          <GoldButton href="{{ .ConfirmationURL }}">
-            Confirmar nuevo correo
-          </GoldButton>
-        </div>
+        <EmailButton href="{{ .ConfirmationURL }}">
+          Confirmar nuevo correo
+        </EmailButton>
 
-        <GoldDivider />
+        <EmailDivider />
 
-        {/* Info box */}
-        <div
-          style={{
-            background: COLORS.offWhite,
-            borderRadius: '12px',
-            border: `1px solid ${COLORS.borderGray}`,
-            padding: '20px 24px',
-            margin: '0 0 8px 0',
-          }}
-        >
-          <Text
-            style={{
-              margin: '0 0 8px 0',
-              fontSize: '13px',
-              fontWeight: 700,
-              fontFamily: FONTS.display,
-              color: COLORS.textDark,
-            }}
-          >
-            ℹ️ Información importante
-          </Text>
-          <Text
-            style={{
-              margin: 0,
-              fontSize: '13px',
-              fontFamily: FONTS.sans,
-              color: COLORS.textMuted,
-              lineHeight: '1.6',
-            }}
-          >
-            Después de confirmar, usarás tu nuevo correo electrónico para iniciar sesión.
-            Si no solicitaste este cambio, tu cuenta podría estar comprometida. Contacta
-            nuestro equipo de soporte inmediatamente.
-          </Text>
-        </div>
+        <EmailInfoCard
+          iconSrc={EMAIL_ASSETS.icons.infoShield}
+          title="Protección de tu identidad"
+          description="Este proceso verifica que el cambio de correo fue solicitado por ti. Así mantenemos tu cuenta segura, tu información protegida y tu acceso siempre actualizado."
+        />
       </Section>
     </EmailLayout>
   );

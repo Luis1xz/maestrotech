@@ -2,54 +2,41 @@ import {
   Html,
   Head,
   Body,
-  Container,
-  Font,
   Preview,
+  Container,
+  Section,
 } from '@react-email/components';
-import { COLORS, FONTS, LAYOUT } from './constants';
-import { Header } from './Header';
-import { Footer } from './Footer';
+import { FONT_STACK } from './constants';
+import { EmailHeader } from './Header';
+import { EmailFooter, EmailFooterProps } from './Footer';
 
 interface EmailLayoutProps {
   preview: string;
   children: React.ReactNode;
-  heroImage?: string;
-  heroTitle?: string;
-  heroSubtitle?: string;
-  compact?: boolean;
+  footerProps?: EmailFooterProps;
 }
 
-export function EmailLayout({
-  preview,
-  children,
-  heroImage,
-  heroTitle,
-  heroSubtitle,
-  compact = false,
-}: EmailLayoutProps) {
+export function EmailLayout({ preview, children, footerProps }: EmailLayoutProps) {
   return (
     <Html lang="es" dir="ltr">
       <Head>
-        <Font
-          fontFamily="Inter"
-          fallbackFontFamily={['Helvetica', 'Arial', 'sans-serif']}
-          webFont={{
-            url: 'https://fonts.gstatic.com/s/inter/v18/UcCO3FwrK3iLTeHuS_nVMrMxCp50SjIw2boKoduKmMEVuLyfAZ9hiA.woff2',
-            format: 'woff2',
-          }}
-          fontWeight={400}
-          fontStyle="normal"
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="x-apple-disable-message-reformatting" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Plus+Jakarta+Sans:ital,wght@0,700;0,800;1,500;1,700&display=swap"
+          rel="stylesheet"
         />
-        <Font
-          fontFamily="Plus Jakarta Sans"
-          fallbackFontFamily={['Helvetica', 'Arial', 'sans-serif']}
-          webFont={{
-            url: 'https://fonts.gstatic.com/s/plusjakartasans/v8/LDIbaomQNQcsA88c7O9yZ4KMCoOg4IA6-91aHEjcWuA_qU79TR_V.woff2',
-            format: 'woff2',
-          }}
-          fontWeight={700}
-          fontStyle="normal"
-        />
+        <style>{`
+          @media only screen and (max-width: 480px) {
+            .email-outer { padding: 12px 8px !important; }
+            .email-card { border-radius: 12px !important; }
+            .body-pad { padding: 26px 18px 26px 18px !important; }
+            .hero-heading { font-size: 24px !important; }
+            .cta-btn { padding: 14px 24px !important; font-size: 15px !important; }
+            .security-pad { padding: 14px 14px !important; }
+            .footer-pad { padding: 26px 18px 24px 18px !important; background-size: 95px auto, 100% 100% !important; }
+          }
+        `}</style>
       </Head>
 
       <Preview>{preview}</Preview>
@@ -58,38 +45,53 @@ export function EmailLayout({
         style={{
           margin: 0,
           padding: 0,
-          backgroundColor: '#E8ECF2',
-          fontFamily: FONTS.sans,
+          backgroundColor: '#EEF3F9',
+          fontFamily: FONT_STACK,
           WebkitTextSizeAdjust: '100%',
         }}
       >
-        {/* Spacer top */}
-        <div style={{ height: '32px' }} />
-
-        <Container
+        <table
+          role="presentation"
+          width="100%"
+          cellPadding={0}
+          cellSpacing={0}
+          border={0}
+          className="email-outer"
           style={{
-            maxWidth: `${LAYOUT.maxWidth}px`,
-            margin: '0 auto',
-            backgroundColor: COLORS.white,
-            borderRadius: '12px',
-            overflow: 'hidden',
-            boxShadow: '0 20px 60px rgba(0, 20, 80, 0.12), 0 4px 16px rgba(0, 0, 0, 0.06)',
+            backgroundColor: '#EEF3F9',
+            padding: '28px 12px',
+            width: '100%',
           }}
         >
-          <Header
-            heroImage={heroImage}
-            heroTitle={heroTitle}
-            heroSubtitle={heroSubtitle}
-            compact={compact}
-          />
+          <tbody>
+            <tr>
+              <td align="center" valign="top">
+                <Container
+                  className="email-card"
+                  style={{
+                    maxWidth: '600px',
+                    width: '100%',
+                    margin: '0 auto',
+                    backgroundColor: '#FFFFFF',
+                    borderRadius: '16px',
+                    overflow: 'hidden',
+                    boxShadow:
+                      '0 14px 40px rgba(0, 34, 153, 0.10), 0 2px 8px rgba(15, 23, 42, 0.04)',
+                  }}
+                >
+                  {/* 1. Header institucional */}
+                  <EmailHeader />
 
-          {children}
+                  {/* 2. Contenido del correo (Hero + Body) */}
+                  {children}
 
-          <Footer />
-        </Container>
-
-        {/* Spacer bottom */}
-        <div style={{ height: '32px' }} />
+                  {/* 3. Footer oficial */}
+                  <EmailFooter {...footerProps} />
+                </Container>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </Body>
     </Html>
   );

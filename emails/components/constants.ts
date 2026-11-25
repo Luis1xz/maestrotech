@@ -1,61 +1,72 @@
 /* ============================================================
-   LEGADO DOCENTE — Email Design System Constants
+   LEGADO DOCENTE — Official Email Design System Constants
    ============================================================ */
+
+export const ASSETS_BASE =
+  'https://eklolnecteffjzbjbjmr.supabase.co/storage/v1/object/public/email-assets';
+
+export const EMAIL_ASSETS = {
+  branding: {
+    logo: `${ASSETS_BASE}/branding/legado-logo.png`,
+  },
+  banners: {
+    confirmEmail: `${ASSETS_BASE}/banners/banner-confirm-email.jpg`,
+    welcome: `${ASSETS_BASE}/banners/banner-welcome.jpg`,
+    resetPassword: `${ASSETS_BASE}/banners/banner-reset-password.jpg`,
+    changeEmail: `${ASSETS_BASE}/banners/banner-change-email.jpg`,
+    paymentApproved: `${ASSETS_BASE}/banners/banner-payment-approved.jpg`,
+    enrollmentSuccess: `${ASSETS_BASE}/banners/banner-enrollment-success.jpg`,
+    certificateAvailable: `${ASSETS_BASE}/banners/banner-certificate-available.jpg`,
+    courseCompleted: `${ASSETS_BASE}/banners/banner-course-completed.jpg`,
+    newCourseLaunch: `${ASSETS_BASE}/banners/banner-new-course-launch.jpg`,
+  },
+  icons: {
+    flagCo: `${ASSETS_BASE}/icons/flag-co.png`,
+    infoShield: `${ASSETS_BASE}/icons/info-shield.png`,
+    infoCap: `${ASSETS_BASE}/icons/info-cap.png`,
+    infoCard: `${ASSETS_BASE}/icons/info-card.png`,
+    infoAward: `${ASSETS_BASE}/icons/info-award.png`,
+    pillCheck: `${ASSETS_BASE}/icons/pill-check.png`,
+    pillKey: `${ASSETS_BASE}/icons/pill-key.png`,
+    pillMail: `${ASSETS_BASE}/icons/pill-mail.png`,
+    pillCap: `${ASSETS_BASE}/icons/pill-cap.png`,
+    pillCard: `${ASSETS_BASE}/icons/pill-card.png`,
+    pillAward: `${ASSETS_BASE}/icons/pill-award.png`,
+  },
+  decorations: {
+    footerArcsLeft: `${ASSETS_BASE}/decorations/footer-arcs-left.png`,
+    footerArcsRight: `${ASSETS_BASE}/decorations/footer-arcs-right.png`,
+    goldDivider: `${ASSETS_BASE}/decorations/gold-divider.png`,
+  },
+} as const;
 
 export const BRAND = {
   name: 'Legado Docente',
-  slogan: 'Aprende, comparte, deja huella',
+  slogan: 'Aprende, comparte, deja huella.',
   siteUrl: 'https://legadodocente.com',
+  dashboardUrl: 'https://legadodocente.com/?view=dashboard',
+  coursesUrl: 'https://legadodocente.com/?view=courses',
+  supportUrl: 'https://wa.me/573108924512?text=Hola,%20necesito%20soporte%20en%20Legado%20Docente',
   supportEmail: 'soporte@legadodocente.com',
-  adminEmail: 'luisalfonso1818@gmail.com',
-  whatsapp: '573108924512',
-  whatsappUrl: 'https://wa.me/573108924512',
   year: new Date().getFullYear(),
 } as const;
 
 export const COLORS = {
   royalBlue: '#0038DF',
   royalDeep: '#002299',
-  royalDarker: '#001A73',
+  royalDark: '#001875',
   goldBase: '#C99E32',
   goldDark: '#9C7316',
-  goldLight: '#E6C565',
-  goldOchre: '#C1962C',
-  goldDeep: '#8F6812',
-  white: '#FFFFFF',
-  offWhite: '#F8FAFC',
-  softGray: '#F1F5F9',
-  borderGray: '#E2E8F0',
-  textDark: '#1E293B',
-  textMuted: '#64748B',
-  textLight: '#94A3B8',
-  success: '#10B981',
-  successBg: '#ECFDF5',
+  goldLight: '#F2D074',
+  textDark: '#0F172A',
+  textMuted: '#475569',
+  textLight: '#64748B',
+  bgCard: '#FFFFFF',
+  bgPage: '#EEF3F9',
+  bgInfo: '#F4F7FC',
+  borderLight: '#E2E8F0',
+  borderGold: '#D4AF37',
 } as const;
 
-export const FONTS = {
-  sans: "'Inter', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif",
-  display: "'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
-} as const;
-
-export const IMAGES = {
-  logo: `${BRAND.siteUrl}/legado-logo-full.png`,
-  logoIcon: `${BRAND.siteUrl}/logo-icon.png`,
-  // Professional education stock photos (Unsplash HTTPS)
-  heroEducation: 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=1200&h=400&fit=crop&crop=center&q=80',
-  heroTeaching: 'https://images.unsplash.com/photo-1577896851231-70ef18881754?w=1200&h=400&fit=crop&crop=center&q=80',
-  heroCelebration: 'https://images.unsplash.com/photo-1523050854058-8df90110c476?w=1200&h=400&fit=crop&crop=center&q=80',
-  heroBooks: 'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=1200&h=400&fit=crop&crop=center&q=80',
-  heroGraduation: 'https://images.unsplash.com/photo-1627556704302-624286467c65?w=1200&h=400&fit=crop&crop=center&q=80',
-  heroCertificate: 'https://images.unsplash.com/photo-1589330694653-ded6df03f754?w=1200&h=400&fit=crop&crop=center&q=80',
-  heroNewCourse: 'https://images.unsplash.com/photo-1501504905252-473c47e087f8?w=1200&h=400&fit=crop&crop=center&q=80',
-  heroPassword: 'https://images.unsplash.com/photo-1555949963-ff9fe0c870eb?w=1200&h=400&fit=crop&crop=center&q=80',
-} as const;
-
-export const LAYOUT = {
-  maxWidth: 600,
-  padding: 32,
-  paddingMobile: 20,
-  borderRadius: 16,
-  buttonRadius: 50,
-} as const;
+export const FONT_STACK =
+  "'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif";

@@ -1,214 +1,85 @@
 import { Section, Text } from '@react-email/components';
 import { EmailLayout } from './components/EmailLayout';
-import { GoldButton } from './components/Button';
-import { GoldDivider } from './components/GoldDivider';
-import { InfoCard } from './components/InfoCard';
-import { COLORS, FONTS, IMAGES, BRAND } from './components/constants';
-
-/**
- * PLANTILLA 6: Matrícula Exitosa
- * Para integración futura con Resend
- */
+import { EmailHero } from './components/EmailHero';
+import { EmailPill } from './components/EmailPill';
+import { EmailHeading } from './components/EmailHeading';
+import { EmailButton } from './components/Button';
+import { EmailDivider } from './components/GoldDivider';
+import { EmailInfoCard } from './components/EmailInfoCard';
+import { EmailDetails } from './components/EmailDetails';
+import { EMAIL_ASSETS, BRAND, FONT_STACK, COLORS } from './components/constants';
 
 interface EnrollmentSuccessProps {
   userName?: string;
-  courseTitle?: string;
-  startDate?: string;
-  duration?: string;
-  modules?: string;
+  courseName?: string;
+  enrollmentDate?: string;
 }
 
+/**
+ * PLANTILLA 6: Matrícula Exitosa
+ * Banner: «Tu próximo capítulo comienza hoy»
+ * Botón: «Comenzar mi formación»
+ */
 export default function EnrollmentSuccess({
   userName = 'Docente',
-  courseTitle = 'Curso Integral de Preparación — Concurso Docente 2026',
-  startDate = '1 de diciembre de 2026',
-  duration = '140 horas',
-  modules = '13 módulos temáticos',
+  courseName = 'Curso Integral Concurso Docente (140h)',
+  enrollmentDate = '25 de noviembre de 2026',
 }: EnrollmentSuccessProps) {
   return (
-    <EmailLayout
-      preview={`🎓 ¡Matrícula confirmada! ${courseTitle}`}
-      heroImage={IMAGES.heroBooks}
-      heroTitle="¡Matrícula exitosa!"
-      heroSubtitle="Ya puedes comenzar tu formación"
-    >
-      <Section style={{ padding: '36px 32px 12px 32px' }}>
-        {/* Success badge */}
-        <div
-          style={{
-            display: 'inline-block',
-            background: COLORS.successBg,
-            border: `1px solid ${COLORS.success}30`,
-            borderRadius: '50px',
-            padding: '6px 16px',
-            marginBottom: '20px',
-          }}
-        >
-          <Text
-            style={{
-              margin: 0,
-              fontSize: '12px',
-              fontWeight: 700,
-              fontFamily: FONTS.display,
-              color: '#065F46',
-              textTransform: 'uppercase' as const,
-              letterSpacing: '0.1em',
-            }}
-          >
-            🎓 Matrícula confirmada
-          </Text>
-        </div>
+    <EmailLayout preview="¡Tu matrícula ha sido activada! Comienza tu formación en Legado Docente">
+      <EmailHero
+        src={EMAIL_ASSETS.banners.enrollmentSuccess}
+        alt="Tu próximo capítulo comienza hoy. Tu matrícula fue activada y tu formación ya está lista para comenzar."
+      />
 
-        <Text
-          style={{
-            margin: '0 0 8px 0',
-            fontSize: '24px',
-            fontWeight: 800,
-            fontFamily: FONTS.display,
-            color: COLORS.textDark,
-            lineHeight: '1.3',
-          }}
-        >
-          ¡Felicidades, {userName}!
-        </Text>
+      <Section className="body-pad" style={{ padding: '36px 36px 36px 36px' }}>
+        <EmailPill
+          iconSrc={EMAIL_ASSETS.icons.pillCap}
+          label="MATRÍCULA EXITOSA"
+        />
+
+        <EmailHeading normalText="Tu acceso ya está" highlightText="activo." />
 
         <Text
           style={{
             margin: '0 0 24px 0',
             fontSize: '16px',
-            fontFamily: FONTS.sans,
+            fontWeight: 400,
+            fontFamily: FONT_STACK,
             color: COLORS.textMuted,
-            lineHeight: '1.7',
+            lineHeight: '1.6',
+            textAlign: 'left',
           }}
         >
-          Tu matrícula ha sido registrada exitosamente. Estás oficialmente inscrito/a en el programa
-          más completo de preparación para el Concurso de Méritos Docente.
+          {userName !== 'Docente' && (
+            <span style={{ display: 'block', marginBottom: '8px', fontWeight: 600, color: COLORS.textDark }}>
+              Hola, {userName}:
+            </span>
+          )}
+          Tu matrícula ha sido procesada exitosamente. Ya puedes ingresar al aula
+          virtual y empezar tu proceso de aprendizaje.
         </Text>
 
-        {/* Course details */}
-        <InfoCard
-          title="Detalles de tu matrícula"
+        <EmailDetails
+          title="Resumen de matrícula"
           items={[
-            { label: 'Programa', value: courseTitle },
-            { label: 'Fecha de inicio', value: startDate },
-            { label: 'Duración', value: duration },
-            { label: 'Contenido', value: modules },
+            { label: 'Estudiante', value: userName },
+            { label: 'Curso matriculado', value: courseName },
+            { label: 'Fecha de activación', value: enrollmentDate },
           ]}
         />
 
-        {/* Next steps */}
-        <Text
-          style={{
-            margin: '0 0 16px 0',
-            fontSize: '14px',
-            fontWeight: 700,
-            fontFamily: FONTS.display,
-            color: COLORS.royalBlue,
-            textTransform: 'uppercase' as const,
-            letterSpacing: '0.08em',
-          }}
-        >
-          Próximos pasos
-        </Text>
+        <EmailButton href={BRAND.dashboardUrl}>
+          Comenzar mi formación
+        </EmailButton>
 
-        {/* Step 1 */}
-        <div style={{ display: 'flex', marginBottom: '12px' }}>
-          <div
-            style={{
-              width: '28px',
-              height: '28px',
-              borderRadius: '50%',
-              background: `linear-gradient(135deg, ${COLORS.royalBlue}, ${COLORS.royalDeep})`,
-              color: COLORS.white,
-              fontSize: '13px',
-              fontWeight: 700,
-              fontFamily: FONTS.display,
-              textAlign: 'center' as const,
-              lineHeight: '28px',
-              flexShrink: 0,
-              marginRight: '14px',
-            }}
-          >
-            1
-          </div>
-          <div>
-            <Text style={{ margin: 0, fontSize: '14px', fontWeight: 700, color: COLORS.textDark, fontFamily: FONTS.display }}>
-              Completa tu perfil
-            </Text>
-            <Text style={{ margin: '2px 0 0 0', fontSize: '13px', color: COLORS.textMuted, fontFamily: FONTS.sans }}>
-              Agrega tu información para personalizar tu experiencia.
-            </Text>
-          </div>
-        </div>
+        <EmailDivider />
 
-        {/* Step 2 */}
-        <div style={{ display: 'flex', marginBottom: '12px' }}>
-          <div
-            style={{
-              width: '28px',
-              height: '28px',
-              borderRadius: '50%',
-              background: `linear-gradient(135deg, ${COLORS.goldDark}, ${COLORS.goldBase})`,
-              color: '#1A1A1A',
-              fontSize: '13px',
-              fontWeight: 700,
-              fontFamily: FONTS.display,
-              textAlign: 'center' as const,
-              lineHeight: '28px',
-              flexShrink: 0,
-              marginRight: '14px',
-            }}
-          >
-            2
-          </div>
-          <div>
-            <Text style={{ margin: 0, fontSize: '14px', fontWeight: 700, color: COLORS.textDark, fontFamily: FONTS.display }}>
-              Accede al primer módulo
-            </Text>
-            <Text style={{ margin: '2px 0 0 0', fontSize: '13px', color: COLORS.textMuted, fontFamily: FONTS.sans }}>
-              Comienza con los fundamentos del marco normativo docente.
-            </Text>
-          </div>
-        </div>
-
-        {/* Step 3 */}
-        <div style={{ display: 'flex', marginBottom: '28px' }}>
-          <div
-            style={{
-              width: '28px',
-              height: '28px',
-              borderRadius: '50%',
-              background: `linear-gradient(135deg, ${COLORS.royalBlue}, ${COLORS.royalDeep})`,
-              color: COLORS.white,
-              fontSize: '13px',
-              fontWeight: 700,
-              fontFamily: FONTS.display,
-              textAlign: 'center' as const,
-              lineHeight: '28px',
-              flexShrink: 0,
-              marginRight: '14px',
-            }}
-          >
-            3
-          </div>
-          <div>
-            <Text style={{ margin: 0, fontSize: '14px', fontWeight: 700, color: COLORS.textDark, fontFamily: FONTS.display }}>
-              Realiza tu primer simulacro
-            </Text>
-            <Text style={{ margin: '2px 0 0 0', fontSize: '13px', color: COLORS.textMuted, fontFamily: FONTS.sans }}>
-              Evalúa tu nivel inicial y traza tu plan de estudio.
-            </Text>
-          </div>
-        </div>
-
-        <GoldDivider />
-
-        {/* CTA */}
-        <div style={{ textAlign: 'center' as const, margin: '0 0 8px 0' }}>
-          <GoldButton href={`${BRAND.siteUrl}`}>
-            Comenzar a estudiar
-          </GoldButton>
-        </div>
+        <EmailInfoCard
+          iconSrc={EMAIL_ASSETS.icons.infoCap}
+          title="Todo listo para iniciar"
+          description="Es momento de dar el siguiente paso en tu desarrollo profesional. Explora tus cursos, organiza tu ruta de aprendizaje y aprovecha al máximo todos los recursos de tu formación."
+        />
       </Section>
     </EmailLayout>
   );
