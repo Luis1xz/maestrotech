@@ -8,6 +8,7 @@ import os from 'os';
 import ConfirmEmail from '@/emails/confirm-email';
 import Welcome from '@/emails/welcome';
 import ResetPassword from '@/emails/reset-password';
+import PasswordChanged from '@/emails/password-changed';
 import ChangeEmail from '@/emails/change-email';
 import PaymentApproved from '@/emails/payment-confirmation';
 import EnrollmentSuccess from '@/emails/enrollment-success';
@@ -19,6 +20,7 @@ export type EmailTemplateId =
   | 'confirm-email'
   | 'welcome'
   | 'reset-password'
+  | 'password-changed'
   | 'change-email'
   | 'payment-approved'
   | 'enrollment-success'
@@ -60,6 +62,18 @@ export const OFFICIAL_TEMPLATES: Record<EmailTemplateId, TemplateMetadata> = {
     handler: 'supabase',
     defaultSubject: 'Restablece tu contraseña de Legado Docente',
     sampleData: {},
+  },
+  'password-changed': {
+    id: 'password-changed',
+    name: 'Contraseña cambiada',
+    triggerEvent: 'Contraseña actualizada exitosamente',
+    bannerTitle: 'Tu contraseña ha sido cambiada',
+    buttonLabel: 'Iniciar sesión en mi cuenta',
+    handler: 'resend',
+    defaultSubject: 'Tu contraseña ha sido cambiada — Legado Docente',
+    sampleData: {
+      studentName: 'Docente Carlos Mendoza',
+    },
   },
   'confirm-email': {
     id: 'confirm-email',
@@ -199,6 +213,24 @@ export function saveEmailLog(entry: EmailLogEntry) {
 }
 
 /**
+ * Clean HTML output for maximum compatibility with Gmail, Outlook, Apple Mail and Supabase
+ */
+export function cleanEmailHtml(raw: string): string {
+  let clean = raw;
+  // 1. Remove preview container with zero-width characters that break Gmail / Go parser
+  clean = clean.replace(/<div[^>]*data-skip-in-text="true"[^>]*>[\s\S]*?<\/div>\s*<\/div>/gi, '');
+  // 2. Remove React Suspense & hydration comments
+  clean = clean.replace(/<!--\/?\$-->/g, '');
+  clean = clean.replace(/<!--\/?(html|head|body)-->/g, '');
+  clean = clean.replace(/<!--\s*-->/g, '');
+  // 3. Fix any multiline closing tags like </a \n > or </span \n >
+  clean = clean.replace(/<\/\s*([a-zA-Z0-9]+)\s*>/g, '</$1>');
+  // 4. Clean zero-width control chars if any remain
+  clean = clean.replace(/[\u200B-\u200D\uFEFF\u00A0]/g, ' ');
+  return clean.trim();
+}
+
+/**
  * Render any of the 9 templates to static HTML string
  */
 export async function renderEmailTemplate(
@@ -207,28 +239,43 @@ export async function renderEmailTemplate(
 ): Promise<string> {
   const mergedData = { ...(OFFICIAL_TEMPLATES[templateId]?.sampleData || {}), ...(data || {}) };
 
+  let rawHtml: string;
   switch (templateId) {
     case 'confirm-email':
-      return render(React.createElement(ConfirmEmail));
+      rawHtml = await render(React.createElement(ConfirmEmail), { pretty: false });
+      break;
     case 'welcome':
-      return render(React.createElement(Welcome, mergedData));
+      rawHtml = await render(React.createElement(Welcome, mergedData), { pretty: false });
+      break;
     case 'reset-password':
-      return render(React.createElement(ResetPassword));
+      rawHtml = await render(React.createElement(ResetPassword), { pretty: false });
+      break;
+    case 'password-changed':
+      rawHtml = await render(React.createElement(PasswordChanged, mergedData), { pretty: false });
+      break;
     case 'change-email':
-      return render(React.createElement(ChangeEmail));
+      rawHtml = await render(React.createElement(ChangeEmail), { pretty: false });
+      break;
     case 'payment-approved':
-      return render(React.createElement(PaymentApproved, mergedData));
+      rawHtml = await render(React.createElement(PaymentApproved, mergedData), { pretty: false });
+      break;
     case 'enrollment-success':
-      return render(React.createElement(EnrollmentSuccess, mergedData));
+      rawHtml = await render(React.createElement(EnrollmentSuccess, mergedData), { pretty: false });
+      break;
     case 'certificate-available':
-      return render(React.createElement(CertificateAvailable, mergedData));
+      rawHtml = await render(React.createElement(CertificateAvailable, mergedData), { pretty: false });
+      break;
     case 'course-completed':
-      return render(React.createElement(CourseCompleted, mergedData));
+      rawHtml = await render(React.createElement(CourseCompleted, mergedData), { pretty: false });
+      break;
     case 'new-course-launch':
-      return render(React.createElement(NewCourseLaunch, mergedData));
+      rawHtml = await render(React.createElement(NewCourseLaunch, mergedData), { pretty: false });
+      break;
     default:
       throw new Error(`Plantilla desconocida: ${templateId}`);
   }
+
+  return cleanEmailHtml(rawHtml);
 }
 
 export interface SendEmailOptions {

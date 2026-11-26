@@ -197,6 +197,15 @@ function AuthCallbackContent() {
           role: targetRole,
         })
 
+        // Enviar correo oficial de bienvenida automático tras confirmar la cuenta
+        if (!isRecoveryFlow) {
+          fetch('/api/auth/welcome', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId: user.id, email, name: fullName }),
+          }).catch((err) => console.warn('[auth/callback] Falló envío de bienvenida:', err))
+        }
+
         // Determinar destino:
         let destinationView = nextView || 'dashboard'
         if (isAdmin) {

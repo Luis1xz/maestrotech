@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { mutateStore } from '@/lib/platform-store-server'
+import { sendTransactionalEmail } from '@/lib/email/transactional'
 import crypto from 'crypto'
 
 export async function POST(req: NextRequest) {
@@ -98,6 +99,39 @@ export async function POST(req: NextRequest) {
           },
         }),
       }).catch(() => {})
+
+      // Enviar correos transaccionales automáticos vía Resend
+      try {
+        const formattedAmount = amount_in_cents ? `$${Math.round(amount_in_cents / 100).toLocaleString('es-CO')} COP` : '$189.000 COP'
+        const dateStr = new Date().toLocaleDateString('es-CO', { year: 'numeric', month: 'long', day: 'numeric' })
+        const studentName = email.split('@')[0] || 'Docente'
+
+        await sendTransactionalEmail({
+          templateId: 'payment-approved',
+          recipient: email,
+          data: {
+            studentName,
+            courseName: 'Membresía Integral Legado Docente',
+            amount: formattedAmount,
+            date: dateStr,
+            reference: String(id || reference || `REF-${Date.now()}`),
+          },
+          idempotencyKey: `pay_${id || reference}`,
+        })
+
+        await sendTransactionalEmail({
+          templateId: 'enrollment-success',
+          recipient: email,
+          data: {
+            studentName,
+            courseName: 'Membresía Integral Legado Docente',
+            accessUrl: `${baseUrl}/?view=dashboard`,
+          },
+          idempotencyKey: `enr_${id || reference}`,
+        })
+      } catch (emailErr) {
+        console.warn('[webhook] Error enviando correos automáticos de pago:', emailErr)
+      }
     }
 
     return NextResponse.json({ status: 'success', message: 'Evento procesado correctamente' })

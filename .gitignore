@@ -22,3 +22,7 @@ node_modules
 .DS_Store
 .vercel
 .env*
+scratch/*.png
+scratch/*.jpg
+scratch/*.html
+scratch/
